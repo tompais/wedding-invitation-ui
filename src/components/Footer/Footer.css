@@ -1,0 +1,31 @@
+.footer {
+    padding: 4rem 2rem 2.5rem;
+    text-align: center;
+    background: linear-gradient(to top,
+            var(--bourdeaux-dark),
+            var(--bourdeaux));
+    color: var(--text-light);
+}
+
+.footer-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.footer p {
+    font-size: 1.1rem;
+    margin-bottom: 0.6rem;
+    letter-spacing: 0.08em;
+    color: var(--hueso);
+    font-family: var(--font-display);
+    font-weight: 500;
+}
+
+.footer span {
+    font-size: 0.8rem;
+    opacity: 0.75;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    font-family: var(--font-body);
+}

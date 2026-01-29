@@ -1,0 +1,275 @@
+.rsvp {
+    padding: 6rem 2rem;
+    background-color: var(--bourdeaux);
+    color: var(--text-light);
+    text-align: center;
+}
+
+.rsvp-container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.rsvp h2 {
+    font-size: 2.2rem;
+    margin-bottom: 1.5rem;
+    color: var(--hueso);
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.rsvp-intro {
+    max-width: 600px;
+    margin: 0 auto 3rem;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: var(--text-light);
+    opacity: 0.9;
+    font-family: var(--font-body);
+}
+
+/* FORM */
+
+.rsvp-form {
+    max-width: 420px;
+    margin: 0 auto;
+    text-align: left;
+    background-color: rgba(250, 240, 230, 0.1);
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(250, 240, 230, 0.2);
+}
+
+.rsvp-form label {
+    display: block;
+    margin-bottom: 1.2rem;
+    font-size: 0.95rem;
+}
+
+.rsvp-form label span {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-light);
+    font-weight: 500;
+}
+
+.rsvp-form .error-message {
+    display: block;
+    color: #ff6b6b;
+    font-size: 0.85rem;
+    margin-top: 0.4rem;
+    font-weight: normal;
+}
+
+/* INPUT */
+
+.rsvp-form input[type="text"],
+.rsvp-form input[type="email"] {
+    width: 100%;
+    padding: 0.9rem 0.7rem 0.7rem;
+    border-radius: 8px;
+    border: 2px solid rgba(250, 240, 230, 0.3);
+    background-color: rgba(250, 240, 230, 0.15);
+    color: var(--hueso);
+    font-family: var(--font-body);
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.rsvp-form input[type="text"]:focus,
+.rsvp-form input[type="email"]:focus {
+    border-color: var(--hueso);
+    background-color: rgba(250, 240, 230, 0.25);
+    box-shadow: 0 0 0 4px rgba(250, 240, 230, 0.1);
+    transform: translateY(-2px);
+}
+
+.rsvp-form input::placeholder {
+    color: rgba(250, 240, 230, 0.6);
+}
+
+/* OPTIONS */
+
+.rsvp-options {
+    margin-bottom: 1.5rem;
+}
+
+.rsvp-options p {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.rsvp-options label {
+    display: block;
+    margin-bottom: 0.4rem;
+    cursor: pointer;
+}
+
+.rsvp-options .radio-label,
+.rsvp-options .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.6rem;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+}
+
+.rsvp-options .radio-label:hover,
+.rsvp-options .checkbox-label:hover {
+    background-color: rgba(250, 240, 230, 0.1);
+}
+
+/* BUTTON */
+
+.rsvp-form button {
+    width: 100%;
+    padding: 0.9rem;
+    border: none;
+    border-radius: 25px;
+    background-color: var(--hueso);
+    color: var(--bourdeaux-dark);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+}
+
+.rsvp-form button:hover:not(:disabled) {
+    background-color: var(--hueso-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.rsvp-form button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.rsvp-form button.btn-loading {
+    opacity: 0.8;
+}
+
+.spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--bourdeaux-light);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* SUCCESS MESSAGE */
+
+.rsvp-success {
+    background: rgba(250, 240, 230, 0.15);
+    padding: 3rem 2rem;
+    border-radius: 16px;
+    text-align: center;
+    border: 2px solid rgba(250, 240, 230, 0.3);
+}
+
+.success-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1.5rem;
+    background: var(--hueso);
+    color: var(--bourdeaux);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    font-weight: bold;
+    animation: scaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.rsvp-success h3 {
+    color: var(--hueso);
+    margin-bottom: 0.8rem;
+    font-size: 1.6rem;
+}
+
+.rsvp-success p {
+    color: var(--text-light);
+    margin-bottom: 1.5rem;
+}
+
+.btn-secondary {
+    background: transparent !important;
+    border: 2px solid var(--hueso) !important;
+    color: var(--hueso) !important;
+    padding: 0.7rem 1.5rem !important;
+    width: auto !important;
+}
+
+.btn-secondary:hover {
+    background: var(--hueso) !important;
+    color: var(--bourdeaux) !important;
+}
+
+/* ERROR BANNER */
+
+.error-banner {
+    margin-top: 1rem;
+    padding: 0.8rem;
+    background: rgba(255, 107, 107, 0.2);
+    border: 1px solid rgba(255, 107, 107, 0.5);
+    border-radius: 8px;
+    color: #cc4444;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+/* CALENDAR */
+
+.rsvp-calendar {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.rsvp-calendar p {
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+    color: var(--text-light);
+    opacity: 0.9;
+}
+
+.rsvp-calendar button {
+    margin: 0.3rem;
+    padding: 0.6rem 1.2rem;
+    border-radius: 20px;
+    border: 1px solid var(--hueso);
+    background-color: transparent;
+    color: var(--hueso);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.rsvp-calendar button:hover {
+    background-color: var(--bourdeaux-dark);
+    color: var(--hueso);
+}
