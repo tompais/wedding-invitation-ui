@@ -5,6 +5,17 @@ import { useScrollAnimation } from "../../hooks/useScrollAnimation";
 import { useState, useEffect } from "react";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
+import { Swiper, SwiperSlide } from "swiper/react";
+import {
+  Navigation,
+  Pagination,
+  Autoplay,
+  EffectCoverflow,
+} from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+import "swiper/css/effect-coverflow";
 
 function Gallery() {
   const [ref, isVisible] = useScrollAnimation(0.2);
@@ -56,24 +67,53 @@ function Gallery() {
         animate={isVisible ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.7, delay: 0.2 }}
       >
-        <div className="gallery-track">
-          {images.map((image) => (
-            <button
-              key={image.src}
-              onClick={() => openLightbox(images.indexOf(image))}
-              style={{
-                cursor: "pointer",
-                border: "none",
-                padding: 0,
-                background: "none",
-              }}
-              aria-label={`Ver ${image.alt}`}
-              className="gallery-button"
-            >
-              <img src={image.src} alt={image.alt} />
-            </button>
+        <Swiper
+          modules={[Navigation, Pagination, Autoplay, EffectCoverflow]}
+          spaceBetween={20}
+          slidesPerView={1}
+          centeredSlides={true}
+          navigation
+          pagination={{ clickable: true }}
+          autoplay={{
+            delay: 4000,
+            disableOnInteraction: false,
+          }}
+          effect="coverflow"
+          coverflowEffect={{
+            rotate: 20,
+            stretch: 0,
+            depth: 100,
+            modifier: 1,
+            slideShadows: true,
+          }}
+          breakpoints={{
+            640: {
+              slidesPerView: 1.5,
+              spaceBetween: 20,
+            },
+            768: {
+              slidesPerView: 2,
+              spaceBetween: 25,
+            },
+            1024: {
+              slidesPerView: 2.5,
+              spaceBetween: 30,
+            },
+          }}
+          className="gallery-swiper"
+        >
+          {images.map((image, index) => (
+            <SwiperSlide key={image.src}>
+              <button
+                onClick={() => openLightbox(index)}
+                className="gallery-button"
+                aria-label={`Ver ${image.alt}`}
+              >
+                <img src={image.src} alt={image.alt} />
+              </button>
+            </SwiperSlide>
           ))}
-        </div>
+        </Swiper>
       </motion.div>
 
       <Lightbox

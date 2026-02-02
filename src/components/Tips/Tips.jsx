@@ -1,7 +1,7 @@
 function Tips() {
   return (
     <div className="tips">
-      <h3>Tips & Notas</h3>
+      <h3>Tips & Notes</h3>
       <p>La fiesta es al aire libre.</p>
       <p>Traé abrigo liviano para la noche.</p>
       <p>

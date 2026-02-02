@@ -1,0 +1,74 @@
+[
+  {
+    "nombre": "Claudia",
+    "apellido": "Baviello",
+    "tipo": "Familia",
+    "codigo": "FLIA-SOMBAV-001"
+  },
+  {
+    "nombre": "Gabriel",
+    "apellido": "Somma",
+    "tipo": "Familia",
+    "codigo": "FLIA-SOMBAV-002"
+  },
+  {
+    "nombre": "Germán",
+    "apellido": "Somma",
+    "tipo": "Familia",
+    "codigo": "FLIA-SOMLAD-001"
+  },
+  {
+    "nombre": "Romina",
+    "apellido": "Somma",
+    "tipo": "Familia",
+    "codigo": "FLIA-SOMLAD-002"
+  },
+  {
+    "nombre": "Antoniella",
+    "apellido": "Somma",
+    "tipo": "Familia",
+    "codigo": "FLIA-SOMLAD-003"
+  },
+  {
+    "nombre": "Gerardo",
+    "apellido": "Somma",
+    "tipo": "Familia",
+    "codigo": "FLIA-SOMMAR-001"
+  },
+  {
+    "nombre": "Julia",
+    "apellido": "Marini",
+    "tipo": "Familia",
+    "codigo": "FLIA-SOMMAR-002"
+  },
+  {
+    "nombre": "Maria Teresa",
+    "apellido": "Garduño",
+    "tipo": "Familia",
+    "codigo": "FLIA-SOMMAR-003"
+  },
+  {
+    "nombre": "Iana",
+    "apellido": "Pereira",
+    "tipo": "Amigo",
+    "codigo": "AMIG-PER-001"
+  },
+  {
+    "nombre": "Emilia",
+    "apellido": "Maine",
+    "tipo": "Amigo",
+    "codigo": "AMIG-MAI-001"
+  },
+  {
+    "nombre": "Natalia",
+    "apellido": "Rodriguez",
+    "tipo": "Amigo",
+    "codigo": "AMIG-ROD-001"
+  },
+  {
+    "nombre": "Milagros",
+    "apellido": "Esposito",
+    "tipo": "Amigo",
+    "codigo": "AMIG-ESP-001"
+  }
+]

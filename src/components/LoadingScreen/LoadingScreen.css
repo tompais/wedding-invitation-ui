@@ -1,7 +1,11 @@
 .loading-screen {
   position: fixed;
   inset: 0;
-  background: linear-gradient(135deg, var(--bourdeaux-dark) 0%, var(--bourdeaux) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--bourdeaux-dark) 0%,
+    var(--bourdeaux) 100%
+  );
   display: flex;
   justify-content: center;
   align-items: center;

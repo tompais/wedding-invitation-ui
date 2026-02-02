@@ -1,5 +1,5 @@
 :root {
-  font-family: 'Lora', Georgia, serif;
+  font-family: "Lora", "Georgia", serif;
   line-height: 1.6;
   font-weight: 400;
 
@@ -13,18 +13,18 @@
   -moz-osx-font-smoothing: grayscale;
 
   /* Paleta Bourdeaux y Hueso */
-  --bourdeaux-dark: #5A1F28;
-  --bourdeaux: #722F37;
-  --bourdeaux-light: #8B4450;
-  --hueso: #FAF0E6;
-  --hueso-dark: #F5E6D3;
-  --text-dark: #2C1810;
+  --bourdeaux-dark: #5a1f28;
+  --bourdeaux: #722f37;
+  --bourdeaux-light: #8b4450;
+  --hueso: #faf0e6;
+  --hueso-dark: #f5e6d3;
+  --text-dark: #2c1810;
   --text-muted: rgba(44, 24, 16, 0.7);
   --text-light: rgba(250, 240, 230, 0.95);
-  
+
   /* Tipografía */
-  --font-display: 'Playfair Display', Georgia, serif;
-  --font-body: 'Lora', Georgia, serif;
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-body: "Lora", Georgia, serif;
 }
 
 * {
@@ -73,7 +73,8 @@ h1 {
   font-family: var(--font-display);
 }
 
-h2, h3 {
+h2,
+h3 {
   font-family: var(--font-display);
   font-weight: 600;
   letter-spacing: 0.03em;

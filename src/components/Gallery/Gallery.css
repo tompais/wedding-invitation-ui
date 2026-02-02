@@ -1,52 +1,100 @@
 .gallery {
-    padding: 5rem 2rem;
-    background-color: var(--hueso-dark);
-    color: var(--text-dark);
-    text-align: center;
+  padding: 3rem 2rem;
+  background-color: var(--hueso-dark);
+  color: var(--text-dark);
+  text-align: center;
 }
 
 .gallery h2 {
-    font-size: 2.2rem;
-    margin-bottom: 2.5rem;
-    color: var(--bourdeaux-dark);
-    letter-spacing: 0.05em;
-    font-family: var(--font-display);
-    font-weight: 600;
+  font-size: 2.2rem;
+  margin-bottom: 2.5rem;
+  color: var(--bourdeaux-dark);
+  letter-spacing: 0.05em;
+  font-family: var(--font-display);
+  font-weight: 600;
 }
 
 .gallery-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    overflow-x: auto;
-    overflow-y: visible;
-    padding: 0 1rem 1rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1rem 3rem;
 }
 
-.gallery-track {
-    display: flex;
-    gap: 1.2rem;
-    overflow-x: auto;
-    padding: 1.5rem 0 1rem 0;
-    scroll-snap-type: x mandatory;
+/* Estilos personalizados para Swiper */
+.gallery-swiper {
+  padding: 2rem 0 4rem;
 }
 
-.gallery-track img {
-    height: 260px;
-    border-radius: 16px;
-    object-fit: cover;
-    scroll-snap-align: center;
-    box-shadow: 0 10px 24px rgba(114, 47, 55, 0.2);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border: 3px solid var(--bourdeaux-light);
+.gallery-swiper .swiper-slide {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.3s ease;
 }
 
 .gallery-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+  background: none;
+  width: 100%;
+  display: block;
+}
+
+.gallery-button img {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+  border-radius: 16px;
+  border: 3px solid var(--bourdeaux-light);
+  box-shadow: 0 10px 24px rgba(114, 47, 55, 0.2);
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .gallery-button:hover img {
-    transform: scale(1.04) translateY(-4px);
-    box-shadow: 0 16px 32px rgba(114, 47, 55, 0.4);
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(114, 47, 55, 0.35);
+}
+
+/* Personalización de navegación Swiper */
+.gallery-swiper .swiper-button-next,
+.gallery-swiper .swiper-button-prev {
+  color: var(--bourdeaux);
+  background-color: rgba(250, 240, 230, 0.9);
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(114, 47, 55, 0.2);
+  transition: all 0.3s ease;
+}
+
+.gallery-swiper .swiper-button-next::after,
+.gallery-swiper .swiper-button-prev::after {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.gallery-swiper .swiper-button-next:hover,
+.gallery-swiper .swiper-button-prev:hover {
+  background-color: var(--bourdeaux);
+  color: var(--hueso);
+  transform: scale(1.1);
+}
+
+/* Personalización de paginación Swiper */
+.gallery-swiper .swiper-pagination-bullet {
+  background-color: var(--bourdeaux-light);
+  opacity: 0.5;
+  width: 10px;
+  height: 10px;
+  transition: all 0.3s ease;
+}
+
+.gallery-swiper .swiper-pagination-bullet-active {
+  background-color: var(--bourdeaux);
+  opacity: 1;
+  width: 30px;
+  border-radius: 5px;
 }

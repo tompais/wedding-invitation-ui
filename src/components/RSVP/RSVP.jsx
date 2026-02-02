@@ -1,106 +1,188 @@
 import "./RSVP.css";
-// eslint-disable-next-line no-unused-vars
+// eslint-disable-next-line no-unused-vars -- motion se usa en JSX (motion.h2, motion.div, etc.)
 import { motion, AnimatePresence } from "framer-motion";
 import { useScrollAnimation } from "../../hooks/useScrollAnimation";
 import { useState } from "react";
+import guestData from "../../data/guests.json";
+import { RSVP_CONFIG } from "../../constants/rsvp";
+import { sendRSVPConfirmation } from "../../utils/api";
+import Loading from "../common/Loading/Loading";
 
 function RSVP() {
   const [ref, isVisible] = useScrollAnimation(0.2);
-  const [formState, setFormState] = useState("idle"); // idle, submitting, success, error
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    attendance: "",
-    events: [],
-  });
-  const [errors, setErrors] = useState({});
+  const [step, setStep] = useState(1); // 1: Código, 2: Confirmar, 3: ¿Vas a asistir?, 4: Eventos, 5: Familia
+  const [formState, setFormState] = useState("idle");
+  const [code, setCode] = useState("");
+  const [isNoAttendance, setIsNoAttendance] = useState(false);
+  const [currentGuest, setCurrentGuest] = useState(null);
+  const [familyMembers, setFamilyMembers] = useState([]);
+  const [selectedEvents, setSelectedEvents] = useState([]);
+  const [familyConfirm, setFamilyConfirm] = useState({});
+  const [errors, setErrors] = useState("");
 
-  const validateForm = () => {
-    const newErrors = {};
+  // Extraer grupo familiar del código
+  const getFamily = (guestCode) => {
+    const familyCode = guestCode.substring(0, 12); // FLIA-SOMMA-xxx o AMIG-MAI-xxx
 
-    if (!formData.name.trim()) {
-      newErrors.name = "El nombre es requerido";
-    }
-
-    if (!formData.email.trim()) {
-      newErrors.email = "El email es requerido";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Email inválido";
-    }
-
-    if (!formData.attendance) {
-      newErrors.attendance = "Por favor confirmá tu asistencia";
-    }
-
-    if (formData.attendance === "yes" && formData.events.length === 0) {
-      newErrors.events = "Seleccioná al menos un evento";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return guestData.filter(
+      (guest) => guest.codigo.substring(0, 12) === familyCode
+    );
   };
 
-  const handleSubmit = async (e) => {
+  // Paso 1: Validar código
+  const handleCodeSubmit = (e) => {
     e.preventDefault();
+    setErrors("");
 
-    if (!validateForm()) return;
+    const guest = guestData.find(
+      (g) => g.codigo.toUpperCase() === code.toUpperCase()
+    );
 
+    if (!guest) {
+      setErrors(RSVP_CONFIG.messages.errors.codeNotFound);
+      return;
+    }
+
+    setCurrentGuest(guest);
+    const family = getFamily(guest.codigo);
+    setFamilyMembers(family);
+
+    // Inicializar confirmación de familia
+    const initialConfirm = {};
+    family.forEach((member) => {
+      initialConfirm[member.codigo] = member.codigo === guest.codigo;
+    });
+    setFamilyConfirm(initialConfirm);
+
+    setStep(2);
+  };
+
+  // Paso 3: Decidir si asistir
+  const handleAttendanceDecision = (attending) => {
+    if (attending) {
+      // Va a asistir - continuar a selección de eventos
+      setStep(4);
+    } else {
+      // No va a asistir - enviar directamente
+      handleNoAttendance();
+    }
+  };
+
+  // Enviar confirmación de no asistencia
+  const handleNoAttendance = async () => {
     setFormState("submitting");
+    setIsNoAttendance(true);
 
     try {
-      const formBody = new URLSearchParams();
-      formBody.append("nombre", formData.name);
-      formBody.append("email", formData.email);
-      formBody.append("_replyto", formData.email);
-      formBody.append(
-        "asistencia",
-        formData.attendance === "yes"
-          ? "Confirma asistencia"
-          : "No puede asistir",
-      );
-      formBody.append("eventos", formData.events.join(", "));
+      const confirmationData = {
+        codigoPrincipal: currentGuest.codigo,
+        nombrePrincipal: `${currentGuest.nombre} ${currentGuest.apellido}`,
+        asistencia: "No va a poder asistir",
+        eventos: "N/A",
+        grupoFamiliar: "N/A",
+        totalPersonas: 0,
+      };
 
-      await fetch("https://formspree.io/f/mnjvnyze", {
-        method: "POST",
-        mode: "no-cors",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: formBody,
-      });
+      const result = await sendRSVPConfirmation(confirmationData);
 
-      // Con no-cors siempre devuelve 'opaque', así que asumimos éxito
-      setFormState("success");
-      setFormData({ name: "", email: "", attendance: "", events: [] });
+      if (result.success) {
+        setFormState("success");
+        setTimeout(() => {
+          setStep(1);
+          setCode("");
+          setCurrentGuest(null);
+          setSelectedEvents([]);
+          setIsNoAttendance(false);
+          setFormState("idle");
+        }, RSVP_CONFIG.successMessageDuration);
+      } else {
+        setFormState("error");
+      }
     } catch (error) {
       console.error("Error al enviar:", error);
       setFormState("error");
     }
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
+  // Paso 4: Seleccionar eventos
+  const handleEventToggle = (event) => {
+    setSelectedEvents((prev) =>
+      prev.includes(event) ? prev.filter((e) => e !== event) : [...prev, event]
+    );
+  };
+
+  // Paso 4: Enviar confirmación
+  const handleFinalSubmit = async (e) => {
+    e.preventDefault();
+
+    if (selectedEvents.length === 0) {
+      setErrors(RSVP_CONFIG.messages.errors.selectEvent);
+      return;
+    }
+
+    const confirmedFamilyMembers = Object.entries(familyConfirm)
+      .filter(([_, isConfirmed]) => isConfirmed)
+      .map(([codigo]) => guestData.find((g) => g.codigo === codigo));
+
+    setFormState("submitting");
+
+    try {
+      const confirmationData = {
+        codigoPrincipal: currentGuest.codigo,
+        nombrePrincipal: `${currentGuest.nombre} ${currentGuest.apellido}`,
+        asistencia: "Confirma asistencia",
+        eventos: selectedEvents.join(", "),
+        grupoFamiliar: confirmedFamilyMembers
+          .map((m) => `${m.nombre} ${m.apellido}`)
+          .join(", "),
+        totalPersonas: confirmedFamilyMembers.length,
+      };
+
+      const result = await sendRSVPConfirmation(confirmationData);
+
+      if (result.success) {
+        setFormState("success");
+        setTimeout(() => {
+          setStep(1);
+          setCode("");
+          setCurrentGuest(null);
+          setSelectedEvents([]);
+          setFormState("idle");
+        }, RSVP_CONFIG.successMessageDuration);
+      } else {
+        setFormState("error");
+      }
+    } catch (error) {
+      console.error("Error al enviar:", error);
+      setFormState("error");
     }
   };
 
-  const handleCheckboxChange = (e) => {
-    const { value, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      events: checked
-        ? [...prev.events, value]
-        : prev.events.filter((event) => event !== value),
-    }));
-    if (errors.events) {
-      setErrors((prev) => ({ ...prev, events: "" }));
+  const handleBackStep = () => {
+    if (step === 2) {
+      setStep(1);
+      setCode("");
+      setCurrentGuest(null);
+    } else if (step === 3) {
+      setStep(2);
+    } else if (step === 4) {
+      setStep(3);
+    } else if (step === 5) {
+      setStep(4);
     }
   };
 
   return (
     <section className="rsvp" ref={ref}>
+      {/* Loading overlay durante el envío */}
+      {formState === "submitting" && (
+        <Loading
+          size="large"
+          message={RSVP_CONFIG.messages.errors.submitting}
+          overlay={true}
+        />
+      )}
+
       <div className="rsvp-container">
         <motion.h2
           initial={{ opacity: 0, y: 30 }}
@@ -116,167 +198,236 @@ function RSVP() {
           animate={isVisible ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          Esta invitación es personal. Por favor, confirmá tu asistencia para
-          poder organizar todo mejor.
+          Completá tu confirmación siguiendo los pasos
         </motion.p>
 
         <AnimatePresence mode="wait">
-          {formState === "success" ? (
+          {/* PASO 1: Ingresar código */}
+          {step === 1 && (
             <motion.div
-              className="rsvp-success"
+              key="step1"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.4 }}
+              className="rsvp-form"
+            >
+              <div className="step-indicator">
+                {RSVP_CONFIG.stepIndicators[1]}
+              </div>
+              <h3>Ingresá tu código de invitado</h3>
+              <form onSubmit={handleCodeSubmit}>
+                <input
+                  type="text"
+                  placeholder={RSVP_CONFIG.placeholders.code}
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.toUpperCase())}
+                  disabled={formState === "submitting"}
+                />
+                {errors && <span className="error-message">{errors}</span>}
+                <button type="submit">Continuar</button>
+              </form>
+            </motion.div>
+          )}
+
+          {/* PASO 2: Confirmar identidad */}
+          {step === 2 && currentGuest && (
+            <motion.div
+              key="step2"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.4 }}
+              className="rsvp-form"
+            >
+              <div className="step-indicator">
+                {RSVP_CONFIG.stepIndicators[2]}
+              </div>
+              <h3>Confirmá tu identidad</h3>
+              <div className="guest-card">
+                <p className="guest-name">
+                  {currentGuest.nombre} {currentGuest.apellido}
+                </p>
+              </div>
+              <div className="step-buttons">
+                <button onClick={handleBackStep} className="btn-secondary">
+                  Atrás
+                </button>
+                <button onClick={() => setStep(3)} className="btn-primary">
+                  Soy yo!
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* PASO 3: ¿Vas a asistir? */}
+          {step === 3 && currentGuest && (
+            <motion.div
+              key="step3"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.4 }}
+              className="rsvp-form"
+            >
+              <div className="step-indicator">
+                {RSVP_CONFIG.stepIndicators[3]}
+              </div>
+              <h3>¿Vas a poder acompañarnos?</h3>
+              <div className="attendance-buttons">
+                <button
+                  onClick={() => handleAttendanceDecision(true)}
+                  className="btn-primary large"
+                >
+                  Sí, me encanta!
+                </button>
+                <button
+                  onClick={() => handleAttendanceDecision(false)}
+                  className="btn-secondary large"
+                >
+                  No puedo asistir
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* PASO 4: Seleccionar eventos */}
+          {step === 4 && (
+            <motion.div
+              key="step4"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.4 }}
+              className="rsvp-form"
+            >
+              <div className="step-indicator">
+                {RSVP_CONFIG.stepIndicators[4]}
+              </div>
+              <h3>¿A cuál de los eventos asistís?</h3>
+
+              <div className="events-selector">
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={selectedEvents.includes("Civil")}
+                    onChange={() => handleEventToggle("Civil")}
+                  />
+                  <span>Ceremonia Civil</span>
+                </label>
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={selectedEvents.includes("Fiesta")}
+                    onChange={() => handleEventToggle("Fiesta")}
+                  />
+                  <span>Fiesta</span>
+                </label>
+              </div>
+
+              {errors && <span className="error-message">{errors}</span>}
+
+              <div className="step-buttons">
+                <button onClick={handleBackStep} className="btn-secondary">
+                  Atrás
+                </button>
+                <button
+                  onClick={() => setStep(5)}
+                  className="btn-primary"
+                  disabled={selectedEvents.length === 0}
+                >
+                  Continuar
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* PASO 5: Confirmar grupo familiar */}
+          {step === 5 && (
+            <motion.div
+              key="step5"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.4 }}
+              className="rsvp-form"
+            >
+              <div className="step-indicator">
+                {RSVP_CONFIG.stepIndicators[5]}
+              </div>
+              <h3>Confirmá quiénes asisten de tu grupo</h3>
+
+              <div className="family-selector">
+                {familyMembers.map((member) => (
+                  <label key={member.codigo} className="family-checkbox">
+                    <input
+                      type="checkbox"
+                      checked={familyConfirm[member.codigo] || false}
+                      onChange={(e) =>
+                        setFamilyConfirm((prev) => ({
+                          ...prev,
+                          [member.codigo]: e.target.checked,
+                        }))
+                      }
+                    />
+                    <span className="family-name">
+                      {member.nombre} {member.apellido}
+                    </span>
+                  </label>
+                ))}
+              </div>
+
+              <div className="step-buttons">
+                <button onClick={handleBackStep} className="btn-secondary">
+                  Atrás
+                </button>
+                <button onClick={handleFinalSubmit} className="btn-primary">
+                  Confirmar asistencia
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Success message */}
+          {formState === "success" && (
+            <motion.div
+              key="success"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.4 }}
+              className="success-message"
             >
-              <div className="success-icon">✓</div>
-              <h3>¡Confirmación recibida!</h3>
-              <p>Gracias por confirmar. ¡Te esperamos!</p>
-              <button
-                onClick={() => setFormState("idle")}
-                className="btn-secondary"
-              >
-                Enviar otra confirmación
-              </button>
-            </motion.div>
-          ) : (
-            <motion.form
-              className="rsvp-form"
-              initial={{ opacity: 0, y: 40 }}
-              animate={isVisible ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.7, delay: 0.4 }}
-              onSubmit={handleSubmit}
-            >
-              <label>
-                <span>Nombre y apellido *</span>
-                <input
-                  type="text"
-                  name="name"
-                  placeholder="Tu nombre completo"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  disabled={formState === "submitting"}
-                />
-                {errors.name && (
-                  <span className="error-message">{errors.name}</span>
-                )}
-              </label>
-
-              <label>
-                <span>Email *</span>
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="tu@email.com"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  disabled={formState === "submitting"}
-                />
-                {errors.email && (
-                  <span className="error-message">{errors.email}</span>
-                )}
-              </label>
-
-              <div className="rsvp-options">
-                <p>¿Vas a poder acompañarnos? *</p>
-
-                <label className="radio-label">
-                  <input
-                    type="radio"
-                    name="attendance"
-                    value="yes"
-                    checked={formData.attendance === "yes"}
-                    onChange={handleInputChange}
-                    disabled={formState === "submitting"}
-                  />
-                  Sí, confirmo
-                </label>
-
-                <label className="radio-label">
-                  <input
-                    type="radio"
-                    name="attendance"
-                    value="no"
-                    checked={formData.attendance === "no"}
-                    onChange={handleInputChange}
-                    disabled={formState === "submitting"}
-                  />
-                  No voy a poder asistir
-                </label>
-                {errors.attendance && (
-                  <span className="error-message">{errors.attendance}</span>
-                )}
-              </div>
-
-              {formData.attendance === "yes" && (
-                <motion.div
-                  className="rsvp-options"
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                >
-                  <p>¿A qué eventos vas a venir? *</p>
-
-                  <label className="checkbox-label">
-                    <input
-                      type="checkbox"
-                      value="Civil"
-                      checked={formData.events.includes("Civil")}
-                      onChange={handleCheckboxChange}
-                      disabled={formState === "submitting"}
-                    />
-                    Civil
-                  </label>
-
-                  <label className="checkbox-label">
-                    <input
-                      type="checkbox"
-                      value="Fiesta"
-                      checked={formData.events.includes("Fiesta")}
-                      onChange={handleCheckboxChange}
-                      disabled={formState === "submitting"}
-                    />
-                    Fiesta
-                  </label>
-                  {errors.events && (
-                    <span className="error-message">{errors.events}</span>
-                  )}
-                </motion.div>
-              )}
-
-              <button
-                type="submit"
-                disabled={formState === "submitting"}
-                className={formState === "submitting" ? "btn-loading" : ""}
-              >
-                {formState === "submitting" ? (
+              <div className="success-card">
+                <div className="success-icon">✓</div>
+                {isNoAttendance ? (
                   <>
-                    <span className="spinner"></span>
-                    Enviando...
+                    <h3>{RSVP_CONFIG.messages.success.noAttendance.title}</h3>
+                    <p>{RSVP_CONFIG.messages.success.noAttendance.subtitle}</p>
                   </>
                 ) : (
-                  "Enviar confirmación"
+                  <>
+                    <h3>{RSVP_CONFIG.messages.success.attendance.title}</h3>
+                    <p>{RSVP_CONFIG.messages.success.attendance.subtitle}</p>
+                  </>
                 )}
-              </button>
+              </div>
+            </motion.div>
+          )}
 
-              {formState === "error" && (
-                <motion.p
-                  className="error-banner"
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                >
-                  Hubo un error. Por favor intentá de nuevo.
-                </motion.p>
-              )}
-            </motion.form>
+          {/* Error message */}
+          {formState === "error" && (
+            <motion.div
+              key="error"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="error-banner"
+            >
+              {RSVP_CONFIG.messages.errors.error}
+            </motion.div>
           )}
         </AnimatePresence>
-        <div className="rsvp-calendar">
-          <p>¿Querés agendar las fechas?</p>
-
-          <button type="button">Agendar civil</button>
-          <button type="button">Agendar fiesta</button>
-        </div>
       </div>
     </section>
   );

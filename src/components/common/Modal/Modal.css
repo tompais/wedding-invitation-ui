@@ -1,0 +1,86 @@
+/**
+ * ESTILOS: Modal Component
+ * 
+ * Organización:
+ * - Overlay (fondo oscuro)
+ * - Content (contenedor del modal)
+ * - Close button
+ * - Title & Body
+ * - Responsive
+ */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background-color: rgba(90, 31, 40, 0.85);
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: var(--hueso);
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 600px;
+  width: 100%;
+  box-shadow: 0 15px 40px rgba(90, 31, 40, 0.35);
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  color: var(--bourdeaux);
+  cursor: pointer;
+  padding: 0.5rem;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  border-radius: 50%;
+}
+
+.modal-close:hover {
+  background-color: var(--hueso-dark);
+  color: var(--bourdeaux-dark);
+}
+
+.modal-title {
+  color: var(--bourdeaux-dark);
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  font-size: 1.4rem;
+  font-family: var(--font-display);
+}
+
+.modal-body {
+  color: var(--text-dark);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .modal-overlay {
+    padding: 1rem;
+  }
+
+  .modal-content {
+    padding: 1.5rem;
+    max-height: 85vh;
+  }
+
+  .modal-title {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+  }
+}

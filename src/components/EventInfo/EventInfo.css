@@ -1,86 +1,157 @@
 .event {
-    padding: 6rem 2rem;
-    background-color: var(--hueso);
-    color: var(--text-dark);
-    text-align: center;
-    max-width: 1200px;
-    margin: 0 auto;
+  padding: 6rem 2rem;
+  background-color: var(--hueso);
+  color: var(--text-dark);
+  text-align: center;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .event h2 {
-    font-size: 2.2rem;
-    margin-bottom: 3.5rem;
-    color: var(--bourdeaux-dark);
-    letter-spacing: 0.05em;
-    font-family: var(--font-display);
-    font-weight: 600;
+  font-size: 2.2rem;
+  margin-bottom: 3.5rem;
+  color: var(--bourdeaux-dark);
+  letter-spacing: 0.05em;
+  font-family: var(--font-display);
+  font-weight: 600;
 }
 
 .event-blocks-container {
-    display: flex;
-    gap: 2rem;
-    justify-content: center;
-    flex-wrap: wrap;
-    margin-bottom: 2rem;
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
 }
 
 .event-block {
-    flex: 1;
-    min-width: 320px;
-    max-width: 500px;
-    padding: 2.5rem 2.5rem;
-    background-color: var(--bourdeaux);
-    border-radius: 16px;
-    box-shadow: 0 10px 26px rgba(114, 47, 55, 0.25);
+  flex: 1;
+  min-width: 320px;
+  max-width: 500px;
+  padding: 2.5rem 2.5rem;
+  background-color: var(--bourdeaux);
+  border-radius: 16px;
+  box-shadow: 0 10px 26px rgba(114, 47, 55, 0.25);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .event-block h3 {
-    font-size: 1.6rem;
-    margin-bottom: 0.8rem;
-    color: var(--hueso);
-    font-family: var(--font-display);
-    font-weight: 600;
-    letter-spacing: 0.03em;
+  font-size: 1.6rem;
+  margin-bottom: 0.8rem;
+  color: var(--hueso);
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: 0.03em;
 }
 
 .event-block p {
-    margin: 0.35rem 0;
-    color: var(--text-light);
-    font-size: 0.95rem;
+  margin: 0.35rem 0;
+  color: var(--text-light);
+  font-size: 0.95rem;
 }
 
 .event-buttons {
-    margin-top: 1.6rem;
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    flex-wrap: wrap;
+  margin-top: 1.6rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
 .event-buttons button {
-    padding: 0.6rem 1.4rem;
-    border: 1px solid var(--hueso);
-    border-radius: 22px;
-    background-color: transparent;
-    color: var(--hueso);
-    cursor: pointer;
-    transition: background-color 0.3s ease, color 0.3s ease;
+  padding: 0.6rem 1.4rem;
+  border: 1px solid var(--hueso);
+  border-radius: 22px;
+  background-color: transparent;
+  color: var(--hueso);
+  cursor: pointer;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 .event-buttons button:hover {
-    background-color: var(--bourdeaux-dark);
-    color: var(--hueso);
-    border-color: var(--hueso);
+  background-color: var(--bourdeaux-dark);
+  color: var(--hueso);
+  border-color: var(--hueso);
 }
 
 .event-note {
-    margin-top: 1rem;
-    font-size: 0.9rem;
-    color: var(--text-muted);
-    opacity: 0.85;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  opacity: 0.85;
 }
 
 .decorative-animation {
-    opacity: 0.25;
-    margin: 3rem auto;
+  opacity: 0.8;
+  margin: 1.5rem auto;
+  max-width: 140px;
+  max-height: 140px;
+}
+
+.decorative-animation > * {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* MAP MODAL */
+
+.map-modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background-color: rgba(90, 31, 40, 0.85);
+  z-index: 1000;
+}
+
+.map-container {
+  background-color: var(--hueso);
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 600px;
+  width: 100%;
+  box-shadow: 0 15px 40px rgba(90, 31, 40, 0.35);
+  position: relative;
+}
+
+.map-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  color: var(--bourdeaux);
+  cursor: pointer;
+  padding: 0.5rem;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  border-radius: 50%;
+}
+
+.map-close:hover {
+  background-color: var(--hueso-dark);
+  color: var(--bourdeaux-dark);
+}
+
+.map-container h3 {
+  color: var(--bourdeaux-dark);
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  font-size: 1.4rem;
+  font-family: var(--font-display);
+}
+
+.map-container iframe {
+  border-radius: 12px;
 }
