@@ -17,11 +17,11 @@ import { RSVP_CONFIG } from "../constants/rsvp";
 
 // Instancia configurada de axios para Formspree
 const formspreeClient = axios.create({
-    timeout: 10000, // 10 segundos máximo
-    headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-    },
+  timeout: 10000, // 10 segundos máximo
+  headers: {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  },
 });
 
 /**
@@ -31,14 +31,14 @@ const formspreeClient = axios.create({
  * @returns {Promise} - Promesa con respuesta
  */
 export const sendRSVPConfirmation = async (data) => {
-    try {
-        const response = await formspreeClient.post(RSVP_CONFIG.formspreeUrl, data);
-        return { success: true, data: response.data };
-    } catch (error) {
-        console.error("Error enviando RSVP:", error);
-        return {
-            success: false,
-            error: error.response?.data || error.message,
-        };
-    }
+  try {
+    const response = await formspreeClient.post(RSVP_CONFIG.formspreeUrl, data);
+    return { success: true, data: response.data };
+  } catch (error) {
+    console.error("Error enviando RSVP:", error);
+    return {
+      success: false,
+      error: error.response?.data || error.message,
+    };
+  }
 };

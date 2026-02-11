@@ -1,174 +1,82 @@
 import "./RSVP.css";
 // eslint-disable-next-line no-unused-vars -- motion se usa en JSX (motion.h2, motion.div, etc.)
 import { motion, AnimatePresence } from "framer-motion";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useScrollAnimation } from "../../hooks/useScrollAnimation";
-import { useState } from "react";
+import { useRSVPFlow } from "../../hooks/useRSVPFlow";
 import guestData from "../../data/guests.json";
 import { RSVP_CONFIG } from "../../constants/rsvp";
-import { sendRSVPConfirmation } from "../../utils/api";
+import { guestCodeSchema } from "../../schemas/rsvp.schema";
 import Loading from "../common/Loading/Loading";
 
+/**
+ * PRESENTATION LAYER: RSVP Component
+ *
+ * Responsabilidad: Renderizar UI del formulario RSVP
+ * Principios: SOLID (Single Responsibility), Separation of Concerns
+ *
+ * La lógica de negocio está delegada a:
+ * - useRSVPFlow: Orquestación del flujo
+ * - Servicios: Lógica de dominio
+ * - Schemas: Validación
+ */
 function RSVP() {
   const [ref, isVisible] = useScrollAnimation(0.2);
-  const [step, setStep] = useState(1); // 1: Código, 2: Confirmar, 3: ¿Vas a asistir?, 4: Eventos, 5: Familia
-  const [formState, setFormState] = useState("idle");
-  const [code, setCode] = useState("");
-  const [isNoAttendance, setIsNoAttendance] = useState(false);
-  const [currentGuest, setCurrentGuest] = useState(null);
-  const [familyMembers, setFamilyMembers] = useState([]);
-  const [selectedEvents, setSelectedEvents] = useState([]);
-  const [familyConfirm, setFamilyConfirm] = useState({});
-  const [errors, setErrors] = useState("");
 
-  // Extraer grupo familiar del código
-  const getFamily = (guestCode) => {
-    const familyCode = guestCode.substring(0, 12); // FLIA-SOMMA-xxx o AMIG-MAI-xxx
+  // Hook de flujo RSVP (lógica de negocio)
+  const {
+    step,
+    formState,
+    isNoAttendance,
+    currentGuest,
+    familyMembers,
+    familyConfirm,
+    selectedEvents,
+    processGuestCode,
+    handleAttendanceDecision,
+    toggleEvent,
+    toggleFamilyMember,
+    submitAttendance,
+    goBack,
+    goForward,
+  } = useRSVPFlow(guestData);
 
-    return guestData.filter(
-      (guest) => guest.codigo.substring(0, 12) === familyCode
-    );
-  };
+  // React Hook Form para el paso 1 (código)
+  const {
+    register,
+    handleSubmit,
+    formState: { errors: formErrors },
+    setError,
+  } = useForm({
+    resolver: zodResolver(guestCodeSchema),
+    mode: "onSubmit",
+  });
 
-  // Paso 1: Validar código
-  const handleCodeSubmit = (e) => {
-    e.preventDefault();
-    setErrors("");
+  /**
+   * Handler del formulario de código
+   */
+  const onCodeSubmit = (data) => {
+    const result = processGuestCode(data.code);
 
-    const guest = guestData.find(
-      (g) => g.codigo.toUpperCase() === code.toUpperCase()
-    );
-
-    if (!guest) {
-      setErrors(RSVP_CONFIG.messages.errors.codeNotFound);
-      return;
-    }
-
-    setCurrentGuest(guest);
-    const family = getFamily(guest.codigo);
-    setFamilyMembers(family);
-
-    // Inicializar confirmación de familia
-    const initialConfirm = {};
-    family.forEach((member) => {
-      initialConfirm[member.codigo] = member.codigo === guest.codigo;
-    });
-    setFamilyConfirm(initialConfirm);
-
-    setStep(2);
-  };
-
-  // Paso 3: Decidir si asistir
-  const handleAttendanceDecision = (attending) => {
-    if (attending) {
-      // Va a asistir - continuar a selección de eventos
-      setStep(4);
-    } else {
-      // No va a asistir - enviar directamente
-      handleNoAttendance();
+    if (!result.success) {
+      setError("code", {
+        type: "manual",
+        message: result.error,
+      });
     }
   };
 
-  // Enviar confirmación de no asistencia
-  const handleNoAttendance = async () => {
-    setFormState("submitting");
-    setIsNoAttendance(true);
-
-    try {
-      const confirmationData = {
-        codigoPrincipal: currentGuest.codigo,
-        nombrePrincipal: `${currentGuest.nombre} ${currentGuest.apellido}`,
-        asistencia: "No va a poder asistir",
-        eventos: "N/A",
-        grupoFamiliar: "N/A",
-        totalPersonas: 0,
-      };
-
-      const result = await sendRSVPConfirmation(confirmationData);
-
-      if (result.success) {
-        setFormState("success");
-        setTimeout(() => {
-          setStep(1);
-          setCode("");
-          setCurrentGuest(null);
-          setSelectedEvents([]);
-          setIsNoAttendance(false);
-          setFormState("idle");
-        }, RSVP_CONFIG.successMessageDuration);
-      } else {
-        setFormState("error");
-      }
-    } catch (error) {
-      console.error("Error al enviar:", error);
-      setFormState("error");
-    }
-  };
-
-  // Paso 4: Seleccionar eventos
-  const handleEventToggle = (event) => {
-    setSelectedEvents((prev) =>
-      prev.includes(event) ? prev.filter((e) => e !== event) : [...prev, event]
-    );
-  };
-
-  // Paso 4: Enviar confirmación
+  /**
+   * Handler para envío final
+   */
   const handleFinalSubmit = async (e) => {
     e.preventDefault();
+    const result = await submitAttendance();
 
-    if (selectedEvents.length === 0) {
-      setErrors(RSVP_CONFIG.messages.errors.selectEvent);
-      return;
-    }
-
-    const confirmedFamilyMembers = Object.entries(familyConfirm)
-      .filter(([_, isConfirmed]) => isConfirmed)
-      .map(([codigo]) => guestData.find((g) => g.codigo === codigo));
-
-    setFormState("submitting");
-
-    try {
-      const confirmationData = {
-        codigoPrincipal: currentGuest.codigo,
-        nombrePrincipal: `${currentGuest.nombre} ${currentGuest.apellido}`,
-        asistencia: "Confirma asistencia",
-        eventos: selectedEvents.join(", "),
-        grupoFamiliar: confirmedFamilyMembers
-          .map((m) => `${m.nombre} ${m.apellido}`)
-          .join(", "),
-        totalPersonas: confirmedFamilyMembers.length,
-      };
-
-      const result = await sendRSVPConfirmation(confirmationData);
-
-      if (result.success) {
-        setFormState("success");
-        setTimeout(() => {
-          setStep(1);
-          setCode("");
-          setCurrentGuest(null);
-          setSelectedEvents([]);
-          setFormState("idle");
-        }, RSVP_CONFIG.successMessageDuration);
-      } else {
-        setFormState("error");
-      }
-    } catch (error) {
-      console.error("Error al enviar:", error);
-      setFormState("error");
-    }
-  };
-
-  const handleBackStep = () => {
-    if (step === 2) {
-      setStep(1);
-      setCode("");
-      setCurrentGuest(null);
-    } else if (step === 3) {
-      setStep(2);
-    } else if (step === 4) {
-      setStep(3);
-    } else if (step === 5) {
-      setStep(4);
+    // Si hay error de validación, podríamos mostrarlo aquí
+    if (!result?.success && result?.error) {
+      // El error ya se maneja en el hook
     }
   };
 
@@ -216,15 +124,22 @@ function RSVP() {
                 {RSVP_CONFIG.stepIndicators[1]}
               </div>
               <h3>Ingresá tu código de invitado</h3>
-              <form onSubmit={handleCodeSubmit}>
+              <form onSubmit={handleSubmit(onCodeSubmit)}>
                 <input
                   type="text"
                   placeholder={RSVP_CONFIG.placeholders.code}
-                  value={code}
-                  onChange={(e) => setCode(e.target.value.toUpperCase())}
+                  {...register("code", {
+                    onChange: (e) => {
+                      e.target.value = e.target.value.toUpperCase();
+                    },
+                  })}
                   disabled={formState === "submitting"}
                 />
-                {errors && <span className="error-message">{errors}</span>}
+                {formErrors.code && (
+                  <span className="error-message">
+                    {formErrors.code.message}
+                  </span>
+                )}
                 <button type="submit">Continuar</button>
               </form>
             </motion.div>
@@ -250,10 +165,10 @@ function RSVP() {
                 </p>
               </div>
               <div className="step-buttons">
-                <button onClick={handleBackStep} className="btn-secondary">
+                <button onClick={goBack} className="btn-secondary">
                   Atrás
                 </button>
-                <button onClick={() => setStep(3)} className="btn-primary">
+                <button onClick={goForward} className="btn-primary">
                   Soy yo!
                 </button>
               </div>
@@ -311,7 +226,7 @@ function RSVP() {
                   <input
                     type="checkbox"
                     checked={selectedEvents.includes("Civil")}
-                    onChange={() => handleEventToggle("Civil")}
+                    onChange={() => toggleEvent("Civil")}
                   />
                   <span>Ceremonia Civil</span>
                 </label>
@@ -319,20 +234,18 @@ function RSVP() {
                   <input
                     type="checkbox"
                     checked={selectedEvents.includes("Fiesta")}
-                    onChange={() => handleEventToggle("Fiesta")}
+                    onChange={() => toggleEvent("Fiesta")}
                   />
                   <span>Fiesta</span>
                 </label>
               </div>
 
-              {errors && <span className="error-message">{errors}</span>}
-
               <div className="step-buttons">
-                <button onClick={handleBackStep} className="btn-secondary">
+                <button onClick={goBack} className="btn-secondary">
                   Atrás
                 </button>
                 <button
-                  onClick={() => setStep(5)}
+                  onClick={goForward}
                   className="btn-primary"
                   disabled={selectedEvents.length === 0}
                 >
@@ -364,10 +277,7 @@ function RSVP() {
                       type="checkbox"
                       checked={familyConfirm[member.codigo] || false}
                       onChange={(e) =>
-                        setFamilyConfirm((prev) => ({
-                          ...prev,
-                          [member.codigo]: e.target.checked,
-                        }))
+                        toggleFamilyMember(member.codigo, e.target.checked)
                       }
                     />
                     <span className="family-name">
@@ -378,7 +288,7 @@ function RSVP() {
               </div>
 
               <div className="step-buttons">
-                <button onClick={handleBackStep} className="btn-secondary">
+                <button onClick={goBack} className="btn-secondary">
                   Atrás
                 </button>
                 <button onClick={handleFinalSubmit} className="btn-primary">
