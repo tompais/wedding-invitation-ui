@@ -1,22 +1,25 @@
 # 🚀 Configuración de Deploy - Vercel
 
-## 📋 Flujo de Build y Migraciones
+## 📋 Flujo de Build Simplificado
 
 ### ✅ Script de Build Configurado
 
 ```json
 {
   "scripts": {
-    "build": "prisma migrate deploy && prisma generate && next build"
+    "build": "next build"
   }
 }
 ```
 
-**Orden de ejecución en Vercel:**
+**Con Supabase, el build es mucho más simple:**
 
-1. **`prisma migrate deploy`** → Aplica migraciones pendientes a la base de datos
-2. **`prisma generate`** → Genera Prisma Client con los tipos actualizados
-3. **`next build`** → Compila la aplicación Next.js
+1. **`next build`** → Compila la aplicación Next.js
+
+**No se necesita:**
+- ❌ Aplicar migraciones durante el build
+- ❌ Generar cliente de Prisma
+- ❌ Conexión a base de datos durante el build
 
 ---
 
@@ -42,9 +45,7 @@ git push origin main
 1. Vercel detecta push en GitHub
 2. Ejecuta npm install
 3. Ejecuta npm run build:
-   ├─> prisma migrate deploy  ← Aplica migraciones nuevas
-   ├─> prisma generate        ← Genera cliente Prisma
-   └─> next build             ← Compila app
+   └─> next build             ← Compila app (¡sin migraciones!)
 4. Deploy exitoso ✅
 ```
 
@@ -52,30 +53,24 @@ git push origin main
 
 ## ✅ Ventajas de Esta Configuración
 
-### Migraciones Automáticas
+### Sin Problemas de Conexión
 
-- ✅ **Idempotente** - Prisma solo aplica migraciones pendientes
-- ✅ **Seguro** - Si falla, cancela el deploy
-- ✅ **Sin intervención manual** - Todo automático
-- ✅ **Versionado** - Las migraciones están en Git
+- ✅ **No requiere conexión a DB durante el build** - Supabase se conecta solo en runtime
+- ✅ **Sin IPv6** - Usa la API HTTP de Supabase (compatible con IPv4/IPv6)
+- ✅ **Sin timeouts** - No hay operaciones de base de datos bloqueantes
+- ✅ **Builds más rápidos** - Sin migraciones ni generación de cliente
 
-**Ejemplo de salida:**
-
-```bash
-1 migration found in prisma/migrations
-No pending migrations to apply.  ← Si ya están aplicadas
-```
-
-### Sin Migraciones en Dev
+### Desarrollo Local
 
 ```bash
-npm run dev  # ← NO ejecuta migraciones (rápido)
+npm run dev  # ← Inicia inmediatamente, sin migraciones
 ```
 
 **Desarrollo local:**
 
-- Usás `npm run db:migrate` cuando hacés cambios al schema
-- El servidor dev inicia inmediatamente
+- El cliente de Supabase se inicializa en runtime
+- No se necesita generar código antes de desarrollar
+- Cambios instantáneos con hot-reload
 
 ---
 
@@ -95,13 +90,11 @@ Husky → lint-staged → ESLint + Prettier
 ### Build (Vercel)
 
 ```
-prisma migrate deploy → Migraciones
 next build → TypeScript + Build
 ```
 
 **Si falla:**
 
-- ❌ Migración con error → Deploy cancelado
 - ❌ Error de TypeScript → Deploy cancelado
 - ❌ Error de build → Deploy cancelado
 
@@ -113,47 +106,45 @@ next build → TypeScript + Build
 
 **Dashboard de Vercel → Settings → Environment Variables:**
 
-| Variable       | Valor           | Environment        |
-| -------------- | --------------- | ------------------ |
-| `DATABASE_URL` | URL de Supabase | Production ✅      |
-| `DATABASE_URL` | URL de Supabase | Preview (opcional) |
+| Variable                       | Valor                         | Environment        |
+| ------------------------------ | ----------------------------- | ------------------ |
+| `NEXT_PUBLIC_SUPABASE_URL`     | URL de tu proyecto Supabase   | Production ✅      |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY`| Anon key de Supabase          | Production ✅      |
 
 **Ejemplo:**
 
 ```
-DATABASE_URL="postgresql://postgres.xxx:PASSWORD@db.yckzrkriuqhlumuaydsb.supabase.co:5432/postgres"
+NEXT_PUBLIC_SUPABASE_URL="https://xxxxxxxxxxxxx.supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 ```
+
+### Integración Automática con Supabase
+
+Si integraste Vercel con Supabase desde el dashboard, estas variables ya deberían estar configuradas automáticamente.
 
 ---
 
 ## 🔍 Troubleshooting
 
-### Error: "Migration failed"
+### Error: "Missing env.NEXT_PUBLIC_SUPABASE_URL"
 
-**Posibles causas:**
-
-- Base de datos no accesible desde Vercel
-- `DATABASE_URL` mal configurada
-- Migración con errores de SQL
+**Causa:** Variables de entorno no configuradas en Vercel
 
 **Solución:**
 
-```bash
-# Verificar localmente
-npm run db:migrate:deploy
+1. Ir a Vercel Dashboard → Settings → Environment Variables
+2. Agregar `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+3. Redeploy el proyecto
 
-# Ver logs de Vercel
-# Vercel Dashboard → Deployments → [deploy] → Function Logs
-```
+### Error: "Invalid API key"
 
-### Error: "Prisma Client not found"
-
-**Causa:** `prisma generate` falló en el build
+**Causa:** Anon key incorrecta
 
 **Solución:**
 
-- Verificar que `postinstall` esté en scripts
-- Verificar que `@prisma/client` esté en `dependencies` (no devDependencies)
+- Verificar en Supabase Dashboard → Settings → API
+- Copiar la `anon` key correctamente
+- Actualizar en Vercel Environment Variables
 
 ---
 
@@ -162,18 +153,9 @@ npm run db:migrate:deploy
 ### Desarrollo
 
 ```bash
-npm run dev              # Servidor dev (NO ejecuta migraciones)
-npm run build            # Build local (ejecuta migraciones)
+npm run dev              # Servidor dev
+npm run build            # Build local
 npm run start            # Servidor producción
-```
-
-### Base de Datos
-
-```bash
-npm run db:migrate       # Crear + aplicar migración (dev)
-npm run db:migrate:deploy # Solo aplicar migraciones (prod)
-npm run db:generate      # Solo generar Prisma Client
-npm run db:studio        # UI de Prisma
 ```
 
 ### Calidad
@@ -191,10 +173,10 @@ npm run format:check     # Verificar formato
 
 Antes de hacer deploy a Vercel:
 
-- [ ] `DATABASE_URL` configurada en Vercel
-- [ ] Migraciones commiteadas a Git
+- [ ] `NEXT_PUBLIC_SUPABASE_URL` configurada en Vercel
+- [ ] `NEXT_PUBLIC_SUPABASE_ANON_KEY` configurada en Vercel
+- [ ] Schema de base de datos aplicado en Supabase (SQL Editor)
 - [ ] Build local exitoso (`npm run build`)
-- [ ] Tests pasando (si tenés)
 - [ ] ESLint sin errores (`npm run lint`)
 - [ ] Prettier formateado (`npm run format:check`)
 
@@ -209,36 +191,41 @@ Antes de hacer deploy a Vercel:
 3. Seleccionar tu repositorio de GitHub
 4. Framework Preset: **Next.js** (detectado automáticamente)
 
-### Paso 2: Configurar Variables de Entorno
+### Paso 2: Integrar con Supabase (Opcional pero Recomendado)
+
+1. En la página de import, buscar "Integrations"
+2. Click en "Add" junto a Supabase
+3. Seleccionar tu proyecto de Supabase
+4. Las variables de entorno se configurarán automáticamente
+
+### Paso 3: Configurar Variables de Entorno (si no usaste integración)
 
 1. En "Environment Variables":
    ```
-   DATABASE_URL = postgresql://postgres.xxx:PASSWORD@...
+   NEXT_PUBLIC_SUPABASE_URL = https://xxxxx.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY = eyJhbGciOiJI...
    ```
 2. Seleccionar environments: Production ✅
 
-### Paso 3: Deploy
+### Paso 4: Deploy
 
 1. Click en "Deploy"
 2. Vercel ejecuta `npm run build`:
-   - ✅ Aplica migraciones
-   - ✅ Genera Prisma Client
    - ✅ Compila Next.js
 3. ✅ Deploy exitoso!
 
-### Paso 4: Verificar
+### Paso 5: Verificar
 
 1. Abrir la URL de Vercel
 2. Verificar en Supabase Table Editor que las tablas existen
-3. Probar funcionalidad
+3. Probar funcionalidad de RSVP
 
 ---
 
 ## 📖 Documentación Relacionada
 
 - [DATABASE-SETUP.md](./DATABASE-SETUP.md) - Configuración de Supabase
-- [MIGRATION-WORKFLOW.md](./MIGRATION-WORKFLOW.md) - Flujo de migraciones
-- [SCHEMA-IMPROVEMENTS.md](./SCHEMA-IMPROVEMENTS.md) - Mejoras del schema
+- [README.md](./README.md) - Información general del proyecto
 
 ---
 
@@ -247,14 +234,14 @@ Antes de hacer deploy a Vercel:
 **Flujo automático:**
 
 ```
-git push → Vercel → Migraciones → Build → Deploy ✅
+git push → Vercel → Build → Deploy ✅
 ```
 
 **Sin intervención manual:**
 
-- ✅ Migraciones se aplican automáticamente
 - ✅ Código validado por Husky antes de commit
 - ✅ Build falla si hay errores (seguro)
+- ✅ No requiere conexión a DB durante build
 
 **Tu única responsabilidad:**
 
@@ -262,3 +249,10 @@ git push → Vercel → Migraciones → Build → Deploy ✅
 - Commitear cambios
 - Push a GitHub
 - ✨ Vercel hace el resto
+
+**Mejoras respecto a Prisma:**
+
+- ✅ Builds más rápidos (sin migraciones)
+- ✅ Sin problemas de IPv6
+- ✅ Integración nativa con Vercel
+- ✅ Variables de entorno configuradas automáticamente
