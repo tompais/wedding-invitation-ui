@@ -45,13 +45,16 @@ export async function GET(
       );
     }
 
+    // Type assertion to work around Supabase type inference issues
+    const guestData = guest as any;
+
     // Buscar grupo si existe
     let group = null;
-    if (guest.group_id) {
+    if (guestData.group_id) {
       const { data: groupData, error: groupError } = await supabase
         .from("groups")
         .select("*")
-        .eq("id", guest.group_id)
+        .eq("id", guestData.group_id)
         .single();
 
       if (!groupError && groupData) {
@@ -59,11 +62,12 @@ export async function GET(
         const { data: groupGuests } = await supabase
           .from("guests")
           .select("id, first_name, last_name")
-          .eq("group_id", guest.group_id);
+          .eq("group_id", guestData.group_id);
 
+        const groupDataTyped = groupData as any;
         group = {
-          id: groupData.id,
-          name: groupData.name,
+          id: groupDataTyped.id,
+          name: groupDataTyped.name,
           guests: groupGuests || [],
         };
       }
@@ -73,17 +77,17 @@ export async function GET(
     const { data: confirmations } = await supabase
       .from("confirmations")
       .select("*, confirmed_by:guests!confirmed_by_id(id, first_name, last_name)")
-      .eq("guest_id", guest.id)
+      .eq("guest_id", guestData.id)
       .limit(1);
 
-    const confirmation = confirmations?.[0];
+    const confirmation = confirmations?.[0] as any;
 
     return NextResponse.json({
-      id: guest.id,
-      firstName: guest.first_name,
-      lastName: guest.last_name,
-      code: guest.code,
-      phone: guest.phone,
+      id: guestData.id,
+      firstName: guestData.first_name,
+      lastName: guestData.last_name,
+      code: guestData.code,
+      phone: guestData.phone,
       group: group,
       confirmation: confirmation
         ? {

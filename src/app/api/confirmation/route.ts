@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
     // Verificar que el usuario que confirma exista
     const { data: confirmer, error: confirmerError } = await supabase
       .from("guests")
-      .select("*, group:groups(*)")
+      .select("*")
       .eq("id", confirmedById)
       .single();
 
@@ -52,7 +52,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const createdConfirmations = [];
+    // Type assertion to work around Supabase type inference issues
+    const confirmerData = confirmer as any;
+
+    const createdConfirmations: any[] = [];
 
     for (const conf of confirmations) {
       // Verificar que el invitado exista
@@ -82,11 +85,12 @@ export async function POST(request: NextRequest) {
         // Actualizar confirmación existente
         const { data, error } = await supabase
           .from("confirmations")
+          // @ts-ignore - Supabase client type inference issue
           .update({
             civil_attending: conf.civilAttending,
             party_attending: conf.partyAttending,
             confirmed_by_id: confirmedById,
-            group_id: confirmer.group_id,
+            group_id: confirmerData.group_id,
             updated_at: new Date().toISOString(),
           })
           .eq("guest_id", conf.guestId)
@@ -101,10 +105,11 @@ export async function POST(request: NextRequest) {
         // Crear nueva confirmación
         const { data, error } = await supabase
           .from("confirmations")
+          // @ts-ignore - Supabase client type inference issue
           .insert({
             guest_id: conf.guestId,
             confirmed_by_id: confirmedById,
-            group_id: confirmer.group_id,
+            group_id: confirmerData.group_id,
             civil_attending: conf.civilAttending,
             party_attending: conf.partyAttending,
           })
