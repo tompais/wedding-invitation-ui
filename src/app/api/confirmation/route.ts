@@ -53,8 +53,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Type assertion to work around Supabase type inference issues
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const confirmerData = confirmer as any;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const createdConfirmations: any[] = [];
 
     for (const conf of confirmations) {
@@ -85,7 +87,7 @@ export async function POST(request: NextRequest) {
         // Actualizar confirmación existente
         const { data, error } = await supabase
           .from("confirmations")
-          // @ts-ignore - Supabase client type inference issue
+          // @ts-expect-error - Supabase client type inference issue
           .update({
             civil_attending: conf.civilAttending,
             party_attending: conf.partyAttending,
@@ -105,7 +107,7 @@ export async function POST(request: NextRequest) {
         // Crear nueva confirmación
         const { data, error } = await supabase
           .from("confirmations")
-          // @ts-ignore - Supabase client type inference issue
+          // @ts-expect-error - Supabase client type inference issue
           .insert({
             guest_id: conf.guestId,
             confirmed_by_id: confirmedById,

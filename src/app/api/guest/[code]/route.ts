@@ -46,6 +46,7 @@ export async function GET(
     }
 
     // Type assertion to work around Supabase type inference issues
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const guestData = guest as any;
 
     // Buscar grupo si existe
@@ -64,6 +65,7 @@ export async function GET(
           .select("id, first_name, last_name")
           .eq("group_id", guestData.group_id);
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const groupDataTyped = groupData as any;
         group = {
           id: groupDataTyped.id,
@@ -80,6 +82,7 @@ export async function GET(
       .eq("guest_id", guestData.id)
       .limit(1);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const confirmation = confirmations?.[0] as any;
 
     return NextResponse.json({
