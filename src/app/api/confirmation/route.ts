@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { groupConfirmationSchema } from "@/schemas/rsvp.schema";
-import type { Database } from "@/types/supabase";
-
-// Type aliases para mejor legibilidad
-type Guest = Database["public"]["Tables"]["guests"]["Row"];
-type Confirmation = Database["public"]["Tables"]["confirmations"]["Row"];
+import type {
+  Guest,
+  Confirmation,
+  ConfirmationInsert,
+  ConfirmationUpdate,
+} from "@/types/database";
 
 // Marcar como dinámico para que Next.js no lo pre-renderice durante el build
 export const dynamic = "force-dynamic";
@@ -89,14 +90,13 @@ export async function POST(request: NextRequest) {
 
       if (existingConfirmation) {
         // Actualizar confirmación existente
-        const updatePayload: Database["public"]["Tables"]["confirmations"]["Update"] =
-          {
-            civil_attending: conf.civilAttending,
-            party_attending: conf.partyAttending,
-            confirmed_by_id: confirmedById,
-            group_id: confirmerGuest.group_id,
-            updated_at: new Date().toISOString(),
-          };
+        const updatePayload: ConfirmationUpdate = {
+          civil_attending: conf.civilAttending,
+          party_attending: conf.partyAttending,
+          confirmed_by_id: confirmedById,
+          group_id: confirmerGuest.group_id,
+          updated_at: new Date().toISOString(),
+        };
 
         const { data, error } = await supabase
           .from("confirmations")
@@ -112,14 +112,13 @@ export async function POST(request: NextRequest) {
         confirmation = data as Confirmation;
       } else {
         // Crear nueva confirmación
-        const insertPayload: Database["public"]["Tables"]["confirmations"]["Insert"] =
-          {
-            guest_id: conf.guestId,
-            confirmed_by_id: confirmedById,
-            group_id: confirmerGuest.group_id,
-            civil_attending: conf.civilAttending,
-            party_attending: conf.partyAttending,
-          };
+        const insertPayload: ConfirmationInsert = {
+          guest_id: conf.guestId,
+          confirmed_by_id: confirmedById,
+          group_id: confirmerGuest.group_id,
+          civil_attending: conf.civilAttending,
+          party_attending: conf.partyAttending,
+        };
 
         const { data, error } = await supabase
           .from("confirmations")

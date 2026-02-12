@@ -1,12 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { guestCodeSchema } from "@/schemas/rsvp.schema";
-import type { Database } from "@/types/supabase";
-
-// Type aliases para mejor legibilidad
-type Guest = Database["public"]["Tables"]["guests"]["Row"];
-type Group = Database["public"]["Tables"]["groups"]["Row"];
-type Confirmation = Database["public"]["Tables"]["confirmations"]["Row"];
+import type { Guest, Group, Confirmation } from "@/types/database";
 
 // Marcar como dinámico para que Next.js no lo pre-renderice durante el build
 export const dynamic = "force-dynamic";

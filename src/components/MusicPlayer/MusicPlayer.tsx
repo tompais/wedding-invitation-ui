@@ -27,7 +27,7 @@ function MusicPlayer() {
   const [showTooltip, setShowTooltip] = useState(false);
 
   // Hook personalizado: maneja toda la lógica de reproducción de audio
-  const { audioRef, isMuted, toggleMute, audioProps } = useAudio(
+  const { isMuted, toggleMute, audioProps } = useAudio(
     "/music/Diana_Ross_ft_Marvin_Gaye_-_Ain_t_no_mountain_high_enough_(mp3.pm).mp3",
     {
       loop: true,
