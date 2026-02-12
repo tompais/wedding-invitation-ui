@@ -68,36 +68,14 @@ function MusicPlayer() {
 
       {/* Botón flotante de música */}
       <button
-        className="fixed right-8 bottom-8 z-[999999] flex h-[60px] w-[60px] cursor-pointer items-center justify-center rounded-full border-2 transition-all duration-300 hover:scale-110 active:scale-95 sm:right-4 sm:bottom-4 sm:h-[50px] sm:w-[50px] md:right-6 md:bottom-6 md:h-[54px] md:w-[54px]"
-        style={{
-          backgroundColor: "var(--bourdeaux)",
-          color: "var(--hueso)",
-          borderColor: "var(--hueso)",
-          boxShadow: "0 4px 16px rgba(90, 31, 40, 0.35)",
-        }}
+        className="music-button"
         onClick={handleClick}
         title={isMuted ? "Activar música" : "Mutear música"}
         aria-label={isMuted ? "Activar música" : "Mutear música"}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = "var(--bourdeaux-light)";
-          e.currentTarget.style.boxShadow = "0 6px 20px rgba(90, 31, 40, 0.5)";
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.backgroundColor = "var(--bourdeaux)";
-          e.currentTarget.style.boxShadow = "0 4px 16px rgba(90, 31, 40, 0.35)";
-        }}
       >
         {/* Tooltip que se muestra solo al inicio y si está muteado */}
         {showTooltip && isMuted && (
-          <span
-            className="font-body absolute right-0 bottom-full mb-4 rounded-lg px-4 py-3 text-sm whitespace-nowrap"
-            style={{
-              backgroundColor: "var(--bourdeaux-dark)",
-              color: "var(--hueso)",
-              boxShadow: "0 4px 12px rgba(90, 31, 40, 0.35)",
-              animation: "slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)",
-            }}
-          >
+          <span className="tooltip animate-[slideUp_0.4s_cubic-bezier(0.34,1.56,0.64,1)]">
             <style jsx>{`
               @keyframes slideUp {
                 from {
@@ -110,14 +88,7 @@ function MusicPlayer() {
                 }
               }
             `}</style>
-            <span
-              className="absolute top-full right-5 h-0 w-0"
-              style={{
-                borderLeft: "8px solid transparent",
-                borderRight: "0 solid transparent",
-                borderTop: "8px solid var(--bourdeaux-dark)",
-              }}
-            />
+            <span className="absolute right-5 top-full h-0 w-0 border-l-[8px] border-r-0 border-t-[8px] border-l-transparent border-r-transparent border-t-bourdeaux-dark" />
             🎵 Activa la música
           </span>
         )}
