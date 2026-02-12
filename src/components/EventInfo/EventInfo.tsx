@@ -1,6 +1,5 @@
 "use client";
 
-import "./EventInfo.css";
 import Lottie from "lottie-react";
 import rings from "../../assets/animatios/rings.json";
 import party from "../../assets/animatios/party.json";
@@ -66,42 +65,123 @@ function EventInfo() {
 
   return (
     <>
-      <section className="event" ref={ref}>
-        <div className="event-container">
-          <h2>Las fechas</h2>
+      <section
+        className="w-full px-8 py-24 text-center"
+        style={{ backgroundColor: "var(--hueso)", color: "var(--text-dark)" }}
+        ref={ref}
+      >
+        <div className="mx-auto max-w-[1200px]">
+          <h2
+            className="font-display mb-14 text-4xl font-semibold tracking-[0.05em]"
+            style={{ color: "var(--bourdeaux-dark)" }}
+          >
+            Las fechas
+          </h2>
 
-          <div className="event-blocks-container">
+          <div className="mb-8 flex flex-wrap justify-center gap-8">
             {/* Bloque del Evento Civil */}
-            <div className="event-block">
+            <div
+              className="flex max-w-[500px] min-w-[320px] flex-1 flex-col justify-between rounded-2xl px-10 py-10"
+              style={{
+                backgroundColor: "var(--bourdeaux)",
+                boxShadow: "0 10px 26px rgba(114, 47, 55, 0.25)",
+              }}
+            >
               <div>
-                <h3>{civilEvent.title}</h3>
-                <div className="decorative-animation">
-                  <Lottie animationData={rings} loop />
+                <h3
+                  className="font-display mb-3 text-3xl font-semibold tracking-[0.03em]"
+                  style={{ color: "var(--hueso)" }}
+                >
+                  {civilEvent.title}
+                </h3>
+                <div className="mx-auto my-6 max-h-[140px] max-w-[140px] opacity-80">
+                  <Lottie
+                    animationData={rings}
+                    loop
+                    className="!h-full !w-full"
+                  />
                 </div>
-                <p>{civilEvent.date}</p>
-                <p>{LOCATIONS.civil.name}</p>
+                <p
+                  className="my-1.5 text-base"
+                  style={{ color: "var(--text-light)" }}
+                >
+                  {civilEvent.date}
+                </p>
+                <p
+                  className="my-1.5 text-base"
+                  style={{ color: "var(--text-light)" }}
+                >
+                  {LOCATIONS.civil.name}
+                </p>
               </div>
 
-              <div className="event-buttons">
-                <button onClick={() => handleOpenMap("civil")}>
+              <div className="mt-6 flex flex-wrap justify-center gap-4">
+                <button
+                  className="hover:border-hueso cursor-pointer rounded-[22px] border px-6 py-2.5 transition-all duration-300 ease-in-out"
+                  style={{
+                    backgroundColor: "transparent",
+                    borderColor: "var(--hueso)",
+                    color: "var(--hueso)",
+                  }}
+                  onClick={() => handleOpenMap("civil")}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor =
+                      "var(--bourdeaux-dark)";
+                    e.currentTarget.style.color = "var(--hueso)";
+                    e.currentTarget.style.borderColor = "var(--hueso)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "transparent";
+                    e.currentTarget.style.color = "var(--hueso)";
+                    e.currentTarget.style.borderColor = "var(--hueso)";
+                  }}
+                >
                   Ver ubicación
                 </button>
               </div>
             </div>
 
             {/* Bloque del Evento Fiesta */}
-            <div className="event-block">
+            <div
+              className="flex max-w-[500px] min-w-[320px] flex-1 flex-col justify-between rounded-2xl px-10 py-10"
+              style={{
+                backgroundColor: "var(--bourdeaux)",
+                boxShadow: "0 10px 26px rgba(114, 47, 55, 0.25)",
+              }}
+            >
               <div>
-                <h3>{fiestaEvent.title}</h3>
-                <div className="decorative-animation">
-                  <Lottie animationData={party} loop />
+                <h3
+                  className="font-display mb-3 text-3xl font-semibold tracking-[0.03em]"
+                  style={{ color: "var(--hueso)" }}
+                >
+                  {fiestaEvent.title}
+                </h3>
+                <div className="mx-auto my-6 max-h-[140px] max-w-[140px] opacity-80">
+                  <Lottie
+                    animationData={party}
+                    loop
+                    className="!h-full !w-full"
+                  />
                 </div>
-                <p>{fiestaEvent.date}</p>
-                <p>{LOCATIONS.fiesta.name}</p>
+                <p
+                  className="my-1.5 text-base"
+                  style={{ color: "var(--text-light)" }}
+                >
+                  {fiestaEvent.date}
+                </p>
+                <p
+                  className="my-1.5 text-base"
+                  style={{ color: "var(--text-light)" }}
+                >
+                  {LOCATIONS.fiesta.name}
+                </p>
 
                 {/* Mostrar nota de evento al aire libre si corresponde */}
                 {fiestaEvent.isOutdoor && (
-                  <p className="event-note">
+                  <p
+                    className="mt-4 text-sm opacity-85"
+                    style={{ color: "var(--text-muted)" }}
+                  >
                     <MdNature
                       size={20}
                       style={{
@@ -115,8 +195,27 @@ function EventInfo() {
                 )}
               </div>
 
-              <div className="event-buttons">
-                <button onClick={() => handleOpenMap("fiesta")}>
+              <div className="mt-6 flex flex-wrap justify-center gap-4">
+                <button
+                  className="hover:border-hueso cursor-pointer rounded-[22px] border px-6 py-2.5 transition-all duration-300 ease-in-out"
+                  style={{
+                    backgroundColor: "transparent",
+                    borderColor: "var(--hueso)",
+                    color: "var(--hueso)",
+                  }}
+                  onClick={() => handleOpenMap("fiesta")}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor =
+                      "var(--bourdeaux-dark)";
+                    e.currentTarget.style.color = "var(--hueso)";
+                    e.currentTarget.style.borderColor = "var(--hueso)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "transparent";
+                    e.currentTarget.style.color = "var(--hueso)";
+                    e.currentTarget.style.borderColor = "var(--hueso)";
+                  }}
+                >
                   Ver ubicación
                 </button>
               </div>

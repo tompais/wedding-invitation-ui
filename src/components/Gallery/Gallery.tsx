@@ -1,7 +1,5 @@
 "use client";
 
-import "./Gallery.css";
-
 import { motion } from "framer-motion";
 import { useScrollAnimation } from "../../hooks/useScrollAnimation";
 import { useState } from "react";
@@ -49,8 +47,57 @@ function Gallery() {
   };
 
   return (
-    <section className="gallery" ref={ref}>
+    <section
+      className="w-full px-8 py-12 text-center"
+      style={{
+        backgroundColor: "var(--hueso-dark)",
+        color: "var(--text-dark)",
+      }}
+      ref={ref}
+    >
+      <style jsx global>{`
+        /* Swiper navigation buttons */
+        .gallery-swiper .swiper-button-next,
+        .gallery-swiper .swiper-button-prev {
+          color: var(--bourdeaux);
+          background-color: rgba(250, 240, 230, 0.9);
+          width: 45px;
+          height: 45px;
+          border-radius: 50%;
+          box-shadow: 0 4px 12px rgba(114, 47, 55, 0.2);
+          transition: all 0.3s ease;
+        }
+        .gallery-swiper .swiper-button-next::after,
+        .gallery-swiper .swiper-button-prev::after {
+          font-size: 20px;
+          font-weight: bold;
+        }
+        .gallery-swiper .swiper-button-next:hover,
+        .gallery-swiper .swiper-button-prev:hover {
+          background-color: var(--bourdeaux);
+          color: var(--hueso);
+          transform: scale(1.1);
+        }
+
+        /* Swiper pagination bullets */
+        .gallery-swiper .swiper-pagination-bullet {
+          background-color: var(--bourdeaux-light);
+          opacity: 0.5;
+          width: 10px;
+          height: 10px;
+          transition: all 0.3s ease;
+        }
+        .gallery-swiper .swiper-pagination-bullet-active {
+          background-color: var(--bourdeaux);
+          opacity: 1;
+          width: 30px;
+          border-radius: 5px;
+        }
+      `}</style>
+
       <motion.h2
+        className="font-display mb-10 text-4xl font-semibold tracking-[0.05em]"
+        style={{ color: "var(--bourdeaux-dark)" }}
         initial={{ opacity: 0, y: 30 }}
         animate={isVisible ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.6 }}
@@ -59,7 +106,7 @@ function Gallery() {
       </motion.h2>
 
       <motion.div
-        className="gallery-container"
+        className="mx-auto max-w-[1400px] px-4 pb-12"
         initial={{ opacity: 0, y: 40 }}
         animate={isVisible ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.7, delay: 0.2 }}
@@ -97,16 +144,27 @@ function Gallery() {
               spaceBetween: 30,
             },
           }}
-          className="gallery-swiper"
+          className="gallery-swiper py-8 pb-16"
         >
           {IMAGES.map((image, index) => (
-            <SwiperSlide key={index}>
+            <SwiperSlide
+              key={index}
+              className="flex items-center justify-center transition-transform duration-300"
+            >
               <button
                 onClick={() => openLightbox(index)}
-                className="gallery-button"
+                className="block w-full cursor-pointer border-none bg-transparent p-0"
                 aria-label={`Ver ${image.alt}`}
               >
-                <Image src={image.src} alt={image.alt} />
+                <Image
+                  src={image.src}
+                  alt={image.alt}
+                  className="h-[300px] w-full rounded-2xl border-[3px] object-cover transition-all duration-300 hover:translate-y-[-5px] hover:shadow-[0_15px_35px_rgba(114,47,55,0.35)]"
+                  style={{
+                    borderColor: "var(--bourdeaux-light)",
+                    boxShadow: "0 10px 24px rgba(114, 47, 55, 0.2)",
+                  }}
+                />
               </button>
             </SwiperSlide>
           ))}
