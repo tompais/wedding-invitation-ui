@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { supabase } from "@/lib/supabase";
 import { groupConfirmationSchema } from "@/schemas/rsvp.schema";
+import type {
+  Guest,
+  Confirmation,
+  ConfirmationInsert,
+  ConfirmationUpdate,
+} from "@/types/database";
 
 // Marcar como dinámico para que Next.js no lo pre-renderice durante el build
 export const dynamic = "force-dynamic";
@@ -39,60 +45,101 @@ export async function POST(request: NextRequest) {
     const { confirmedById, confirmations } = validation.data;
 
     // Verificar que el usuario que confirma exista
-    const confirmer = await prisma.guest.findUnique({
-      where: { id: confirmedById },
-      include: { group: true },
-    });
+    const { data: confirmer, error: confirmerError } = await supabase
+      .from("guests")
+      .select("*")
+      .eq("id", confirmedById)
+      .single();
 
-    if (!confirmer) {
+    if (confirmerError || !confirmer) {
       return NextResponse.json(
         { error: "Usuario que confirma no encontrado" },
         { status: 404 }
       );
     }
 
-    // Crear confirmaciones en una transacción
-    const result = await prisma.$transaction(async (tx) => {
-      const createdConfirmations = [];
+    // Type assertion: Supabase client devuelve 'never' con select("*")
+    // Ver: https://github.com/supabase/supabase-js/issues/743
+    const confirmerGuest = confirmer as Guest;
 
-      for (const conf of confirmations) {
-        // Verificar que el invitado exista
-        const guest = await tx.guest.findUnique({
-          where: { id: conf.guestId },
-        });
+    const createdConfirmations: Confirmation[] = [];
 
-        if (!guest) {
-          throw new Error(`Invitado ${conf.guestId} no encontrado`);
-        }
+    for (const conf of confirmations) {
+      // Verificar que el invitado exista
+      const { data: guest, error: guestError } = await supabase
+        .from("guests")
+        .select("*")
+        .eq("id", conf.guestId)
+        .single();
 
-        // Verificar si ya existe confirmación (upsert)
-        const confirmation = await tx.confirmation.upsert({
-          where: { guestId: conf.guestId },
-          update: {
-            civilAttending: conf.civilAttending,
-            partyAttending: conf.partyAttending,
-            confirmedById: confirmedById,
-            groupId: confirmer.groupId,
-          },
-          create: {
-            guestId: conf.guestId,
-            confirmedById: confirmedById,
-            groupId: confirmer.groupId,
-            civilAttending: conf.civilAttending,
-            partyAttending: conf.partyAttending,
-          },
-        });
-
-        createdConfirmations.push(confirmation);
+      if (guestError || !guest) {
+        return NextResponse.json(
+          { error: `Invitado ${conf.guestId} no encontrado` },
+          { status: 404 }
+        );
       }
 
-      return createdConfirmations;
-    });
+      // Verificar si ya existe confirmación
+      const { data: existingConfirmation } = await supabase
+        .from("confirmations")
+        .select("*")
+        .eq("guest_id", conf.guestId)
+        .single();
+
+      let confirmation;
+
+      if (existingConfirmation) {
+        // Actualizar confirmación existente
+        const updatePayload: ConfirmationUpdate = {
+          civil_attending: conf.civilAttending,
+          party_attending: conf.partyAttending,
+          confirmed_by_id: confirmedById,
+          group_id: confirmerGuest.group_id,
+          updated_at: new Date().toISOString(),
+        };
+
+        const { data, error } = await supabase
+          .from("confirmations")
+          // Supabase type inference limitation: update() no reconoce Database generic
+          .update(updatePayload as never)
+          .eq("guest_id", conf.guestId)
+          .select()
+          .single();
+
+        if (error) {
+          throw new Error(`Error updating confirmation: ${error.message}`);
+        }
+        confirmation = data as Confirmation;
+      } else {
+        // Crear nueva confirmación
+        const insertPayload: ConfirmationInsert = {
+          guest_id: conf.guestId,
+          confirmed_by_id: confirmedById,
+          group_id: confirmerGuest.group_id,
+          civil_attending: conf.civilAttending,
+          party_attending: conf.partyAttending,
+        };
+
+        const { data, error } = await supabase
+          .from("confirmations")
+          // Supabase type inference limitation: insert() no reconoce Database generic
+          .insert(insertPayload as never)
+          .select()
+          .single();
+
+        if (error) {
+          throw new Error(`Error creating confirmation: ${error.message}`);
+        }
+        confirmation = data as Confirmation;
+      }
+
+      createdConfirmations.push(confirmation);
+    }
 
     return NextResponse.json(
       {
         message: "Confirmación registrada exitosamente",
-        confirmations: result,
+        confirmations: createdConfirmations,
       },
       { status: 201 }
     );
@@ -117,18 +164,24 @@ export async function POST(request: NextRequest) {
  */
 export async function GET() {
   try {
-    const totalConfirmations = await prisma.confirmation.count();
-    const civilCount = await prisma.confirmation.count({
-      where: { civilAttending: true },
-    });
-    const partyCount = await prisma.confirmation.count({
-      where: { partyAttending: true },
-    });
+    const { count: totalConfirmations } = await supabase
+      .from("confirmations")
+      .select("*", { count: "exact", head: true });
+
+    const { count: civilCount } = await supabase
+      .from("confirmations")
+      .select("*", { count: "exact", head: true })
+      .eq("civil_attending", true);
+
+    const { count: partyCount } = await supabase
+      .from("confirmations")
+      .select("*", { count: "exact", head: true })
+      .eq("party_attending", true);
 
     return NextResponse.json({
-      total: totalConfirmations,
-      civil: civilCount,
-      party: partyCount,
+      total: totalConfirmations || 0,
+      civil: civilCount || 0,
+      party: partyCount || 0,
     });
   } catch (error) {
     console.error("Error fetching stats:", error);

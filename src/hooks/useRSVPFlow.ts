@@ -215,7 +215,7 @@ export const useRSVPFlow = (): UseRSVPFlowReturn => {
     try {
       // Preparar confirmaciones para todos los miembros seleccionados
       const confirmations = Object.entries(familyConfirm)
-        .filter(([_, isConfirmed]) => isConfirmed)
+        .filter(([, isConfirmed]) => isConfirmed)
         .map(([guestCode]) => {
           // Buscar el guest por code para obtener su id
           const guest = familyMembers.find((m) => m.code === guestCode);

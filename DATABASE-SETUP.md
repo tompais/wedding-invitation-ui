@@ -1,98 +1,18 @@
-# 🗄️ Configuración de Base de Datos PostgreSQL
+# 🗄️ Configuración de Base de Datos con Supabase
 
 ## 📋 Arquitectura de Variables de Entorno
 
 ```
-.env              → Desarrollo local (NO SE COMMITEA) - tus credenciales reales
-.env.example      → Template de ejemplo (SÍ SE COMMITEA) - sin credenciales
-Vercel Dashboard  → Producción (variables configuradas en la nube)
+.env.local         → Desarrollo local (NO SE COMMITEA) - tus credenciales reales
+.env.example       → Template de ejemplo (SÍ SE COMMITEA) - sin credenciales
+Vercel Dashboard   → Producción (variables configuradas en la nube)
 ```
 
-**⚠️ IMPORTANTE:** `.env` **NUNCA** se commitea a Git. Contiene tus credenciales reales.
+**⚠️ IMPORTANTE:** `.env.local` **NUNCA** se commitea a Git. Contiene tus credenciales reales.
 
 ---
 
-## 🚀 Opción A: PostgreSQL Local (Desarrollo)
-
-### 1. Instalar PostgreSQL
-
-```bash
-# macOS con Homebrew
-brew install postgresql@16
-brew services start postgresql@16
-
-# Verificar instalación
-psql --version
-```
-
-### 2. Crear la base de datos
-
-```bash
-# Crear base de datos
-createdb wedding_invitation
-
-# Verificar que se creó
-psql -l | grep wedding_invitation
-```
-
-### 3. Configurar `.env`
-
-Editá el archivo `.env` (en la raíz del proyecto) y reemplazá con tu configuración:
-
-```env
-# Reemplazar TU_USUARIO con el usuario de tu Mac
-DATABASE_URL="postgresql://TU_USUARIO@localhost:5432/wedding_invitation?schema=public"
-```
-
-**Ejemplo real:**
-
-```env
-DATABASE_URL="postgresql://tom.pais@localhost:5432/wedding_invitation?schema=public"
-```
-
-### 4. Ejecutar migraciones
-
-```bash
-# Crear y aplicar migración inicial
-npm run db:migrate
-# Cuando te pida nombre, escribí: "initial_schema"
-
-# Verificar tablas creadas
-psql wedding_invitation -c '\dt'
-```
-
-### 5. (Opcional) Poblar Datos de Prueba
-
-**NOTA:** Por ahora, la base de datos está vacía (solo estructura). Los datos de invitados se cargarán cuando estén formalizados.
-
-Si necesitás agregar invitados de prueba para testing local, podés crear una migración:
-
-```bash
-# Crear migración de datos
-npm run db:migrate -- --create-only --name seed_test_guests
-
-# Editar el archivo SQL generado
-# Agregar INSERT INTO statements
-
-# Aplicar migración
-npm run db:migrate:deploy
-```
-
-Ver [MIGRATION-WORKFLOW.md](./MIGRATION-WORKFLOW.md) para más detalles sobre el flujo de migraciones.
-
-### 6. Verificar conexión
-
-```bash
-# Verificar que Prisma puede conectarse
-npm run db:generate
-
-# Probar el servidor
-npm run dev
-```
-
----
-
-## ☁️ Opción B: Supabase (Cloud - Desarrollo/Producción)
+## ☁️ Configuración de Supabase
 
 ### 1. Crear cuenta y proyecto
 
@@ -106,46 +26,91 @@ npm run dev
    - **Plan:** Free
 5. Click en "Create new project" (tarda ~2 minutos)
 
-### 2. Obtener URL de conexión
+### 2. Obtener credenciales de API
 
-1. En el panel de Supabase → **Settings** → **Database**
-2. Scroll hasta **Connection string** → **URI**
-3. Copiar el string (empieza con `postgresql://postgres.xxx...`)
-4. **Importante:** Reemplazar `[YOUR-PASSWORD]` con la contraseña que creaste
+1. En el panel de Supabase → **Settings** → **API**
+2. Copiar:
+   - **Project URL** (ej: `https://xxxxxxxxxxxxx.supabase.co`)
+   - **anon/public key** (una clave larga que empieza con `eyJ...`)
 
-### 3. Configurar `.env`
+### 3. Configurar `.env.local`
 
-Editá el archivo `.env` (en la raíz del proyecto):
+Crear el archivo `.env.local` en la raíz del proyecto:
 
 ```env
-DATABASE_URL="postgresql://postgres.xxxxx:TU_PASSWORD@aws-0-sa-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true"
+NEXT_PUBLIC_SUPABASE_URL="https://xxxxxxxxxxxxx.supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 ```
 
-### 4. Ejecutar migraciones
+**Reemplazar con tus valores reales de Supabase.**
+
+### 4. Aplicar schema de base de datos
+
+El schema de la base de datos está definido en la migración de Supabase: `supabase/migrations/20260212_initial_schema.sql`
+
+**Opción A: SQL Editor (Recomendado - Más Simple)**
+
+1. Ir a **SQL Editor** en el panel de Supabase: https://supabase.com/dashboard/project/yckzrkriuqhlumuaydsb/sql
+2. Abrir el archivo `supabase/migrations/20260212_initial_schema.sql` en tu editor
+3. Copiar todo el contenido
+4. Pegar en el SQL Editor de Supabase
+5. Click en "Run" para ejecutar
+
+**Opción B: Usando Supabase CLI**
+
+Si prefieres usar el CLI de Supabase:
 
 ```bash
-npm run db:migrate
-# Nombre: "initial_schema"
+# Instalar Supabase CLI (si no lo tenés)
+npm install -g supabase
+
+# Login y link al proyecto
+supabase login
+supabase link --project-ref yckzrkriuqhlumuaydsb
+
+# Aplicar la migración
+supabase db push
 ```
 
-### 5. Verificar en panel de Supabase
+Ver [SUPABASE-CLI.md](./SUPABASE-CLI.md) para instrucciones completas sobre el uso del CLI.
+
+### 5. (Opcional) Regenerar tipos TypeScript
+
+Los tipos TypeScript en `src/types/supabase.ts` fueron creados manualmente y son correctos. Sin embargo, si querés regenerarlos automáticamente desde el schema de Supabase:
+
+```bash
+npx supabase gen types typescript --project-id yckzrkriuqhlumuaydsb > src/types/supabase.ts
+```
+
+Esto genera tipos idénticos a los actuales pero sincronizados directamente con la base de datos.
+
+### 6. Verificar en panel de Supabase
 
 1. Ir a **Table Editor** en el panel de Supabase
-2. Verificar que aparecen las tablas: `Guest`, `Group`, `Confirmation`
+2. Verificar que aparecen las tablas: `guests`, `groups`, `confirmations`
+
+### 6. Verificar conexión
+
+```bash
+# Probar el servidor de desarrollo
+npm run dev
+```
 
 ---
 
 ## 🚀 Configurar en Vercel (Producción)
 
-### Cuando estés listo para deployar a Vercel:
+### Integración automática con Supabase
+
+Si ya integraste Vercel con Supabase desde el dashboard, las variables ya deberían estar configuradas. Para verificar:
 
 1. Ir a tu proyecto en Vercel: [https://vercel.com](https://vercel.com)
 2. Click en tu proyecto → **Settings** → **Environment Variables**
-3. Agregar variable:
-   - **Key:** `DATABASE_URL`
-   - **Value:** Tu URL de Supabase (la misma de `.env.local`)
-   - **Environments:** Marcar `Production`, `Preview`, `Development`
-4. Click en **Save**
+3. Verificar que existen:
+   - **Key:** `NEXT_PUBLIC_SUPABASE_URL`
+   - **Key:** `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+4. Si no existen, agregarlas manualmente con los valores de Supabase
+5. **Environments:** Marcar `Production`, `Preview`, `Development`
 
 ### Redeploy
 
@@ -153,7 +118,7 @@ npm run db:migrate
 # Hacer push a tu repo
 git push origin main
 
-# Vercel automáticamente hace redeploy con la nueva variable
+# Vercel automáticamente hace redeploy con las nuevas variables
 ```
 
 ---
@@ -164,74 +129,43 @@ git push origin main
 
 ```bash
 # ✅ 1. Variables de entorno configuradas
-cat .env # Debe tener DATABASE_URL real
+cat .env.local # Debe tener NEXT_PUBLIC_SUPABASE_URL y NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-# ✅ 2. Prisma puede generar cliente
-npm run db:generate
-
-# ✅ 3. Build pasa
+# ✅ 2. Build pasa
 npm run build
 
-# ✅ 4. Desarrollo funciona
+# ✅ 3. Desarrollo funciona
 npm run dev
 
-# ✅ 5. Probar API en otra terminal
-curl http://localhost:3000/api/guest/CODIGO123
-```
-
----
-
-## 🛠️ Comandos Útiles
-
-```bash
-# Migraciones
-npm run db:migrate         # Crear y aplicar migración
-npm run db:migrate:deploy  # Solo aplicar migraciones (producción)
-npm run db:push            # Push directo sin migración (solo desarrollo)
-
-# Datos
-npm run db:seed            # Poblar datos de prueba
-npm run db:studio          # Abrir UI de Prisma para ver/editar datos
-
-# Prisma
-npm run db:generate        # Regenerar Prisma Client
+# ✅ 4. Probar API en otra terminal
+curl http://localhost:3000/api/guest/123456
 ```
 
 ---
 
 ## 🐛 Troubleshooting
 
-### Error: "Can't reach database server"
+### Error: "Missing env.NEXT_PUBLIC_SUPABASE_URL"
 
-**PostgreSQL Local:**
+**Solución:**
 
-```bash
-# Verificar que PostgreSQL está corriendo
-brew services list | grep postgresql
+- Verificar que `.env.local` existe en la raíz del proyecto
+- Verificar que las variables están correctamente escritas (sin espacios)
+- Reiniciar el servidor de desarrollo
 
-# Reiniciar si es necesario
-brew services restart postgresql@16
-```
+### Error: "Invalid API key"
 
-**Supabase:**
+**Solución:**
 
-- Verificar que la URL en `.env.local` es correcta
-- Verificar que reemplazaste `[YOUR-PASSWORD]` con la contraseña real
-- Verificar que tu IP no está bloqueada (Supabase permite todas las IPs por defecto)
+- Verificar que copiaste la `anon` key correcta desde Supabase
+- Verificar que no hay espacios al principio o al final de la key
 
-### Error: "Database does not exist"
+### Error al conectar desde Vercel
 
-```bash
-# Crear la base de datos
-createdb wedding_invitation
-```
+**Solución:**
 
-### Error: "Role does not exist"
-
-```bash
-# Verificar tu usuario de PostgreSQL
-whoami  # Este es tu usuario por defecto en PostgreSQL local
-```
+- Verificar que las variables de entorno están configuradas en Vercel
+- Verificar que la configuración de Row Level Security (RLS) en Supabase permite acceso público (o deshabilitarla para testing)
 
 ---
 
@@ -239,17 +173,27 @@ whoami  # Este es tu usuario por defecto en PostgreSQL local
 
 Después de seguir esta guía:
 
-- ✅ `.env` configurado con DATABASE_URL real (NO se commitea)
-- ✅ Base de datos creada (local o Supabase)
-- ✅ Tablas creadas por Prisma migrate
-- ✅ Prisma Client generado
+- ✅ `.env.local` configurado con credenciales de Supabase (NO se commitea)
+- ✅ Base de datos creada en Supabase
+- ✅ Tablas creadas en Supabase
 - ✅ Build exitoso
 - ✅ API routes funcionando
 
 ---
 
-## 🎯 Próximos Pasos
+## 🎯 Ventajas de Supabase vs Prisma
 
-1. **Ahora:** Seguí los pasos de Opción A o B según lo que prefieras
-2. **Después:** Probá crear invitados y hacer confirmaciones
-3. **Finalmente:** Deploy a Vercel con Supabase en producción
+**Resuelto:**
+
+- ✅ No más problemas de conexión IPv6
+- ✅ Integración nativa con Vercel
+- ✅ No necesita migraciones durante el build
+- ✅ SDK TypeScript-first con tipos automáticos
+- ✅ Realtime capabilities (para futuras funcionalidades)
+- ✅ Dashboard visual para administrar datos
+
+**Compatibilidad:**
+
+- ✅ Usa PostgreSQL (misma base de datos que antes)
+- ✅ Todas las tablas y relaciones se mantienen iguales
+- ✅ Los datos existentes se conservan
