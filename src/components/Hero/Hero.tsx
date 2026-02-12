@@ -1,15 +1,22 @@
 "use client";
 
-import "./Hero.css";
 import { motion } from "framer-motion";
 import Divider from "../Divider/Divider";
 
 export default function Hero() {
   return (
-    <section className="hero">
-      <div className="hero-content">
+    <section
+      className="flex min-h-screen w-full items-center justify-center text-center"
+      style={{
+        background:
+          "linear-gradient(180deg, var(--bourdeaux-dark), var(--bourdeaux))",
+        color: "var(--text-light)",
+      }}
+    >
+      <div className="mx-auto max-w-[900px] px-8">
         <motion.p
-          className="hero-phrase"
+          className="font-body mb-6 text-lg tracking-[0.08em] uppercase opacity-80"
+          style={{ color: "var(--text-light)" }}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 2.2 }}
@@ -18,7 +25,8 @@ export default function Hero() {
         </motion.p>
 
         <motion.h1
-          className="hero-names"
+          className="font-display mb-4 text-6xl font-semibold tracking-[0.05em] md:text-5xl"
+          style={{ color: "var(--hueso)" }}
           initial={{ opacity: 0, y: 30, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 1, delay: 2.5 }}
@@ -35,7 +43,8 @@ export default function Hero() {
         </motion.div>
 
         <motion.p
-          className="hero-date"
+          className="text-lg opacity-75"
+          style={{ color: "var(--text-muted)" }}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 3.3 }}

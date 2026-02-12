@@ -1,18 +1,22 @@
 "use client";
 
-import "./SeparatorFloral.css";
 import { motion } from "framer-motion";
 
 export default function SeparatorFloral() {
   return (
     <motion.div
-      className="separator-floral"
+      className="my-4 flex w-full items-center justify-center py-8 md:my-2 md:py-6"
       initial={{ opacity: 0, scale: 0.8 }}
       whileInView={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.6 }}
       viewport={{ once: true }}
     >
-      <svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
+      <svg
+        viewBox="0 0 200 80"
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-auto w-full max-w-[300px] md:max-w-[200px]"
+        style={{ filter: "drop-shadow(0 2px 4px rgba(90, 31, 40, 0.1))" }}
+      >
         {/* Centro decorativo */}
         <circle cx="100" cy="40" r="8" fill="var(--bourdeaux)" />
 
