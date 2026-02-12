@@ -29,7 +29,7 @@ import Modal from "../common/Modal/Modal";
  */
 function EventInfo() {
   // Hook personalizado para animaciones de scroll
-  const [ref] = useScrollAnimation(0.2);
+  const [ref, _isVisible] = useScrollAnimation(0.2);
 
   // Hook personalizado para gestionar el modal
   const {
@@ -66,34 +66,19 @@ function EventInfo() {
   return (
     <>
       <section
-        className="w-full px-8 py-24 text-center"
-        style={{ backgroundColor: "var(--hueso)", color: "var(--text-dark)" }}
+        className="w-full bg-hueso px-8 py-24 text-center text-text-dark"
         ref={ref}
       >
         <div className="mx-auto max-w-[1200px]">
-          <h2
-            className="font-display mb-14 text-4xl font-semibold tracking-[0.05em]"
-            style={{ color: "var(--bourdeaux-dark)" }}
-          >
+          <h2 className="mb-14 font-display text-4xl font-semibold tracking-[0.05em] text-bourdeaux-dark">
             Las fechas
           </h2>
 
           <div className="mb-8 flex flex-wrap justify-center gap-8">
             {/* Bloque del Evento Civil */}
-            <div
-              className="flex max-w-[500px] min-w-[320px] flex-1 flex-col justify-between rounded-2xl px-10 py-10"
-              style={{
-                backgroundColor: "var(--bourdeaux)",
-                boxShadow: "0 10px 26px rgba(114, 47, 55, 0.25)",
-              }}
-            >
+            <div className="event-card">
               <div>
-                <h3
-                  className="font-display mb-3 text-3xl font-semibold tracking-[0.03em]"
-                  style={{ color: "var(--hueso)" }}
-                >
-                  {civilEvent.title}
-                </h3>
+                <h3>{civilEvent.title}</h3>
                 <div className="mx-auto my-6 max-h-[140px] max-w-[140px] opacity-80">
                   <Lottie
                     animationData={rings}
@@ -101,40 +86,14 @@ function EventInfo() {
                     className="!h-full !w-full"
                   />
                 </div>
-                <p
-                  className="my-1.5 text-base"
-                  style={{ color: "var(--text-light)" }}
-                >
-                  {civilEvent.date}
-                </p>
-                <p
-                  className="my-1.5 text-base"
-                  style={{ color: "var(--text-light)" }}
-                >
-                  {LOCATIONS.civil.name}
-                </p>
+                <p>{civilEvent.date}</p>
+                <p>{LOCATIONS.civil.name}</p>
               </div>
 
               <div className="mt-6 flex flex-wrap justify-center gap-4">
                 <button
-                  className="hover:border-hueso cursor-pointer rounded-[22px] border px-6 py-2.5 transition-all duration-300 ease-in-out"
-                  style={{
-                    backgroundColor: "transparent",
-                    borderColor: "var(--hueso)",
-                    color: "var(--hueso)",
-                  }}
+                  className="btn-secondary"
                   onClick={() => handleOpenMap("civil")}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor =
-                      "var(--bourdeaux-dark)";
-                    e.currentTarget.style.color = "var(--hueso)";
-                    e.currentTarget.style.borderColor = "var(--hueso)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = "transparent";
-                    e.currentTarget.style.color = "var(--hueso)";
-                    e.currentTarget.style.borderColor = "var(--hueso)";
-                  }}
                 >
                   Ver ubicación
                 </button>
@@ -142,46 +101,18 @@ function EventInfo() {
             </div>
 
             {/* Bloque del Evento Fiesta */}
-            <div
-              className="flex max-w-[500px] min-w-[320px] flex-1 flex-col justify-between rounded-2xl px-10 py-10"
-              style={{
-                backgroundColor: "var(--bourdeaux)",
-                boxShadow: "0 10px 26px rgba(114, 47, 55, 0.25)",
-              }}
-            >
+            <div className="event-card">
               <div>
-                <h3
-                  className="font-display mb-3 text-3xl font-semibold tracking-[0.03em]"
-                  style={{ color: "var(--hueso)" }}
-                >
-                  {fiestaEvent.title}
-                </h3>
+                <h3>{fiestaEvent.title}</h3>
                 <div className="mx-auto my-6 max-h-[140px] max-w-[140px] opacity-80">
-                  <Lottie
-                    animationData={party}
-                    loop
-                    className="!h-full !w-full"
-                  />
+                  <Lottie animationData={party} loop className="!h-full !w-full" />
                 </div>
-                <p
-                  className="my-1.5 text-base"
-                  style={{ color: "var(--text-light)" }}
-                >
-                  {fiestaEvent.date}
-                </p>
-                <p
-                  className="my-1.5 text-base"
-                  style={{ color: "var(--text-light)" }}
-                >
-                  {LOCATIONS.fiesta.name}
-                </p>
+                <p>{fiestaEvent.date}</p>
+                <p>{LOCATIONS.fiesta.name}</p>
 
                 {/* Mostrar nota de evento al aire libre si corresponde */}
                 {fiestaEvent.isOutdoor && (
-                  <p
-                    className="mt-4 text-sm opacity-85"
-                    style={{ color: "var(--text-muted)" }}
-                  >
+                  <p className="mt-4 text-sm opacity-85">
                     <MdNature
                       size={20}
                       style={{
@@ -197,24 +128,8 @@ function EventInfo() {
 
               <div className="mt-6 flex flex-wrap justify-center gap-4">
                 <button
-                  className="hover:border-hueso cursor-pointer rounded-[22px] border px-6 py-2.5 transition-all duration-300 ease-in-out"
-                  style={{
-                    backgroundColor: "transparent",
-                    borderColor: "var(--hueso)",
-                    color: "var(--hueso)",
-                  }}
+                  className="btn-secondary"
                   onClick={() => handleOpenMap("fiesta")}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor =
-                      "var(--bourdeaux-dark)";
-                    e.currentTarget.style.color = "var(--hueso)";
-                    e.currentTarget.style.borderColor = "var(--hueso)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = "transparent";
-                    e.currentTarget.style.color = "var(--hueso)";
-                    e.currentTarget.style.borderColor = "var(--hueso)";
-                  }}
                 >
                   Ver ubicación
                 </button>
