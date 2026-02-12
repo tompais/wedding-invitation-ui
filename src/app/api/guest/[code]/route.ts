@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { guestCodeSchema } from "@/schemas/rsvp.schema";
+import type { Database } from "@/types/supabase";
+
+// Type aliases para mejor legibilidad
+type Guest = Database["public"]["Tables"]["guests"]["Row"];
+type Group = Database["public"]["Tables"]["groups"]["Row"];
+type Confirmation = Database["public"]["Tables"]["confirmations"]["Row"];
 
 // Marcar como dinámico para que Next.js no lo pre-renderice durante el build
 export const dynamic = "force-dynamic";
@@ -45,9 +51,9 @@ export async function GET(
       );
     }
 
-    // Type assertion to work around Supabase type inference issues
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const guestData = guest as any;
+    // Type assertion: Supabase client devuelve 'never' con select("*")
+    // Ver: https://github.com/supabase/supabase-js/issues/743
+    const guestData = guest as Guest;
 
     // Buscar grupo si existe
     let group = null;
@@ -65,11 +71,10 @@ export async function GET(
           .select("id, first_name, last_name")
           .eq("group_id", guestData.group_id);
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const groupDataTyped = groupData as any;
+        const groupTyped = groupData as Group;
         group = {
-          id: groupDataTyped.id,
-          name: groupDataTyped.name,
+          id: groupTyped.id,
+          name: groupTyped.name,
           guests: groupGuests || [],
         };
       }
@@ -78,12 +83,17 @@ export async function GET(
     // Buscar confirmación del invitado
     const { data: confirmations } = await supabase
       .from("confirmations")
-      .select("*, confirmed_by:guests!confirmed_by_id(id, first_name, last_name)")
+      .select(
+        "*, confirmed_by:guests!confirmed_by_id(id, first_name, last_name)"
+      )
       .eq("guest_id", guestData.id)
       .limit(1);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const confirmation = confirmations?.[0] as any;
+    // Type assertion: joins con select() devuelven 'never'
+    type ConfirmationWithJoin = Confirmation & {
+      confirmed_by: Pick<Guest, "id" | "first_name" | "last_name">;
+    };
+    const confirmation = confirmations?.[0] as ConfirmationWithJoin | undefined;
 
     return NextResponse.json({
       id: guestData.id,

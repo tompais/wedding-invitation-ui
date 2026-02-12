@@ -5,12 +5,14 @@
  * Este patrón singleton previene ese problema.
  *
  * Docs: https://supabase.com/docs/guides/getting-started/quickstarts/nextjs
+ * TypeScript Support: https://supabase.com/docs/reference/javascript/typescript-support
  */
 
 import { createClient } from "@supabase/supabase-js";
+import type { Database } from "@/types/supabase";
 
 const globalForSupabase = globalThis as unknown as {
-  supabase: ReturnType<typeof createClient> | undefined;
+  supabase: ReturnType<typeof createClient<Database>> | undefined;
 };
 
 // Validar que las variables de entorno existan
@@ -22,10 +24,10 @@ if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
   throw new Error("Missing env.NEXT_PUBLIC_SUPABASE_ANON_KEY");
 }
 
-// Crear cliente Supabase sin generic types para evitar problemas de inferencia
+// Crear cliente Supabase con tipos TypeScript para inferencia automática
 export const supabase =
   globalForSupabase.supabase ??
-  createClient(
+  createClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     {

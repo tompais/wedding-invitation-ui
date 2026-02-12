@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { groupConfirmationSchema } from "@/schemas/rsvp.schema";
+import type { Database } from "@/types/supabase";
+
+// Type aliases para mejor legibilidad
+type Guest = Database["public"]["Tables"]["guests"]["Row"];
+type Confirmation = Database["public"]["Tables"]["confirmations"]["Row"];
 
 // Marcar como dinámico para que Next.js no lo pre-renderice durante el build
 export const dynamic = "force-dynamic";
@@ -52,12 +57,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Type assertion to work around Supabase type inference issues
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const confirmerData = confirmer as any;
+    // Type assertion: Supabase client devuelve 'never' con select("*")
+    // Ver: https://github.com/supabase/supabase-js/issues/743
+    const confirmerGuest = confirmer as Guest;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const createdConfirmations: any[] = [];
+    const createdConfirmations: Confirmation[] = [];
 
     for (const conf of confirmations) {
       // Verificar que el invitado exista
@@ -85,16 +89,19 @@ export async function POST(request: NextRequest) {
 
       if (existingConfirmation) {
         // Actualizar confirmación existente
-        const { data, error } = await supabase
-          .from("confirmations")
-          // @ts-expect-error - Supabase client type inference issue
-          .update({
+        const updatePayload: Database["public"]["Tables"]["confirmations"]["Update"] =
+          {
             civil_attending: conf.civilAttending,
             party_attending: conf.partyAttending,
             confirmed_by_id: confirmedById,
-            group_id: confirmerData.group_id,
+            group_id: confirmerGuest.group_id,
             updated_at: new Date().toISOString(),
-          })
+          };
+
+        const { data, error } = await supabase
+          .from("confirmations")
+          // Supabase type inference limitation: update() no reconoce Database generic
+          .update(updatePayload as never)
           .eq("guest_id", conf.guestId)
           .select()
           .single();
@@ -102,26 +109,29 @@ export async function POST(request: NextRequest) {
         if (error) {
           throw new Error(`Error updating confirmation: ${error.message}`);
         }
-        confirmation = data;
+        confirmation = data as Confirmation;
       } else {
         // Crear nueva confirmación
-        const { data, error } = await supabase
-          .from("confirmations")
-          // @ts-expect-error - Supabase client type inference issue
-          .insert({
+        const insertPayload: Database["public"]["Tables"]["confirmations"]["Insert"] =
+          {
             guest_id: conf.guestId,
             confirmed_by_id: confirmedById,
-            group_id: confirmerData.group_id,
+            group_id: confirmerGuest.group_id,
             civil_attending: conf.civilAttending,
             party_attending: conf.partyAttending,
-          })
+          };
+
+        const { data, error } = await supabase
+          .from("confirmations")
+          // Supabase type inference limitation: insert() no reconoce Database generic
+          .insert(insertPayload as never)
           .select()
           .single();
 
         if (error) {
           throw new Error(`Error creating confirmation: ${error.message}`);
         }
-        confirmation = data;
+        confirmation = data as Confirmation;
       }
 
       createdConfirmations.push(confirmation);
