@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { supabase } from "@/lib/supabase";
 import { guestCodeSchema } from "@/schemas/rsvp.schema";
 
 // Marcar como dinámico para que Next.js no lo pre-renderice durante el build
@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
  * Obtiene un invitado por su código único
  * Incluye: grupo familiar, confirmación previa
  *
- * @param code - Código del invitado (ej: FLIA-GARC-001)
+ * @param code - Código del invitado (ej: 123456)
  * @returns Guest con relaciones o 404
  */
 export async function GET(
@@ -32,58 +32,65 @@ export async function GET(
     }
 
     // Buscar invitado en la base de datos
-    const guest = await prisma.guest.findUnique({
-      where: { code: validation.data.code },
-      include: {
-        group: {
-          include: {
-            guests: {
-              select: {
-                id: true,
-                firstName: true,
-                lastName: true,
-              },
-            },
-          },
-        },
-        confirmationsAsGuest: {
-          include: {
-            confirmedBy: {
-              select: {
-                id: true,
-                firstName: true,
-                lastName: true,
-              },
-            },
-          },
-          take: 1, // Solo la última confirmación
-        },
-      },
-    });
+    const { data: guest, error: guestError } = await supabase
+      .from("guests")
+      .select("*")
+      .eq("code", validation.data.code)
+      .single();
 
-    if (!guest) {
+    if (guestError || !guest) {
       return NextResponse.json(
         { error: "Invitado no encontrado" },
         { status: 404 }
       );
     }
 
-    // Formatear respuesta
-    const confirmation = guest.confirmationsAsGuest[0];
+    // Buscar grupo si existe
+    let group = null;
+    if (guest.group_id) {
+      const { data: groupData, error: groupError } = await supabase
+        .from("groups")
+        .select("*")
+        .eq("id", guest.group_id)
+        .single();
+
+      if (!groupError && groupData) {
+        // Buscar otros invitados del grupo
+        const { data: groupGuests } = await supabase
+          .from("guests")
+          .select("id, first_name, last_name")
+          .eq("group_id", guest.group_id);
+
+        group = {
+          id: groupData.id,
+          name: groupData.name,
+          guests: groupGuests || [],
+        };
+      }
+    }
+
+    // Buscar confirmación del invitado
+    const { data: confirmations } = await supabase
+      .from("confirmations")
+      .select("*, confirmed_by:guests!confirmed_by_id(id, first_name, last_name)")
+      .eq("guest_id", guest.id)
+      .limit(1);
+
+    const confirmation = confirmations?.[0];
 
     return NextResponse.json({
       id: guest.id,
-      firstName: guest.firstName,
-      lastName: guest.lastName,
+      firstName: guest.first_name,
+      lastName: guest.last_name,
       code: guest.code,
       phone: guest.phone,
-      group: guest.group,
+      group: group,
       confirmation: confirmation
         ? {
-            civilAttending: confirmation.civilAttending,
-            partyAttending: confirmation.partyAttending,
-            confirmedBy: confirmation.confirmedBy,
-            confirmedAt: confirmation.confirmedAt,
+            civilAttending: confirmation.civil_attending,
+            partyAttending: confirmation.party_attending,
+            confirmedBy: confirmation.confirmed_by,
+            confirmedAt: confirmation.confirmed_at,
           }
         : null,
     });
