@@ -149,22 +149,49 @@ const updatePayload: Database["public"]["Tables"]["confirmations"]["Update"] = {
 - No necesita suppressions de ESLint
 - Fácil de mantener y refactorizar
 
-## ¿Por Qué No Usar Generación Automática de Tipos?
+## Generación Automática de Tipos con Supabase CLI
 
-Supabase CLI puede generar tipos automáticamente con:
+Supabase CLI puede generar tipos automáticamente desde el schema de tu base de datos:
 
 ```bash
-npx supabase gen types typescript --project-id "tu-proyecto-id"
+# Generar tipos TypeScript desde Supabase
+npx supabase gen types typescript --project-id yckzrkriuqhlumuaydsb > src/types/supabase.ts
 ```
 
-**Ya lo estamos haciendo** - nuestro archivo `src/types/supabase.ts` es equivalente a lo que generaría el CLI. Lo creamos manualmente porque:
+### Tipos Actuales: Manual vs CLI
 
-1. El schema ya existía en Prisma
+**Estado actual:** Los tipos en `src/types/supabase.ts` fueron creados **manualmente** basándose en el schema de Prisma. Son **equivalentes** a lo que generaría el CLI de Supabase.
+
+**¿Cuándo usar generación manual?**
+
+1. El schema ya existía en Prisma y fue migrado
 2. Los tipos son estables (no cambian frecuentemente)
-3. Evitamos dependencia del CLI de Supabase en el build
-4. Tenemos control total sobre la estructura de tipos
+3. No querés dependencia del CLI en el build
+4. Tenés control total sobre la estructura de tipos
 
-Si el schema cambia, es fácil regenerar los tipos con el CLI de Supabase.
+**¿Cuándo usar generación con CLI?**
+
+1. El schema cambia frecuentemente
+2. Querés garantizar sincronización perfecta con la DB
+3. Trabajás en equipo y necesitás consistencia
+4. Agregás/modificás tablas regularmente
+
+### Cómo Usar el CLI
+
+Ver la guía completa en [SUPABASE-CLI.md](./SUPABASE-CLI.md) que incluye:
+
+- Instalación y configuración del CLI
+- Generación automática de tipos
+- Gestión de migraciones
+- Workflow recomendado
+
+**Comando rápido para regenerar tipos:**
+
+```bash
+npx supabase gen types typescript --project-id yckzrkriuqhlumuaydsb > src/types/supabase.ts
+```
+
+Esto generará tipos idénticos a los actuales pero sincronizados directamente con el schema de Supabase.
 
 ## Resultado Final
 

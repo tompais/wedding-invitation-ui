@@ -46,77 +46,45 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 
 ### 4. Aplicar schema de base de datos
 
-Las tablas necesarias ya están definidas en las migraciones de Prisma que se aplicaron previamente. Si necesitas recrear el schema:
+El schema de la base de datos está definido en la migración de Supabase: `supabase/migrations/20260212_initial_schema.sql`
 
-1. Ir a **SQL Editor** en el panel de Supabase
-2. Ejecutar el siguiente script SQL:
+**Opción A: SQL Editor (Recomendado - Más Simple)**
 
-```sql
--- Crear tablas según el schema de Prisma
+1. Ir a **SQL Editor** en el panel de Supabase: https://supabase.com/dashboard/project/yckzrkriuqhlumuaydsb/sql
+2. Abrir el archivo `supabase/migrations/20260212_initial_schema.sql` en tu editor
+3. Copiar todo el contenido
+4. Pegar en el SQL Editor de Supabase
+5. Click en "Run" para ejecutar
 
--- Tabla de grupos
-CREATE TABLE groups (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name VARCHAR(100) UNIQUE NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
+**Opción B: Usando Supabase CLI**
 
-CREATE INDEX idx_groups_name ON groups(name);
+Si prefieres usar el CLI de Supabase:
 
--- Tabla de invitados
-CREATE TABLE guests (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  first_name VARCHAR(50) NOT NULL,
-  last_name VARCHAR(50) NOT NULL,
-  phone VARCHAR(20),
-  code VARCHAR(6) UNIQUE NOT NULL DEFAULT LPAD(FLOOR(RANDOM() * 900000 + 100000)::TEXT, 6, '0'),
-  group_id UUID REFERENCES groups(id) ON DELETE CASCADE,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
+```bash
+# Instalar Supabase CLI (si no lo tenés)
+npm install -g supabase
 
-CREATE INDEX idx_guests_code ON guests(code);
-CREATE INDEX idx_guests_group_id ON guests(group_id);
+# Login y link al proyecto
+supabase login
+supabase link --project-ref yckzrkriuqhlumuaydsb
 
--- Tabla de confirmaciones
-CREATE TABLE confirmations (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  civil_attending BOOLEAN DEFAULT false,
-  party_attending BOOLEAN DEFAULT false,
-  guest_id UUID NOT NULL REFERENCES guests(id) ON DELETE CASCADE,
-  confirmed_by_id UUID NOT NULL REFERENCES guests(id) ON DELETE RESTRICT,
-  group_id UUID REFERENCES groups(id) ON DELETE CASCADE,
-  confirmed_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW(),
-  UNIQUE(guest_id)
-);
-
-CREATE INDEX idx_confirmations_confirmed_by_id ON confirmations(confirmed_by_id);
-CREATE INDEX idx_confirmations_group_id ON confirmations(group_id);
-CREATE INDEX idx_confirmations_confirmed_at ON confirmations(confirmed_at);
-
--- Función para actualizar updated_at automáticamente
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
-BEGIN
-  NEW.updated_at = NOW();
-  RETURN NEW;
-END;
-$$ language 'plpgsql';
-
--- Triggers para updated_at
-CREATE TRIGGER update_groups_updated_at BEFORE UPDATE ON groups
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_guests_updated_at BEFORE UPDATE ON guests
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_confirmations_updated_at BEFORE UPDATE ON confirmations
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+# Aplicar la migración
+supabase db push
 ```
 
-### 5. Verificar en panel de Supabase
+Ver [SUPABASE-CLI.md](./SUPABASE-CLI.md) para instrucciones completas sobre el uso del CLI.
+
+### 5. (Opcional) Regenerar tipos TypeScript
+
+Los tipos TypeScript en `src/types/supabase.ts` fueron creados manualmente y son correctos. Sin embargo, si querés regenerarlos automáticamente desde el schema de Supabase:
+
+```bash
+npx supabase gen types typescript --project-id yckzrkriuqhlumuaydsb > src/types/supabase.ts
+```
+
+Esto genera tipos idénticos a los actuales pero sincronizados directamente con la base de datos.
+
+### 6. Verificar en panel de Supabase
 
 1. Ir a **Table Editor** en el panel de Supabase
 2. Verificar que aparecen las tablas: `guests`, `groups`, `confirmations`
@@ -216,6 +184,7 @@ Después de seguir esta guía:
 ## 🎯 Ventajas de Supabase vs Prisma
 
 **Resuelto:**
+
 - ✅ No más problemas de conexión IPv6
 - ✅ Integración nativa con Vercel
 - ✅ No necesita migraciones durante el build
@@ -224,7 +193,7 @@ Después de seguir esta guía:
 - ✅ Dashboard visual para administrar datos
 
 **Compatibilidad:**
+
 - ✅ Usa PostgreSQL (misma base de datos que antes)
 - ✅ Todas las tablas y relaciones se mantienen iguales
 - ✅ Los datos existentes se conservan
-

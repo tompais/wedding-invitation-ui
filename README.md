@@ -75,6 +75,9 @@ Open [http://localhost:3000](http://localhost:3000) to see the result.
 ## 📚 Documentación
 
 - [DATABASE-SETUP.md](./DATABASE-SETUP.md) - Guía de configuración de Supabase
+- [SUPABASE-CLI.md](./SUPABASE-CLI.md) - Guía de Supabase CLI, migraciones y generación de tipos
+- [SUPABASE-TYPES.md](./SUPABASE-TYPES.md) - Explicación del sistema de tipos TypeScript
+- [MIGRATION-GUIDE.md](./MIGRATION-GUIDE.md) - Guía completa de migración de Prisma a Supabase
 - [VERCEL-DEPLOY.md](./VERCEL-DEPLOY.md) - Configuración de deploy
 - [ESLINT-PRETTIER-SETUP.md](./ESLINT-PRETTIER-SETUP.md) - Configuración de linting y formateo
 
