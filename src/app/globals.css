@@ -1,0 +1,43 @@
+/* Import Google Fonts */
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lora:wght@400;500;600&display=swap");
+
+/* Tailwind CSS v4 */
+@import "tailwindcss";
+
+/* CSS Variables Layer (compatible con Tailwind) */
+@layer base {
+  :root {
+    /* Paleta Bourdeaux y Hueso */
+    --bourdeaux-dark: #5a1f28;
+    --bourdeaux: #722f37;
+    --bourdeaux-light: #8b4450;
+    --hueso: #faf0e6;
+    --hueso-dark: #f5e6d3;
+    --text-dark: #2c1810;
+    --text-muted: rgba(44, 24, 16, 0.7);
+    --text-light: rgba(250, 240, 230, 0.95);
+
+    /* Tipografía */
+    --font-display: "Playfair Display", Georgia, serif;
+    --font-body: "Lora", Georgia, serif;
+  }
+
+  /* Botones base - efectos personalizados */
+  button {
+    font-family: var(--font-body);
+  }
+
+  button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(114, 47, 55, 0.3);
+  }
+
+  button:active {
+    transform: translateY(0);
+  }
+
+  button:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(114, 47, 55, 0.3);
+  }
+}

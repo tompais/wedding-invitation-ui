@@ -1,34 +1,9 @@
-.album {
-  padding: 4rem 2rem;
-  text-align: center;
-  background-color: var(--hueso-dark);
-  color: var(--text-dark);
-}
-
-.album-content {
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.album h2 {
-  margin-bottom: 0.8rem;
-  color: var(--bourdeaux-dark);
-  font-size: 2rem;
-  font-family: var(--font-display);
-  font-weight: 600;
-  letter-spacing: 0.02em;
-}
-
-.album p {
-  margin-bottom: 1.5rem;
-  font-size: 1rem;
-  color: var(--text-muted);
-  font-family: var(--font-body);
-  line-height: 1.7;
-}
+/* Album - Solo estilos del botón */
 
 .album-button {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   padding: 0.8rem 1.8rem;
   border-radius: 30px;
   background-color: var(--bourdeaux);
@@ -39,10 +14,12 @@
   letter-spacing: 0.5px;
   transition:
     background-color 0.25s ease,
-    box-shadow 0.25s ease;
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
 }
 
 .album-button:hover {
   background-color: var(--bourdeaux-dark);
   box-shadow: 0 4px 12px rgba(114, 47, 55, 0.3);
+  transform: translateY(-2px);
 }

@@ -1,0 +1,61 @@
+/* =========================
+   RESPONSIVE - Component Specific
+   ========================= */
+
+/* TABLET & MOBILE */
+@media (max-width: 768px) {
+  /* HERO */
+  .hero-names {
+    font-size: 2.2rem;
+    line-height: 1.3;
+  }
+
+  .hero-phrase {
+    font-size: 0.85rem;
+    letter-spacing: 0.14em;
+  }
+
+  .hero-date {
+    font-size: 1rem;
+  }
+
+  /* EVENTOS */
+  .event-buttons {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .event-buttons button {
+    width: 100%;
+  }
+
+  .decorative-animation {
+    max-width: 150px;
+    margin: 2rem auto;
+  }
+
+  /* GALLERY */
+  .gallery-track img {
+    height: 220px;
+  }
+
+  /* RSVP */
+  .rsvp-calendar button {
+    width: 100%;
+  }
+}
+
+/* MOBILE CHICO */
+@media (max-width: 480px) {
+  .hero-names {
+    font-size: 2rem;
+  }
+
+  .hero-phrase {
+    font-size: 0.8rem;
+  }
+
+  .gallery-track img {
+    height: 200px;
+  }
+}
