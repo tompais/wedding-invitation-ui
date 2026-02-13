@@ -14,7 +14,7 @@ export default function SeparatorFloral() {
       <svg
         viewBox="0 0 200 80"
         xmlns="http://www.w3.org/2000/svg"
-        className="h-auto w-full max-w-[300px] md:max-w-[200px]"
+        className="h-auto w-full max-w-[400px] md:max-w-[250px]"
         style={{ filter: "drop-shadow(0 2px 4px rgba(90, 31, 40, 0.1))" }}
       >
         {/* Centro decorativo */}
