@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import "./responsive.css";
 
 export const metadata: Metadata = {
   title: "Angie & Tomi - Invitación de Boda",
@@ -22,10 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className="antialiased">
-      <body
-        className="font-body text-text-dark m-0 flex min-h-screen w-full min-w-[320px] flex-col overflow-x-hidden leading-relaxed"
-        style={{ backgroundColor: "var(--hueso)" }}
-      >
+      <body className="m-0 flex min-h-screen w-full min-w-[320px] flex-col overflow-x-hidden bg-hueso font-body leading-relaxed text-text-dark">
         {children}
       </body>
     </html>

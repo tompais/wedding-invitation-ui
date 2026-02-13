@@ -4,7 +4,7 @@
 /* Tailwind CSS v4 */
 @import "tailwindcss";
 
-/* CSS Variables Layer (compatible con Tailwind) */
+/* CSS Variables - Base Layer */
 @layer base {
   :root {
     /* Paleta Bourdeaux y Hueso */
@@ -22,22 +22,244 @@
     --font-body: "Lora", Georgia, serif;
   }
 
-  /* Botones base - efectos personalizados */
-  button {
+  /* Aplicar fuentes base */
+  body {
     font-family: var(--font-body);
   }
 
-  button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(114, 47, 55, 0.3);
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+  }
+}
+
+/* Theme - Tailwind v4 color tokens */
+@theme {
+  /* Burgundy scale */
+  --color-bourdeaux-dark: #5a1f28;
+  --color-bourdeaux: #722f37;
+  --color-bourdeaux-light: #8b4450;
+  
+  /* Cream scale */
+  --color-hueso: #faf0e6;
+  --color-hueso-dark: #f5e6d3;
+  
+  /* Text colors */
+  --color-text-dark: #2c2c2c;
+  --color-text-muted: #6b6b6b;
+  --color-text-light: #f5f5f5;
+  
+  /* Font families */
+  --font-family-display: "Playfair Display", Georgia, serif;
+  --font-family-body: "Lora", Georgia, serif;
+}
+
+/* Utility Classes Layer */
+@layer utilities {
+  /* Gradient backgrounds */
+  .bg-gradient-bourdeaux {
+    background: linear-gradient(180deg, var(--bourdeaux-dark), var(--bourdeaux));
   }
 
-  button:active {
-    transform: translateY(0);
+  .bg-gradient-bourdeaux-reverse {
+    background: linear-gradient(135deg, var(--bourdeaux-dark) 0%, var(--bourdeaux) 100%);
   }
 
-  button:focus-visible {
+  /* Music Player Button */
+  .music-button {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 999999;
+    display: flex;
+    height: 60px;
+    width: 60px;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    border-width: 2px;
+    border-color: var(--hueso);
+    background-color: var(--bourdeaux);
+    color: var(--hueso);
+    box-shadow: 0 4px 16px rgba(90, 31, 40, 0.35);
+    transition-property: all;
+    transition-duration: 300ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .music-button:hover {
+    transform: scale(1.1);
+    background-color: var(--bourdeaux-light);
+    box-shadow: 0 6px 20px rgba(90, 31, 40, 0.5);
+  }
+
+  .music-button:active {
+    transform: scale(0.95);
+  }
+
+  @media (max-width: 768px) {
+    .music-button {
+      bottom: 1.5rem;
+      right: 1.5rem;
+      height: 54px;
+      width: 54px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .music-button {
+      bottom: 1rem;
+      right: 1rem;
+      height: 50px;
+      width: 50px;
+    }
+  }
+
+  /* Tooltip */
+  .tooltip {
+    position: absolute;
+    bottom: 100%;
+    right: 0;
+    margin-bottom: 1rem;
+    white-space: nowrap;
+    border-radius: 0.5rem;
+    background-color: var(--bourdeaux-dark);
+    padding: 0.75rem 1rem;
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    color: var(--hueso);
+    box-shadow: 0 4px 12px rgba(90, 31, 40, 0.35);
+  }
+
+  /* Button variants */
+  .btn-primary {
+    border-radius: 0.5rem;
+    background-color: var(--hueso);
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    color: var(--bourdeaux-dark);
+    font-family: var(--font-body);
+    transition-property: all;
+    transition-duration: 300ms;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    transform: translateY(-0.125rem);
+    background-color: var(--hueso-dark);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  }
+
+  .btn-primary:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  .btn-secondary {
+    border-radius: 0.5rem;
+    border-width: 2px;
+    border-color: var(--hueso);
+    background-color: transparent;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    color: var(--hueso);
+    font-family: var(--font-body);
+    transition-property: all;
+    transition-duration: 300ms;
+  }
+
+  .btn-secondary:hover:not(:disabled) {
+    transform: translateY(-0.125rem);
+    background-color: var(--hueso);
+    color: var(--bourdeaux);
+  }
+
+  .btn-secondary:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  /* Form inputs */
+  .input-primary {
+    width: 100%;
+    border-radius: 0.5rem;
+    border-width: 2px;
+    border-color: rgba(250, 240, 230, 0.3);
+    background-color: rgba(250, 240, 230, 0.15);
+    padding: 0.875rem 1rem;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--hueso);
     outline: none;
-    box-shadow: 0 0 0 3px rgba(114, 47, 55, 0.3);
+    transition-property: all;
+    transition-duration: 300ms;
+  }
+
+  .input-primary:focus {
+    border-color: var(--hueso);
+    background-color: rgba(250, 240, 230, 0.25);
+    box-shadow: 0 0 0 4px rgba(250, 240, 230, 0.1);
+  }
+
+  /* Checkbox labels */
+  .checkbox-label {
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+    gap: 0.75rem;
+    border-radius: 0.5rem;
+    border-width: 2px;
+    border-color: transparent;
+    background-color: rgba(250, 240, 230, 0.08);
+    padding: 0.75rem;
+    transition-property: all;
+    transition-duration: 200ms;
+  }
+
+  .checkbox-label:hover {
+    border-color: rgba(250, 240, 230, 0.3);
+    background-color: rgba(250, 240, 230, 0.15);
+  }
+
+  /* Modal/Overlay backgrounds */
+  .overlay-bourdeaux {
+    background-color: rgba(90, 31, 40, 0.85);
+  }
+
+  .overlay-bourdeaux-dark {
+    background-color: rgba(90, 31, 40, 0.95);
+  }
+  
+  /* Event cards - burgundy background with proper styling */
+  .event-card {
+    background-color: var(--bourdeaux);
+    border-radius: 1rem;
+    padding: 2.5rem;
+    box-shadow: 0 10px 26px rgba(114, 47, 55, 0.25);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-width: 320px;
+    max-width: 500px;
+    flex: 1;
+  }
+  
+  .event-card h3 {
+    color: var(--hueso);
+    font-family: var(--font-display);
+    font-size: 1.875rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    letter-spacing: 0.03em;
+  }
+  
+  .event-card p {
+    color: var(--text-light);
+    font-size: 1rem;
+    margin: 0.375rem 0;
   }
 }

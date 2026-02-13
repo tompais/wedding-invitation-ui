@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { FiVolume2 } from "react-icons/fi";
-import "./MusicPlayer.css";
 import { useAudio } from "../../hooks/useAudio";
 
 /**
@@ -69,18 +68,36 @@ function MusicPlayer() {
 
       {/* Botón flotante de música */}
       <button
-        className="music-player-button"
+        className="music-button"
         onClick={handleClick}
         title={isMuted ? "Activar música" : "Mutear música"}
         aria-label={isMuted ? "Activar música" : "Mutear música"}
       >
         {/* Tooltip que se muestra solo al inicio y si está muteado */}
         {showTooltip && isMuted && (
-          <span className="tooltip">🎵 Activa la música</span>
+          <span className="tooltip animate-[slideUp_0.4s_cubic-bezier(0.34,1.56,0.64,1)]">
+            <style jsx>{`
+              @keyframes slideUp {
+                from {
+                  opacity: 0;
+                  transform: translateY(10px);
+                }
+                to {
+                  opacity: 1;
+                  transform: translateY(0);
+                }
+              }
+            `}</style>
+            <span className="absolute right-5 top-full h-0 w-0 border-l-[8px] border-r-0 border-t-[8px] border-l-transparent border-r-transparent border-t-bourdeaux-dark" />
+            🎵 Activa la música
+          </span>
         )}
 
         {/* Icono de volumen (siempre el mismo) */}
-        <FiVolume2 size={24} />
+        <FiVolume2
+          size={24}
+          className="sm:h-[18px] sm:w-[18px] md:h-5 md:w-5"
+        />
       </button>
     </>
   );

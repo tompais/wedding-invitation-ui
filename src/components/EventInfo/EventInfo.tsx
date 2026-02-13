@@ -1,6 +1,5 @@
 "use client";
 
-import "./EventInfo.css";
 import Lottie from "lottie-react";
 import rings from "../../assets/animatios/rings.json";
 import party from "../../assets/animatios/party.json";
@@ -30,7 +29,7 @@ import Modal from "../common/Modal/Modal";
  */
 function EventInfo() {
   // Hook personalizado para animaciones de scroll
-  const [ref] = useScrollAnimation(0.2);
+  const [ref, _isVisible] = useScrollAnimation(0.2);
 
   // Hook personalizado para gestionar el modal
   const {
@@ -66,42 +65,65 @@ function EventInfo() {
 
   return (
     <>
-      <section className="event" ref={ref}>
-        <div className="event-container">
-          <h2>Las fechas</h2>
+      <section
+        className="w-full px-8 py-8 text-center"
+        style={{ backgroundColor: "var(--hueso)", color: "var(--text-dark)" }}
+        ref={ref}
+      >
+        <div className="mx-auto max-w-[1200px]">
+          <h2
+            className="mb-14 text-4xl font-semibold tracking-[0.05em]"
+            style={{
+              color: "var(--bourdeaux-dark)",
+              fontFamily: "var(--font-display)",
+            }}
+          >
+            Las fechas
+          </h2>
 
-          <div className="event-blocks-container">
+          <div className="mb-8 flex flex-wrap justify-center gap-8">
             {/* Bloque del Evento Civil */}
-            <div className="event-block">
+            <div className="event-card">
               <div>
                 <h3>{civilEvent.title}</h3>
-                <div className="decorative-animation">
-                  <Lottie animationData={rings} loop />
+                <div className="mx-auto my-6 max-h-[140px] max-w-[140px] opacity-80">
+                  <Lottie
+                    animationData={rings}
+                    loop
+                    className="!h-full !w-full"
+                  />
                 </div>
                 <p>{civilEvent.date}</p>
                 <p>{LOCATIONS.civil.name}</p>
               </div>
 
-              <div className="event-buttons">
-                <button onClick={() => handleOpenMap("civil")}>
+              <div className="mt-6 flex flex-wrap justify-center gap-4">
+                <button
+                  className="btn-secondary"
+                  onClick={() => handleOpenMap("civil")}
+                >
                   Ver ubicación
                 </button>
               </div>
             </div>
 
             {/* Bloque del Evento Fiesta */}
-            <div className="event-block">
+            <div className="event-card">
               <div>
                 <h3>{fiestaEvent.title}</h3>
-                <div className="decorative-animation">
-                  <Lottie animationData={party} loop />
+                <div className="mx-auto my-6 max-h-[140px] max-w-[140px] opacity-80">
+                  <Lottie
+                    animationData={party}
+                    loop
+                    className="!h-full !w-full"
+                  />
                 </div>
                 <p>{fiestaEvent.date}</p>
                 <p>{LOCATIONS.fiesta.name}</p>
 
                 {/* Mostrar nota de evento al aire libre si corresponde */}
                 {fiestaEvent.isOutdoor && (
-                  <p className="event-note">
+                  <p className="mt-4 text-sm opacity-85">
                     <MdNature
                       size={20}
                       style={{
@@ -115,8 +137,11 @@ function EventInfo() {
                 )}
               </div>
 
-              <div className="event-buttons">
-                <button onClick={() => handleOpenMap("fiesta")}>
+              <div className="mt-6 flex flex-wrap justify-center gap-4">
+                <button
+                  className="btn-secondary"
+                  onClick={() => handleOpenMap("fiesta")}
+                >
                   Ver ubicación
                 </button>
               </div>
