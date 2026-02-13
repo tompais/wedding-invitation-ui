@@ -66,7 +66,7 @@ function EventInfo() {
   return (
     <>
       <section
-        className="w-full px-8 py-16 text-center"
+        className="w-full px-8 py-8 text-center"
         style={{ backgroundColor: "var(--hueso)", color: "var(--text-dark)" }}
         ref={ref}
       >
@@ -112,7 +112,11 @@ function EventInfo() {
               <div>
                 <h3>{fiestaEvent.title}</h3>
                 <div className="mx-auto my-6 max-h-[140px] max-w-[140px] opacity-80">
-                  <Lottie animationData={party} loop className="!h-full !w-full" />
+                  <Lottie
+                    animationData={party}
+                    loop
+                    className="!h-full !w-full"
+                  />
                 </div>
                 <p>{fiestaEvent.date}</p>
                 <p>{LOCATIONS.fiesta.name}</p>
