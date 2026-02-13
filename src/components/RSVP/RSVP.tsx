@@ -100,24 +100,6 @@ function RSVP() {
       }}
       ref={ref}
     >
-      <style jsx>{`
-        @keyframes spin {
-          to {
-            transform: rotate(360deg);
-          }
-        }
-        @keyframes scaleIn {
-          from {
-            transform: scale(0);
-            opacity: 0;
-          }
-          to {
-            transform: scale(1);
-            opacity: 1;
-          }
-        }
-      `}</style>
-
       {/* Loading overlay durante el envío */}
       {formState === "submitting" && (
         <Loading

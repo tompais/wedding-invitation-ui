@@ -28,8 +28,8 @@ import Modal from "../common/Modal/Modal";
  * - Constantes importadas desde /constants
  */
 function EventInfo() {
-  // Hook personalizado para animaciones de scroll
-  const [ref, _isVisible] = useScrollAnimation(0.2);
+  // Hook personalizado para animaciones de scroll (solo usamos el ref)
+  const [ref] = useScrollAnimation(0.2);
 
   // Hook personalizado para gestionar el modal
   const {

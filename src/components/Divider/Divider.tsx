@@ -1,40 +1,13 @@
 export default function Divider() {
   return (
     <div className="my-6 flex items-center justify-center opacity-60">
-      <style jsx>{`
-        svg path {
-          stroke-dasharray: 200;
-          stroke-dashoffset: 200;
-          animation: draw 2s ease-out forwards;
-        }
-        svg circle {
-          transform-origin: center;
-          animation: pulse 2s ease-in-out infinite;
-        }
-        @keyframes draw {
-          to {
-            stroke-dashoffset: 0;
-          }
-        }
-        @keyframes pulse {
-          0%,
-          100% {
-            transform: scale(1);
-            opacity: 0.6;
-          }
-          50% {
-            transform: scale(1.2);
-            opacity: 1;
-          }
-        }
-      `}</style>
       <svg
         width="100"
         height="20"
         viewBox="0 0 100 20"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="text-bourdeaux-light"
+        className="divider-svg text-bourdeaux-light"
         style={{ filter: "drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))" }}
       >
         <path

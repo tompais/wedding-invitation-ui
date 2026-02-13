@@ -43,16 +43,16 @@
   --color-bourdeaux-dark: #5a1f28;
   --color-bourdeaux: #722f37;
   --color-bourdeaux-light: #8b4450;
-  
+
   /* Cream scale */
   --color-hueso: #faf0e6;
   --color-hueso-dark: #f5e6d3;
-  
+
   /* Text colors */
   --color-text-dark: #2c2c2c;
   --color-text-muted: #6b6b6b;
   --color-text-light: #f5f5f5;
-  
+
   /* Font families */
   --font-family-display: "Playfair Display", Georgia, serif;
   --font-family-body: "Lora", Georgia, serif;
@@ -62,11 +62,19 @@
 @layer utilities {
   /* Gradient backgrounds */
   .bg-gradient-bourdeaux {
-    background: linear-gradient(180deg, var(--bourdeaux-dark), var(--bourdeaux));
+    background: linear-gradient(
+      180deg,
+      var(--bourdeaux-dark),
+      var(--bourdeaux)
+    );
   }
 
   .bg-gradient-bourdeaux-reverse {
-    background: linear-gradient(135deg, var(--bourdeaux-dark) 0%, var(--bourdeaux) 100%);
+    background: linear-gradient(
+      135deg,
+      var(--bourdeaux-dark) 0%,
+      var(--bourdeaux) 100%
+    );
   }
 
   /* Music Player Button */
@@ -233,7 +241,7 @@
   .overlay-bourdeaux-dark {
     background-color: rgba(90, 31, 40, 0.95);
   }
-  
+
   /* Event cards - burgundy background with proper styling */
   .event-card {
     background-color: var(--bourdeaux);
@@ -247,7 +255,7 @@
     max-width: 500px;
     flex: 1;
   }
-  
+
   .event-card h3 {
     color: var(--hueso);
     font-family: var(--font-display);
@@ -256,10 +264,115 @@
     margin-bottom: 0.75rem;
     letter-spacing: 0.03em;
   }
-  
+
   .event-card p {
     color: var(--text-light);
     font-size: 1rem;
     margin: 0.375rem 0;
+  }
+}
+
+/* ===========================================
+   Component-specific animations & styles
+   (Moved from styled-jsx to prevent hydration mismatch)
+   =========================================== */
+
+/* Divider component animations */
+.divider-svg path {
+  stroke-dasharray: 200;
+  stroke-dashoffset: 200;
+  animation: divider-draw 2s ease-out forwards;
+}
+
+.divider-svg circle {
+  transform-origin: center;
+  animation: divider-pulse 2s ease-in-out infinite;
+}
+
+@keyframes divider-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes divider-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+/* Gallery Swiper customization */
+.gallery-swiper .swiper-button-next,
+.gallery-swiper .swiper-button-prev {
+  color: var(--bourdeaux);
+  background-color: rgba(250, 240, 230, 0.9);
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(114, 47, 55, 0.2);
+  transition: all 0.3s ease;
+}
+
+.gallery-swiper .swiper-button-next::after,
+.gallery-swiper .swiper-button-prev::after {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.gallery-swiper .swiper-button-next:hover,
+.gallery-swiper .swiper-button-prev:hover {
+  background-color: var(--bourdeaux);
+  color: var(--hueso);
+  transform: scale(1.1);
+}
+
+.gallery-swiper .swiper-pagination-bullet {
+  background-color: var(--bourdeaux-light);
+  opacity: 0.5;
+  width: 10px;
+  height: 10px;
+  transition: all 0.3s ease;
+}
+
+.gallery-swiper .swiper-pagination-bullet-active {
+  background-color: var(--bourdeaux);
+  opacity: 1;
+  width: 30px;
+  border-radius: 5px;
+}
+
+/* RSVP animations */
+@keyframes rsvp-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes rsvp-scale-in {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* MusicPlayer tooltip animation */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

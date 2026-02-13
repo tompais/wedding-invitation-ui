@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { RSVP_CONFIG } from "../constants/rsvp";
+import { RSVP_CONFIG } from "@/constants/rsvp";
+import { api } from "@/lib/api";
+import type {
+  GuestResponse,
+  ConfirmationRequest,
+  ConfirmationResponse,
+} from "@/types/api";
 
 /**
  * APPLICATION LAYER: RSVP Flow Hook (Next.js Version)
@@ -13,32 +19,8 @@ import { RSVP_CONFIG } from "../constants/rsvp";
  * @returns Estado y acciones del flujo RSVP
  */
 
-interface Guest {
-  id: string;
-  firstName: string;
-  lastName: string;
-  code: string;
-  phone?: string | null;
-  group?: {
-    id: string;
-    name: string;
-    guests: Array<{
-      id: string;
-      firstName: string;
-      lastName: string;
-    }>;
-  } | null;
-  confirmation?: {
-    civilAttending: boolean;
-    partyAttending: boolean;
-    confirmedBy: {
-      id: string;
-      firstName: string;
-      lastName: string;
-    };
-    confirmedAt: Date;
-  } | null;
-}
+// Alias para claridad en el hook
+type Guest = GuestResponse;
 
 interface UseRSVPFlowReturn {
   // Estado
@@ -85,54 +67,47 @@ export const useRSVPFlow = (): UseRSVPFlowReturn => {
    * Procesa el código de invitado consultando la API
    */
   const processGuestCode = async (code: string) => {
-    try {
-      const response = await fetch(`/api/guest/${code}`);
+    const { data, error } = await api.get<GuestResponse>(
+      `/api/guests?code=${code}`
+    );
 
-      if (!response.ok) {
-        return {
-          success: false,
-          error: RSVP_CONFIG.messages.errors.codeNotFound,
-        };
-      }
-
-      const data = await response.json();
-
-      // Verificar si ya fue confirmado
-      if (data.confirmation) {
-        // Ya confirmado por alguien
-        const confirmedByName = `${data.confirmation.confirmedBy.firstName} ${data.confirmation.confirmedBy.lastName}`;
-        return {
-          success: false,
-          error: `Ya confirmado por ${confirmedByName}`,
-        };
-      }
-
-      setCurrentGuest(data);
-
-      // Si tiene grupo, cargar miembros
-      if (data.group) {
-        setFamilyMembers(data.group.guests);
-
-        // Inicializar confirmación (solo el actual marcado)
-        const initialConfirm: Record<string, boolean> = {};
-        data.group.guests.forEach((member: Guest) => {
-          initialConfirm[member.code] = member.code === data.code;
-        });
-        setFamilyConfirm(initialConfirm);
-      } else {
-        setFamilyMembers([data]);
-        setFamilyConfirm({ [data.code]: true });
-      }
-
-      setStep(2);
-      return { success: true };
-    } catch (error) {
-      console.error("Error al procesar código:", error);
+    if (error || !data) {
       return {
         success: false,
-        error: RSVP_CONFIG.messages.errors.error,
+        error: RSVP_CONFIG.messages.errors.codeNotFound,
       };
     }
+
+    // Verificar si ya fue confirmado
+    if (data.confirmation) {
+      const confirmedByName = `${data.confirmation.confirmedBy.firstName} ${data.confirmation.confirmedBy.lastName}`;
+      return {
+        success: false,
+        error: `Ya confirmado por ${confirmedByName}`,
+      };
+    }
+
+    setCurrentGuest(data);
+
+    // Si tiene grupo, cargar miembros
+    if (data.group) {
+      setFamilyMembers(data.group.guests as unknown as Guest[]);
+
+      // Inicializar confirmación (solo el actual marcado)
+      const initialConfirm: Record<string, boolean> = {};
+      data.group.guests.forEach((member) => {
+        // Necesitamos el code de cada miembro, pero solo tenemos id/firstName/lastName
+        // Por ahora usamos id como key
+        initialConfirm[member.id] = member.id === data.id;
+      });
+      setFamilyConfirm(initialConfirm);
+    } else {
+      setFamilyMembers([data]);
+      setFamilyConfirm({ [data.id]: true });
+    }
+
+    setStep(2);
+    return { success: true };
   };
 
   /**
@@ -174,30 +149,26 @@ export const useRSVPFlow = (): UseRSVPFlowReturn => {
     setFormState("submitting");
     setIsNoAttendance(true);
 
-    try {
-      const response = await fetch("/api/confirmation", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          confirmedById: currentGuest.id,
-          confirmations: [
-            {
-              guestId: currentGuest.id,
-              civilAttending: false,
-              partyAttending: false,
-            },
-          ],
-        }),
-      });
+    const requestBody: ConfirmationRequest = {
+      confirmedById: currentGuest.id,
+      confirmations: [
+        {
+          guestId: currentGuest.id,
+          civilAttending: false,
+          partyAttending: false,
+        },
+      ],
+    };
 
-      if (response.ok) {
-        setFormState("success");
-        scheduleReset();
-      } else {
-        setFormState("error");
-      }
-    } catch (error) {
-      console.error("Error al enviar:", error);
+    const { error } = await api.post<ConfirmationResponse, ConfirmationRequest>(
+      "/api/confirmation",
+      requestBody
+    );
+
+    if (!error) {
+      setFormState("success");
+      scheduleReset();
+    } else {
       setFormState("error");
     }
   };
@@ -212,39 +183,30 @@ export const useRSVPFlow = (): UseRSVPFlowReturn => {
 
     setFormState("submitting");
 
-    try {
-      // Preparar confirmaciones para todos los miembros seleccionados
-      const confirmations = Object.entries(familyConfirm)
-        .filter(([, isConfirmed]) => isConfirmed)
-        .map(([guestCode]) => {
-          // Buscar el guest por code para obtener su id
-          const guest = familyMembers.find((m) => m.code === guestCode);
-          return {
-            guestId: guest?.id || "",
-            civilAttending: selectedEvents.includes("Civil"),
-            partyAttending: selectedEvents.includes("Fiesta"),
-          };
-        });
+    // Preparar confirmaciones para todos los miembros seleccionados
+    const confirmations = Object.entries(familyConfirm)
+      .filter(([, isConfirmed]) => isConfirmed)
+      .map(([guestId]) => ({
+        guestId,
+        civilAttending: selectedEvents.includes("Civil"),
+        partyAttending: selectedEvents.includes("Fiesta"),
+      }));
 
-      const response = await fetch("/api/confirmation", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          confirmedById: currentGuest.id,
-          confirmations,
-        }),
-      });
+    const requestBody: ConfirmationRequest = {
+      confirmedById: currentGuest.id,
+      confirmations,
+    };
 
-      if (response.ok) {
-        setFormState("success");
-        scheduleReset();
-        return { success: true };
-      } else {
-        setFormState("error");
-        return { success: false };
-      }
-    } catch (error) {
-      console.error("Error al enviar:", error);
+    const { error } = await api.post<ConfirmationResponse, ConfirmationRequest>(
+      "/api/confirmation",
+      requestBody
+    );
+
+    if (!error) {
+      setFormState("success");
+      scheduleReset();
+      return { success: true };
+    } else {
       setFormState("error");
       return { success: false };
     }

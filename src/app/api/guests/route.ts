@@ -7,20 +7,26 @@ import type { Guest, Group, Confirmation } from "@/types/database";
 export const dynamic = "force-dynamic";
 
 /**
- * API ROUTE: GET /api/guest/[code]
+ * API ROUTE: GET /api/guests?code=123456
  *
- * Obtiene un invitado por su código único
+ * Obtiene un invitado por su código único de invitación
  * Incluye: grupo familiar, confirmación previa
  *
- * @param code - Código del invitado (ej: 123456)
+ * @query code - Código del invitado (ej: 123456)
  * @returns Guest con relaciones o 404
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ code: string }> }
-) {
+export async function GET(request: NextRequest) {
   try {
-    const { code } = await params;
+    // Obtener el código desde query params
+    const { searchParams } = new URL(request.url);
+    const code = searchParams.get("code");
+
+    if (!code) {
+      return NextResponse.json(
+        { error: "El parámetro 'code' es requerido" },
+        { status: 400 }
+      );
+    }
 
     // Validar formato del código con Zod
     const validation = guestCodeSchema.safeParse({ code });

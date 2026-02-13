@@ -76,19 +76,7 @@ function MusicPlayer() {
         {/* Tooltip que se muestra solo al inicio y si está muteado */}
         {showTooltip && isMuted && (
           <span className="tooltip animate-[slideUp_0.4s_cubic-bezier(0.34,1.56,0.64,1)]">
-            <style jsx>{`
-              @keyframes slideUp {
-                from {
-                  opacity: 0;
-                  transform: translateY(10px);
-                }
-                to {
-                  opacity: 1;
-                  transform: translateY(0);
-                }
-              }
-            `}</style>
-            <span className="absolute right-5 top-full h-0 w-0 border-l-[8px] border-r-0 border-t-[8px] border-l-transparent border-r-transparent border-t-bourdeaux-dark" />
+            <span className="border-t-bourdeaux-dark absolute top-full right-5 h-0 w-0 border-t-[8px] border-r-0 border-l-[8px] border-r-transparent border-l-transparent" />
             🎵 Activa la música
           </span>
         )}
