@@ -66,11 +66,18 @@ function EventInfo() {
   return (
     <>
       <section
-        className="w-full bg-hueso px-8 py-24 text-center text-text-dark"
+        className="w-full px-8 py-24 text-center"
+        style={{ backgroundColor: "var(--hueso)", color: "var(--text-dark)" }}
         ref={ref}
       >
         <div className="mx-auto max-w-[1200px]">
-          <h2 className="mb-14 font-display text-4xl font-semibold tracking-[0.05em] text-bourdeaux-dark">
+          <h2
+            className="mb-14 text-4xl font-semibold tracking-[0.05em]"
+            style={{
+              color: "var(--bourdeaux-dark)",
+              fontFamily: "var(--font-display)",
+            }}
+          >
             Las fechas
           </h2>
 

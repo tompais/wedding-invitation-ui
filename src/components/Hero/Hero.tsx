@@ -5,10 +5,18 @@ import Divider from "../Divider/Divider";
 
 export default function Hero() {
   return (
-    <section className="bg-gradient-bourdeaux flex min-h-screen w-full items-center justify-center text-center text-text-light">
+    <section
+      className="flex min-h-screen w-full items-center justify-center text-center"
+      style={{
+        background:
+          "linear-gradient(180deg, var(--bourdeaux-dark), var(--bourdeaux))",
+        color: "var(--text-light)",
+      }}
+    >
       <div className="mx-auto max-w-[900px] px-8">
         <motion.p
-          className="mb-6 font-body text-lg uppercase tracking-[0.08em] opacity-80 text-text-light"
+          className="mb-6 text-lg uppercase tracking-[0.08em] opacity-80"
+          style={{ color: "var(--text-light)", fontFamily: "var(--font-body)" }}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 2.2 }}
@@ -17,7 +25,8 @@ export default function Hero() {
         </motion.p>
 
         <motion.h1
-          className="mb-4 font-display text-6xl font-semibold tracking-[0.05em] text-hueso md:text-5xl sm:text-4xl"
+          className="mb-4 text-6xl font-semibold tracking-[0.05em] md:text-5xl sm:text-4xl"
+          style={{ color: "var(--hueso)", fontFamily: "var(--font-display)" }}
           initial={{ opacity: 0, y: 30, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 1, delay: 2.5 }}
@@ -34,7 +43,8 @@ export default function Hero() {
         </motion.div>
 
         <motion.p
-          className="text-lg opacity-75 text-text-muted"
+          className="text-lg opacity-75"
+          style={{ color: "var(--text-muted)" }}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 3.3 }}
