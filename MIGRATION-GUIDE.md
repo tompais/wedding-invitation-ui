@@ -62,6 +62,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 Si ya hiciste la integración Vercel ↔ Supabase desde el dashboard, las variables ya están configuradas.
 
 Si no:
+
 1. Ir a [Vercel Dashboard](https://vercel.com) → Tu Proyecto → **Settings** → **Environment Variables**
 2. Agregar:
    - `NEXT_PUBLIC_SUPABASE_URL` = Tu URL de Supabase
@@ -134,15 +135,15 @@ if (guest?.group_id) {
 
 ## ✅ Ventajas de la Migración
 
-| Aspecto | Prisma | Supabase |
-|---------|--------|----------|
-| **Conexión IPv6** | ❌ Solo IPv6 (problemas) | ✅ HTTP API (IPv4/IPv6) |
-| **Build en Vercel** | ❌ Requiere DB en build time | ✅ No requiere DB |
-| **Tiempo de Build** | ~2-3 min (con migraciones) | ~1 min (sin migraciones) |
-| **Integración Vercel** | ⚠️ Manual | ✅ Automática |
-| **Variables de Entorno** | 1 (`DATABASE_URL`) | 2 (pero auto-config) |
-| **Migraciones** | SQL + Prisma Migrate | SQL directo en Supabase |
-| **Tipos TypeScript** | Auto-generados | Definidos manualmente |
+| Aspecto                  | Prisma                       | Supabase                 |
+| ------------------------ | ---------------------------- | ------------------------ |
+| **Conexión IPv6**        | ❌ Solo IPv6 (problemas)     | ✅ HTTP API (IPv4/IPv6)  |
+| **Build en Vercel**      | ❌ Requiere DB en build time | ✅ No requiere DB        |
+| **Tiempo de Build**      | ~2-3 min (con migraciones)   | ~1 min (sin migraciones) |
+| **Integración Vercel**   | ⚠️ Manual                    | ✅ Automática            |
+| **Variables de Entorno** | 1 (`DATABASE_URL`)           | 2 (pero auto-config)     |
+| **Migraciones**          | SQL + Prisma Migrate         | SQL directo en Supabase  |
+| **Tipos TypeScript**     | Auto-generados               | Definidos manualmente    |
 
 ---
 
@@ -153,6 +154,7 @@ if (guest?.group_id) {
 Supabase no genera tipos automáticamente como Prisma. Los tipos en `src/types/supabase.ts` se definen manualmente basados en el schema.
 
 **Solución:** Usar Supabase CLI para generar tipos automáticamente (opcional):
+
 ```bash
 npx supabase gen types typescript --project-id "tu-proyecto-id" > src/types/supabase.ts
 ```
@@ -162,18 +164,31 @@ npx supabase gen types typescript --project-id "tu-proyecto-id" > src/types/supa
 Supabase tiene limitaciones en joins complejos. Para relaciones, a veces es necesario hacer múltiples queries.
 
 **Antes (Prisma):**
+
 ```typescript
 const guest = await prisma.guest.findUnique({
   where: { id },
-  include: { group: { include: { guests: true } }, confirmations: true }
+  include: { group: { include: { guests: true } }, confirmations: true },
 });
 ```
 
 **Ahora (Supabase):**
+
 ```typescript
-const { data: guest } = await supabase.from("guests").select("*").eq("id", id).single();
-const { data: group } = await supabase.from("groups").select("*, guests(*)").eq("id", guest.group_id).single();
-const { data: confirmations } = await supabase.from("confirmations").select("*").eq("guest_id", id);
+const { data: guest } = await supabase
+  .from("guests")
+  .select("*")
+  .eq("id", id)
+  .single();
+const { data: group } = await supabase
+  .from("groups")
+  .select("*, guests(*)")
+  .eq("id", guest.group_id)
+  .single();
+const { data: confirmations } = await supabase
+  .from("confirmations")
+  .select("*")
+  .eq("guest_id", id);
 ```
 
 ### 3. Transacciones
@@ -202,6 +217,7 @@ Todos los archivos de documentación han sido actualizados:
 **Causa:** Variables de entorno no configuradas.
 
 **Solución:**
+
 1. Crear `.env.local` con las credenciales correctas
 2. Reiniciar el servidor de desarrollo
 
@@ -210,6 +226,7 @@ Todos los archivos de documentación han sido actualizados:
 **Causa:** Anon key incorrecta o expirada.
 
 **Solución:**
+
 1. Verificar en Supabase Dashboard → Settings → API
 2. Copiar la `anon` key (NO la `service_role` key)
 3. Actualizar `.env.local`
@@ -225,6 +242,7 @@ Todos los archivos de documentación han sido actualizados:
 **Causa:** Los datos no se migraron automáticamente.
 
 **Solución:**
+
 1. Si tenías datos en Prisma/PostgreSQL, exportarlos con `pg_dump`
 2. Importarlos en Supabase usando SQL Editor
 3. O agregar datos manualmente desde Table Editor
@@ -245,11 +263,14 @@ Todos los archivos de documentación han sido actualizados:
 ## 📞 Soporte
 
 Si tenés problemas con la migración:
+
 1. Revisar [DATABASE-SETUP.md](./DATABASE-SETUP.md)
 2. Verificar logs de Vercel en Dashboard → Deployments → Function Logs
 3. Revisar logs de Supabase en Dashboard → Logs
 
 ---
+
+# MIGRATION-GUIDE.md fue movido a docs/MIGRATION-GUIDE.md
 
 **Fecha de Migración:** Febrero 2026  
 **Versión:** 1.0.0  

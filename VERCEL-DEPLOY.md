@@ -17,6 +17,7 @@
 1. **`next build`** → Compila la aplicación Next.js
 
 **No se necesita:**
+
 - ❌ Aplicar migraciones durante el build
 - ❌ Generar cliente de Prisma
 - ❌ Conexión a base de datos durante el build
@@ -106,10 +107,10 @@ next build → TypeScript + Build
 
 **Dashboard de Vercel → Settings → Environment Variables:**
 
-| Variable                       | Valor                         | Environment        |
-| ------------------------------ | ----------------------------- | ------------------ |
-| `NEXT_PUBLIC_SUPABASE_URL`     | URL de tu proyecto Supabase   | Production ✅      |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY`| Anon key de Supabase          | Production ✅      |
+| Variable                        | Valor                       | Environment   |
+| ------------------------------- | --------------------------- | ------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`      | URL de tu proyecto Supabase | Production ✅ |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Anon key de Supabase        | Production ✅ |
 
 **Ejemplo:**
 
@@ -256,3 +257,5 @@ git push → Vercel → Build → Deploy ✅
 - ✅ Sin problemas de IPv6
 - ✅ Integración nativa con Vercel
 - ✅ Variables de entorno configuradas automáticamente
+
+# VERCEL-DEPLOY.md fue movido a docs/VERCEL-DEPLOY.md

@@ -154,3 +154,7 @@ Cada nombre de migración cuenta una historia. 📖
 - ✅ **Vercel aplica migraciones automáticamente** en deploy
 
 **Filosofía:** Tratá las migraciones como commits de Git - cada una representa un cambio atómico e incremental.
+
+---
+
+# MIGRATION-WORKFLOW.md fue movido a docs/MIGRATION-WORKFLOW.md

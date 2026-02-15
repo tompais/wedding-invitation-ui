@@ -197,3 +197,7 @@ Después de seguir esta guía:
 - ✅ Usa PostgreSQL (misma base de datos que antes)
 - ✅ Todas las tablas y relaciones se mantienen iguales
 - ✅ Los datos existentes se conservan
+
+---
+
+# DATABASE-SETUP.md fue movido a docs/DATABASE-SETUP.md

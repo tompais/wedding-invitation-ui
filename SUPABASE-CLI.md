@@ -197,6 +197,8 @@ Los tipos en `src/types/supabase.ts` fueron creados **manualmente** basándose e
    ```
    Esto debería generar tipos idénticos a los actuales.
 
+# SUPABASE-CLI.md fue movido a docs/SUPABASE-CLI.md
+
 ## 🔗 Enlaces Útiles
 
 - [Supabase CLI Docs](https://supabase.com/docs/guides/cli)

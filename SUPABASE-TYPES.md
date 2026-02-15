@@ -218,3 +218,5 @@ Mientras tanto, esta es la **mejor solución posible** y es el enfoque **recomen
 - [Supabase TypeScript Support](https://supabase.com/docs/reference/javascript/typescript-support)
 - [Generating Types from Supabase](https://supabase.com/docs/guides/api/rest/generating-types)
 - [GitHub Issue: Type inference with select("\*")](https://github.com/supabase/supabase-js/issues/743)
+
+# SUPABASE-TYPES.md fue movido a docs/SUPABASE-TYPES.md

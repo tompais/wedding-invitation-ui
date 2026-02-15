@@ -26,7 +26,7 @@ cp .env.example .env.local
 
 ## 🗄️ Configuración de Base de Datos
 
-**Ver guía completa:** [DATABASE-SETUP.md](./DATABASE-SETUP.md)
+**Ver guía completa:** [docs](docs/DATABASE-SETUP.md)
 
 **Configuración con Supabase:**
 
@@ -74,12 +74,12 @@ Open [http://localhost:3000](http://localhost:3000) to see the result.
 
 ## 📚 Documentación
 
-- [DATABASE-SETUP.md](./DATABASE-SETUP.md) - Guía de configuración de Supabase
-- [SUPABASE-CLI.md](./SUPABASE-CLI.md) - Guía de Supabase CLI, migraciones y generación de tipos
-- [SUPABASE-TYPES.md](./SUPABASE-TYPES.md) - Explicación del sistema de tipos TypeScript
-- [MIGRATION-GUIDE.md](./MIGRATION-GUIDE.md) - Guía completa de migración de Prisma a Supabase
-- [VERCEL-DEPLOY.md](./VERCEL-DEPLOY.md) - Configuración de deploy
-- [ESLINT-PRETTIER-SETUP.md](./ESLINT-PRETTIER-SETUP.md) - Configuración de linting y formateo
+- [docs](docs/DATABASE-SETUP.md) - Guía de configuración de Supabase
+- [docs](docs/SUPABASE-CLI.md) - Guía de Supabase CLI, migraciones y generación de tipos
+- [docs](docs/SUPABASE-TYPES.md) - Explicación del sistema de tipos TypeScript
+- [docs](docs/MIGRATION-GUIDE.md) - Guía completa de migración de Prisma a Supabase
+- [docs](docs/VERCEL-DEPLOY.md) - Configuración de deploy
+- [docs](docs/ESLINT-PRETTIER-SETUP.md) - Configuración de linting y formateo
 
 ## 🚀 Deploy en Vercel
 
@@ -88,7 +88,7 @@ Open [http://localhost:3000](http://localhost:3000) to see the result.
 3. Integrar con Supabase (automático) o configurar `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` manualmente en Environment Variables
 4. Deploy automático ✨
 
-Ver [VERCEL-DEPLOY.md](./VERCEL-DEPLOY.md) para más detalles.
+Ver [docs](docs/VERCEL-DEPLOY.md) para más detalles.
 
 ## 🎨 Estructura del Proyecto
 

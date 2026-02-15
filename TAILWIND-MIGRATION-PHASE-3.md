@@ -302,3 +302,5 @@ The hybrid approach of Tailwind utilities + CSS variables + styled-jsx proved ef
 - Build size reduced
 - Improved maintainability
 - Design system consistency preserved
+
+# TAILWIND-MIGRATION-PHASE-3.md fue movido a docs/TAILWIND-MIGRATION-PHASE-3.md
