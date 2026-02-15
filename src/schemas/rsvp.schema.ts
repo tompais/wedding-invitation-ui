@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { EventType } from "@/types/EventType";
 
 /**
  * DOMAIN LAYER: Validation Schemas
@@ -27,9 +28,13 @@ export const createGuestSchema = z.object({
     .trim(),
   phone: z
     .string()
-    .regex(
-      /^\+?[1-9]\d{1,14}$/,
-      "Formato de teléfono inválido (usar formato internacional: +54 11 1234-5678)"
+    .refine(
+      (val) =>
+        val === null || val === undefined || /^\+?[1-9]\d{1,14}$/.test(val),
+      {
+        message:
+          "Formato de teléfono inválido (usar formato internacional: +54 11 1234-5678)",
+      }
     )
     .optional()
     .nullable(),
@@ -37,7 +42,20 @@ export const createGuestSchema = z.object({
     .string()
     .regex(/^\d{6}$/, "El código debe ser numérico de 6 dígitos")
     .length(6, "El código debe tener exactamente 6 dígitos"),
-  groupId: z.string().uuid("ID de grupo inválido").optional().nullable(),
+  groupId: z
+    .string()
+    .refine(
+      (val) =>
+        !val ||
+        /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(
+          val
+        ),
+      {
+        message: "ID de grupo inválido",
+      }
+    )
+    .optional()
+    .nullable(),
 });
 
 /**
@@ -74,7 +92,17 @@ export const createGroupSchema = z.object({
  * Schema para confirmación individual
  */
 export const confirmationSchema = z.object({
-  guestId: z.string().uuid("ID de invitado inválido"),
+  guestId: z
+    .string()
+    .refine(
+      (val) =>
+        /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(
+          val
+        ),
+      {
+        message: "ID de invitado inválido",
+      }
+    ),
   civilAttending: z.boolean().default(false),
   partyAttending: z.boolean().default(false),
 });
@@ -85,7 +113,15 @@ export const confirmationSchema = z.object({
 export const groupConfirmationSchema = z.object({
   confirmedById: z
     .string()
-    .uuid("ID de quien confirma es inválido")
+    .refine(
+      (val) =>
+        /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(
+          val
+        ),
+      {
+        message: "ID de quien confirma es inválido",
+      }
+    )
     .describe("ID del invitado que está confirmando"),
   confirmations: z
     .array(confirmationSchema)
@@ -104,7 +140,7 @@ export const groupConfirmationSchema = z.object({
  */
 export const eventsSelectionSchema = z.object({
   events: z
-    .array(z.enum(["Civil", "Fiesta"]))
+    .array(z.enum([EventType.CIVIL, EventType.FIESTA]))
     .min(1, "Debes seleccionar al menos un evento"),
 });
 
@@ -116,18 +152,42 @@ export const eventsSelectionSchema = z.object({
  * Schema de respuesta para invitado con grupo
  */
 export const guestWithGroupResponseSchema = z.object({
-  id: z.string().uuid(),
+  id: z
+    .string()
+    .refine(
+      (val) =>
+        /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(
+          val
+        ),
+      { message: "ID inválido" }
+    ),
   firstName: z.string(),
   lastName: z.string(),
   code: z.string(),
   phone: z.string().nullable(),
   group: z
     .object({
-      id: z.string().uuid(),
+      id: z
+        .string()
+        .refine(
+          (val) =>
+            /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(
+              val
+            ),
+          { message: "ID inválido" }
+        ),
       name: z.string(),
       guests: z.array(
         z.object({
-          id: z.string().uuid(),
+          id: z
+            .string()
+            .refine(
+              (val) =>
+                /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(
+                  val
+                ),
+              { message: "ID inválido" }
+            ),
           firstName: z.string(),
           lastName: z.string(),
         })
@@ -139,7 +199,15 @@ export const guestWithGroupResponseSchema = z.object({
       civilAttending: z.boolean(),
       partyAttending: z.boolean(),
       confirmedBy: z.object({
-        id: z.string().uuid(),
+        id: z
+          .string()
+          .refine(
+            (val) =>
+              /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(
+                val
+              ),
+            { message: "ID inválido" }
+          ),
         firstName: z.string(),
         lastName: z.string(),
       }),

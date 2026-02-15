@@ -1,4 +1,5 @@
 import "./Loading.css";
+import { LoadingSize } from "@/types/LoadingSize";
 
 /**
  * COMPONENTE REUTILIZABLE: Loading
@@ -15,16 +16,16 @@ import "./Loading.css";
  */
 
 interface LoadingProps {
-  size?: "small" | "medium" | "large";
+  size?: LoadingSize;
   message?: string;
   overlay?: boolean;
 }
 
 export default function Loading({
-  size = "medium",
+  size = LoadingSize.MEDIUM,
   message = "",
   overlay = false,
-}: LoadingProps) {
+}: Readonly<LoadingProps>) {
   if (overlay) {
     return (
       <div className="loading-overlay">

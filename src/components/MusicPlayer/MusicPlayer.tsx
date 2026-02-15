@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { FiVolume2 } from "react-icons/fi";
-import { useAudio } from "../../hooks/useAudio";
+import { useAudio } from "@/hooks/useAudio";
 
 /**
  * COMPONENTE: MusicPlayer
@@ -64,6 +64,7 @@ function MusicPlayer() {
           src="/music/Diana_Ross_ft_Marvin_Gaye_-_Ain_t_no_mountain_high_enough_(mp3.pm).mp3"
           type="audio/mpeg"
         />
+        <track kind="captions" />
       </audio>
 
       {/* Botón flotante de música */}
@@ -76,16 +77,13 @@ function MusicPlayer() {
         {/* Tooltip que se muestra solo al inicio y si está muteado */}
         {showTooltip && isMuted && (
           <span className="tooltip animate-[slideUp_0.4s_cubic-bezier(0.34,1.56,0.64,1)]">
-            <span className="border-t-bourdeaux-dark absolute top-full right-5 h-0 w-0 border-t-[8px] border-r-0 border-l-[8px] border-r-transparent border-l-transparent" />
+            <span className="border-t-bourdeaux-dark absolute top-full right-5 inline-block h-0 w-0 border-t-8 border-r-0 border-l-8 border-r-transparent border-l-transparent align-middle" />{" "}
             🎵 Activa la música
           </span>
         )}
 
         {/* Icono de volumen (siempre el mismo) */}
-        <FiVolume2
-          size={24}
-          className="sm:h-[18px] sm:w-[18px] md:h-5 md:w-5"
-        />
+        <FiVolume2 size={24} className="sm:h-4.5 sm:w-4.5 md:h-5 md:w-5" />
       </button>
     </>
   );

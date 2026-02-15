@@ -18,10 +18,10 @@ import { ReactNode, MouseEvent } from "react";
  */
 
 interface ModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  children: ReactNode;
-  title?: string;
+  readonly isOpen: boolean;
+  readonly onClose: () => void;
+  readonly children: ReactNode;
+  readonly title?: string;
 }
 
 export default function Modal({
@@ -29,7 +29,7 @@ export default function Modal({
   onClose,
   children,
   title,
-}: ModalProps) {
+}: Readonly<ModalProps>) {
   if (!isOpen) return null;
 
   /**
@@ -45,7 +45,7 @@ export default function Modal({
 
   return (
     <motion.div
-      className="fixed inset-0 z-[1000] flex items-center justify-center p-8 md:p-4"
+      className="fixed inset-0 z-1000 flex items-center justify-center p-8 md:p-4"
       style={{ backgroundColor: "rgba(90, 31, 40, 0.85)" }}
       onClick={handleOverlayClick}
       initial={{ opacity: 0 }}
@@ -57,7 +57,7 @@ export default function Modal({
       aria-labelledby={title ? "modal-title" : undefined}
     >
       <motion.div
-        className="relative max-h-[90vh] w-full max-w-[600px] overflow-y-auto rounded-2xl p-8 md:max-h-[85vh] md:p-6"
+        className="relative max-h-[90vh] w-full max-w-150 overflow-y-auto rounded-2xl p-8 md:max-h-[85vh] md:p-6"
         style={{
           backgroundColor: "var(--hueso)",
           boxShadow: "0 15px 40px rgba(90, 31, 40, 0.35)",

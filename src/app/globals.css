@@ -84,8 +84,8 @@
     right: 2rem;
     z-index: 999999;
     display: flex;
-    height: 60px;
-    width: 60px;
+    height: 3.75rem;
+    width: 3.75rem;
     cursor: pointer;
     align-items: center;
     justify-content: center;
@@ -114,8 +114,8 @@
     .music-button {
       bottom: 1.5rem;
       right: 1.5rem;
-      height: 54px;
-      width: 54px;
+      height: 3.375rem;
+      width: 3.375rem;
     }
   }
 
@@ -123,8 +123,8 @@
     .music-button {
       bottom: 1rem;
       right: 1rem;
-      height: 50px;
-      width: 50px;
+      height: 3.125rem;
+      width: 3.125rem;
     }
   }
 
@@ -251,8 +251,8 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    min-width: 320px;
-    max-width: 500px;
+    min-width: 20rem;
+    max-width: 31.25rem;
     flex: 1;
   }
 
@@ -279,8 +279,8 @@
 
 /* Divider component animations */
 .divider-svg path {
-  stroke-dasharray: 200;
-  stroke-dashoffset: 200;
+  stroke-dasharray: 12.5rem;
+  stroke-dashoffset: 12.5rem;
   animation: divider-draw 2s ease-out forwards;
 }
 
@@ -312,8 +312,8 @@
 .gallery-swiper .swiper-button-prev {
   color: var(--bourdeaux);
   background-color: rgba(250, 240, 230, 0.9);
-  width: 45px;
-  height: 45px;
+  width: 2.8125rem;
+  height: 2.8125rem;
   border-radius: 50%;
   box-shadow: 0 4px 12px rgba(114, 47, 55, 0.2);
   transition: all 0.3s ease;
@@ -321,7 +321,7 @@
 
 .gallery-swiper .swiper-button-next::after,
 .gallery-swiper .swiper-button-prev::after {
-  font-size: 20px;
+  font-size: 1.25rem;
   font-weight: bold;
 }
 
@@ -335,15 +335,15 @@
 .gallery-swiper .swiper-pagination-bullet {
   background-color: var(--bourdeaux-light);
   opacity: 0.5;
-  width: 10px;
-  height: 10px;
+  width: 0.625rem;
+  height: 0.625rem;
   transition: all 0.3s ease;
 }
 
 .gallery-swiper .swiper-pagination-bullet-active {
   background-color: var(--bourdeaux);
   opacity: 1;
-  width: 30px;
+  width: 1.875rem;
   border-radius: 5px;
 }
 
@@ -369,7 +369,7 @@
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(0.625rem);
   }
   to {
     opacity: 1;

@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { RSVP_CONFIG } from "@/constants/rsvp";
 import { api } from "@/lib/api";
-import type {
-  GuestResponse,
-  ConfirmationRequest,
-  ConfirmationResponse,
-} from "@/types/api";
+import type { GuestResponse } from "@/types/api";
+import { FormState } from "@/types/FormState";
+import { EventType } from "@/types/EventType";
+import { RSVPStep } from "@/types/RSVPStep";
 
 /**
  * APPLICATION LAYER: RSVP Flow Hook (Next.js Version)
@@ -25,21 +24,21 @@ type Guest = GuestResponse;
 interface UseRSVPFlowReturn {
   // Estado
   step: number;
-  formState: "idle" | "submitting" | "success" | "error";
+  formState: FormState;
   isNoAttendance: boolean;
   currentGuest: Guest | null;
   familyMembers: Guest[];
   familyConfirm: Record<string, boolean>;
-  selectedEvents: string[];
+  selectedEvents: EventType[];
 
   // Acciones
   processGuestCode: (
     code: string
   ) => Promise<{ success: boolean; error?: string }>;
-  handleAttendanceDecision: (willAttend: boolean) => void;
-  toggleEvent: (event: string) => void;
+  // handleAttendanceDecision fue reemplazado por attend y decline
+  attend: () => void;
+  toggleEvent: (event: EventType) => void;
   toggleFamilyMember: (memberId: string, isConfirmed: boolean) => void;
-  submitAttendance: () => Promise<{ success: boolean; error?: string }>;
   goBack: () => void;
   goForward: () => void;
   resetFlow: () => void;
@@ -47,10 +46,8 @@ interface UseRSVPFlowReturn {
 
 export const useRSVPFlow = (): UseRSVPFlowReturn => {
   // Estados del flujo
-  const [step, setStep] = useState(1);
-  const [formState, setFormState] = useState<
-    "idle" | "submitting" | "success" | "error"
-  >("idle");
+  const [step, setStep] = useState(RSVPStep.CODE_INPUT);
+  const [formState, setFormState] = useState<FormState>(FormState.IDLE);
   const [isNoAttendance, setIsNoAttendance] = useState(false);
 
   // Datos del invitado
@@ -61,7 +58,7 @@ export const useRSVPFlow = (): UseRSVPFlowReturn => {
   );
 
   // Selecciones
-  const [selectedEvents, setSelectedEvents] = useState<string[]>([]);
+  const [selectedEvents, setSelectedEvents] = useState<EventType[]>([]);
 
   /**
    * Procesa el código de invitado consultando la API
@@ -106,25 +103,19 @@ export const useRSVPFlow = (): UseRSVPFlowReturn => {
       setFamilyConfirm({ [data.id]: true });
     }
 
-    setStep(2);
+    setStep(RSVPStep.ATTENDANCE_DECISION);
     return { success: true };
   };
 
   /**
    * Maneja la decisión de asistencia
    */
-  const handleAttendanceDecision = (willAttend: boolean) => {
-    if (willAttend) {
-      setStep(4); // Ir a selección de eventos
-    } else {
-      submitNoAttendance(); // Enviar directamente
-    }
-  };
+  const attend = () => setStep(RSVPStep.EVENT_SELECTION);
 
   /**
    * Toggle de evento seleccionado
    */
-  const toggleEvent = (event: string) => {
+  const toggleEvent = (event: EventType) => {
     setSelectedEvents((prev) =>
       prev.includes(event) ? prev.filter((e) => e !== event) : [...prev, event]
     );
@@ -140,98 +131,15 @@ export const useRSVPFlow = (): UseRSVPFlowReturn => {
     }));
   };
 
-  /**
-   * Envía confirmación de no asistencia
-   */
-  const submitNoAttendance = async () => {
-    if (!currentGuest) return;
-
-    setFormState("submitting");
-    setIsNoAttendance(true);
-
-    const requestBody: ConfirmationRequest = {
-      confirmedById: currentGuest.id,
-      confirmations: [
-        {
-          guestId: currentGuest.id,
-          civilAttending: false,
-          partyAttending: false,
-        },
-      ],
-    };
-
-    const { error } = await api.post<ConfirmationResponse, ConfirmationRequest>(
-      "/api/confirmation",
-      requestBody
-    );
-
-    if (!error) {
-      setFormState("success");
-      scheduleReset();
-    } else {
-      setFormState("error");
-    }
-  };
-
-  /**
-   * Envía confirmación de asistencia
-   */
-  const submitAttendance = async () => {
-    if (!currentGuest || selectedEvents.length === 0) {
-      return { success: false, error: RSVP_CONFIG.messages.errors.selectEvent };
-    }
-
-    setFormState("submitting");
-
-    // Preparar confirmaciones para todos los miembros seleccionados
-    const confirmations = Object.entries(familyConfirm)
-      .filter(([, isConfirmed]) => isConfirmed)
-      .map(([guestId]) => ({
-        guestId,
-        civilAttending: selectedEvents.includes("Civil"),
-        partyAttending: selectedEvents.includes("Fiesta"),
-      }));
-
-    const requestBody: ConfirmationRequest = {
-      confirmedById: currentGuest.id,
-      confirmations,
-    };
-
-    const { error } = await api.post<ConfirmationResponse, ConfirmationRequest>(
-      "/api/confirmation",
-      requestBody
-    );
-
-    if (!error) {
-      setFormState("success");
-      scheduleReset();
-      return { success: true };
-    } else {
-      setFormState("error");
-      return { success: false };
-    }
-  };
-
-  /**
-   * Programa el reset del formulario después del mensaje de éxito
-   */
-  const scheduleReset = () => {
-    setTimeout(() => {
-      resetFlow();
-    }, RSVP_CONFIG.successMessageDuration);
-  };
-
-  /**
-   * Resetea todo el flujo al estado inicial
-   */
+  // Resetea todo el flujo al estado inicial
   const resetFlow = () => {
-    setStep(1);
+    setStep(RSVPStep.CODE_INPUT);
     setCurrentGuest(null);
     setFamilyMembers([]);
     setFamilyConfirm({});
     setSelectedEvents([]);
     setIsNoAttendance(false);
-    setFormState("idle");
+    setFormState(FormState.IDLE);
   };
 
   /**
@@ -262,10 +170,9 @@ export const useRSVPFlow = (): UseRSVPFlowReturn => {
 
     // Acciones
     processGuestCode,
-    handleAttendanceDecision,
+    attend,
     toggleEvent,
     toggleFamilyMember,
-    submitAttendance,
     goBack,
     goForward,
     resetFlow,

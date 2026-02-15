@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useScrollAnimation } from "../../hooks/useScrollAnimation";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useState } from "react";
 import Image from "next/image";
 import Lightbox from "yet-another-react-lightbox";
@@ -66,7 +66,7 @@ function Gallery() {
       </motion.h2>
 
       <motion.div
-        className="mx-auto max-w-[1400px] px-4 pb-12"
+        className="mx-auto max-w-350 px-4 pb-12"
         initial={{ opacity: 0, y: 40 }}
         animate={isVisible ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.7, delay: 0.2 }}
@@ -108,7 +108,7 @@ function Gallery() {
         >
           {IMAGES.map((image, index) => (
             <SwiperSlide
-              key={index}
+              key={image.alt}
               className="flex items-center justify-center transition-transform duration-300"
             >
               <button
@@ -119,7 +119,7 @@ function Gallery() {
                 <Image
                   src={image.src}
                   alt={image.alt}
-                  className="h-[300px] w-full rounded-2xl border-[3px] object-cover transition-all duration-300 hover:translate-y-[-5px] hover:shadow-[0_15px_35px_rgba(114,47,55,0.35)]"
+                  className="h-75 w-full rounded-2xl border-[3px] object-cover transition-all duration-300 hover:-translate-y-1.25 hover:shadow-[0_15px_35px_rgba(114,47,55,0.35)]"
                   style={{
                     borderColor: "var(--bourdeaux-light)",
                     boxShadow: "0 10px 24px rgba(114, 47, 55, 0.2)",

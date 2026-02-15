@@ -25,13 +25,74 @@ export const dynamic = "force-dynamic";
  *   ]
  * }
  */
+
+// Función auxiliar: verifica existencia de invitado
+async function getGuestById(guestId: string): Promise<Guest | null> {
+  const { data, error } = await supabase
+    .from("guests")
+    .select("*")
+    .eq("id", guestId)
+    .single();
+  return error || !data ? null : (data as Guest);
+}
+
+// Función auxiliar: crea o actualiza una confirmación
+async function upsertConfirmation(
+  conf: { guestId: string; civilAttending: boolean; partyAttending: boolean },
+  confirmedById: string,
+  groupId: string | null
+): Promise<Confirmation | { error: string }> {
+  // Verificar si ya existe confirmación
+  const { data: existingConfirmation } = await supabase
+    .from("confirmations")
+    .select("*")
+    .eq("guest_id", conf.guestId)
+    .single();
+
+  if (existingConfirmation) {
+    // Actualizar confirmación existente
+    const updatePayload: ConfirmationUpdate = {
+      civil_attending: conf.civilAttending,
+      party_attending: conf.partyAttending,
+      confirmed_by_id: confirmedById,
+      group_id: groupId,
+      updated_at: new Date().toISOString(),
+    };
+    const { data, error } = await supabase
+      .from("confirmations")
+      .update(updatePayload as never)
+      .eq("guest_id", conf.guestId)
+      .select()
+      .single();
+    if (error) {
+      return { error: `Error updating confirmation: ${error.message}` };
+    }
+    return data as Confirmation;
+  } else {
+    // Crear nueva confirmación
+    const insertPayload: ConfirmationInsert = {
+      guest_id: conf.guestId,
+      confirmed_by_id: confirmedById,
+      group_id: groupId,
+      civil_attending: conf.civilAttending,
+      party_attending: conf.partyAttending,
+    };
+    const { data, error } = await supabase
+      .from("confirmations")
+      .insert(insertPayload as never)
+      .select()
+      .single();
+    if (error) {
+      return { error: `Error creating confirmation: ${error.message}` };
+    }
+    return data as Confirmation;
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-
-    // Validar con Zod
     const validation = groupConfirmationSchema.safeParse(body);
-
     if (!validation.success) {
       return NextResponse.json(
         {
@@ -41,101 +102,36 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-
     const { confirmedById, confirmations } = validation.data;
-
     // Verificar que el usuario que confirma exista
-    const { data: confirmer, error: confirmerError } = await supabase
-      .from("guests")
-      .select("*")
-      .eq("id", confirmedById)
-      .single();
-
-    if (confirmerError || !confirmer) {
+    const confirmerGuest = await getGuestById(confirmedById);
+    if (!confirmerGuest) {
       return NextResponse.json(
         { error: "Usuario que confirma no encontrado" },
         { status: 404 }
       );
     }
-
-    // Type assertion: Supabase client devuelve 'never' con select("*")
-    // Ver: https://github.com/supabase/supabase-js/issues/743
-    const confirmerGuest = confirmer as Guest;
-
     const createdConfirmations: Confirmation[] = [];
-
     for (const conf of confirmations) {
       // Verificar que el invitado exista
-      const { data: guest, error: guestError } = await supabase
-        .from("guests")
-        .select("*")
-        .eq("id", conf.guestId)
-        .single();
-
-      if (guestError || !guest) {
+      const guest = await getGuestById(conf.guestId);
+      if (!guest) {
         return NextResponse.json(
           { error: `Invitado ${conf.guestId} no encontrado` },
           { status: 404 }
         );
       }
-
-      // Verificar si ya existe confirmación
-      const { data: existingConfirmation } = await supabase
-        .from("confirmations")
-        .select("*")
-        .eq("guest_id", conf.guestId)
-        .single();
-
-      let confirmation;
-
-      if (existingConfirmation) {
-        // Actualizar confirmación existente
-        const updatePayload: ConfirmationUpdate = {
-          civil_attending: conf.civilAttending,
-          party_attending: conf.partyAttending,
-          confirmed_by_id: confirmedById,
-          group_id: confirmerGuest.group_id,
-          updated_at: new Date().toISOString(),
-        };
-
-        const { data, error } = await supabase
-          .from("confirmations")
-          // Supabase type inference limitation: update() no reconoce Database generic
-          .update(updatePayload as never)
-          .eq("guest_id", conf.guestId)
-          .select()
-          .single();
-
-        if (error) {
-          throw new Error(`Error updating confirmation: ${error.message}`);
-        }
-        confirmation = data as Confirmation;
-      } else {
-        // Crear nueva confirmación
-        const insertPayload: ConfirmationInsert = {
-          guest_id: conf.guestId,
-          confirmed_by_id: confirmedById,
-          group_id: confirmerGuest.group_id,
-          civil_attending: conf.civilAttending,
-          party_attending: conf.partyAttending,
-        };
-
-        const { data, error } = await supabase
-          .from("confirmations")
-          // Supabase type inference limitation: insert() no reconoce Database generic
-          .insert(insertPayload as never)
-          .select()
-          .single();
-
-        if (error) {
-          throw new Error(`Error creating confirmation: ${error.message}`);
-        }
-        confirmation = data as Confirmation;
+      // Crear o actualizar confirmación
+      const result = await upsertConfirmation(
+        conf,
+        confirmedById,
+        confirmerGuest.group_id
+      );
+      if ("error" in result) {
+        return NextResponse.json({ error: result.error }, { status: 500 });
       }
-
-      createdConfirmations.push(confirmation);
+      createdConfirmations.push(result);
     }
-
     return NextResponse.json(
       {
         message: "Confirmación registrada exitosamente",
@@ -145,11 +141,6 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     console.error("Error creating confirmation:", error);
-
-    if (error instanceof Error && error.message.includes("no encontrado")) {
-      return NextResponse.json({ error: error.message }, { status: 404 });
-    }
-
     return NextResponse.json(
       { error: "Error interno del servidor" },
       { status: 500 }

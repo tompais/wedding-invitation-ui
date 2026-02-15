@@ -15,12 +15,12 @@ import MusicPlayer from "../components/MusicPlayer/MusicPlayer";
 
 export default function Home() {
   useEffect(() => {
-    if ("scrollRestoration" in window.history) {
-      window.history.scrollRestoration = "manual";
+    if ("scrollRestoration" in globalThis.history) {
+      globalThis.history.scrollRestoration = "manual";
     }
-    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-    window.requestAnimationFrame(() => {
-      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    globalThis.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    globalThis.requestAnimationFrame(() => {
+      globalThis.scrollTo({ top: 0, left: 0, behavior: "auto" });
     });
   }, []);
 

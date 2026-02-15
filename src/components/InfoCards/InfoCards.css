@@ -22,8 +22,8 @@
 }
 
 .info-card:hover::before {
-  width: 400px;
-  height: 400px;
+  width: 25rem;
+  height: 25rem;
 }
 
 .info-card:hover {

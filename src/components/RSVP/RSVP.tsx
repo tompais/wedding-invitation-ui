@@ -1,13 +1,20 @@
 "use client";
 
+import type { ActionState } from "@/types/ActionState";
 import { motion, AnimatePresence } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useScrollAnimation } from "../../hooks/useScrollAnimation";
-import { useRSVPFlow } from "../../hooks/useRSVPFlow";
-import { RSVP_CONFIG } from "../../constants/rsvp";
-import { guestCodeSchema } from "../../schemas/rsvp.schema";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { useRSVPFlow } from "@/hooks/useRSVPFlow";
+import { RSVP_CONFIG } from "@/constants/rsvp";
+import { guestCodeSchema } from "@/schemas/rsvp.schema";
 import Loading from "../common/Loading/Loading";
+import { EventType } from "@/types/EventType";
+import { FormState } from "@/types/FormState";
+import { LoadingSize } from "@/types/LoadingSize";
+import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
+import { confirmAttendanceAction } from "@/app/actions/rsvpActions";
 
 /**
  * PRESENTATION LAYER: RSVP Component
@@ -33,10 +40,9 @@ function RSVP() {
     familyConfirm,
     selectedEvents,
     processGuestCode,
-    handleAttendanceDecision,
+    attend,
     toggleEvent,
     toggleFamilyMember,
-    submitAttendance,
     goBack,
     goForward,
   } = useRSVPFlow();
@@ -66,18 +72,25 @@ function RSVP() {
     }
   };
 
-  /**
-   * Handler para envío final
-   */
-  const handleFinalSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const result = await submitAttendance();
+  // useActionState para el submit final
+  const [submitState, formAction] = useActionState(
+    async (prevState: ActionState, formData: FormData) =>
+      await confirmAttendanceAction(prevState, formData),
+    { success: false, error: null }
+  );
+  const { pending } = useFormStatus();
 
-    // Si hay error de validación, podríamos mostrarlo aquí
-    if (!result?.success && result?.error) {
-      // El error ya se maneja en el hook
-    }
-  };
+  // useActionState para el submit de no asistencia
+  const [noAttendState, noAttendAction] = useActionState(
+    async (prevState: ActionState, formData: FormData) =>
+      await confirmAttendanceAction(prevState, formData),
+    { success: false, error: null }
+  );
+  const { pending: pendingNoAttend } = useFormStatus();
+
+  /**
+   * Handler para envío final (ahora usa server action)
+   */
 
   // Shared styles for form containers
   const formContainerStyles =
@@ -101,15 +114,15 @@ function RSVP() {
       ref={ref}
     >
       {/* Loading overlay durante el envío */}
-      {formState === "submitting" && (
+      {formState === FormState.SUBMITTING && (
         <Loading
-          size="large"
+          size={LoadingSize.LARGE}
           message={RSVP_CONFIG.messages.errors.submitting}
           overlay={true}
         />
       )}
 
-      <div className="mx-auto max-w-[500px]">
+      <div className="mx-auto max-w-125">
         <motion.h2
           className="font-display mb-4 text-4xl font-semibold tracking-[0.02em] md:mb-3 md:text-3xl"
           style={{ color: "var(--hueso)" }}
@@ -121,7 +134,7 @@ function RSVP() {
         </motion.h2>
 
         <motion.p
-          className="font-body mx-auto mb-8 max-w-[600px] text-base leading-relaxed opacity-90"
+          className="font-body mx-auto mb-8 max-w-150 text-base leading-relaxed opacity-90"
           style={{ color: "var(--text-light)" }}
           initial={{ opacity: 0, y: 20 }}
           animate={isVisible ? { opacity: 1, y: 0 } : {}}
@@ -145,10 +158,7 @@ function RSVP() {
                 borderColor: "rgba(250, 240, 230, 0.2)",
               }}
             >
-              <div
-                className="mb-4 text-sm tracking-[0.1em] uppercase"
-                style={{ color: "rgba(250, 240, 230, 0.7)" }}
-              >
+              <div className="mb-4 text-sm tracking-widest uppercase">
                 {RSVP_CONFIG.stepIndicators[1]}
               </div>
               <h3
@@ -175,7 +185,7 @@ function RSVP() {
                       e.target.value = e.target.value.toUpperCase();
                     },
                   })}
-                  disabled={formState === "submitting"}
+                  disabled={formState === FormState.SUBMITTING}
                   onFocus={(e) => {
                     e.currentTarget.style.borderColor = "var(--hueso)";
                     e.currentTarget.style.backgroundColor =
@@ -203,9 +213,9 @@ function RSVP() {
                     backgroundColor: "var(--hueso)",
                     color: "var(--bourdeaux-dark)",
                   }}
-                  disabled={formState === "submitting"}
+                  disabled={formState === FormState.SUBMITTING}
                   onMouseEnter={(e) => {
-                    if (formState !== "submitting") {
+                    if (formState !== FormState.SUBMITTING) {
                       e.currentTarget.style.backgroundColor =
                         "var(--hueso-dark)";
                       e.currentTarget.style.transform = "translateY(-2px)";
@@ -239,10 +249,7 @@ function RSVP() {
                 borderColor: "rgba(250, 240, 230, 0.2)",
               }}
             >
-              <div
-                className="mb-4 text-sm tracking-[0.1em] uppercase"
-                style={{ color: "rgba(250, 240, 230, 0.7)" }}
-              >
+              <div className="mb-4 text-sm tracking-widest uppercase">
                 {RSVP_CONFIG.stepIndicators[2]}
               </div>
               <h3
@@ -327,10 +334,7 @@ function RSVP() {
                 borderColor: "rgba(250, 240, 230, 0.2)",
               }}
             >
-              <div
-                className="mb-4 text-sm tracking-[0.1em] uppercase"
-                style={{ color: "rgba(250, 240, 230, 0.7)" }}
-              >
+              <div className="mb-4 text-sm tracking-widest uppercase">
                 {RSVP_CONFIG.stepIndicators[3]}
               </div>
               <h3
@@ -341,7 +345,7 @@ function RSVP() {
               </h3>
               <div className="mt-6 flex flex-col gap-4">
                 <button
-                  onClick={() => handleAttendanceDecision(true)}
+                  onClick={() => attend()}
                   className={`${buttonBaseStyles} w-full px-4 py-4`}
                   style={{
                     backgroundColor: "var(--hueso)",
@@ -361,28 +365,52 @@ function RSVP() {
                 >
                   Sí, me encanta!
                 </button>
-                <button
-                  onClick={() => handleAttendanceDecision(false)}
-                  className={`${buttonBaseStyles} w-full px-4 py-4`}
-                  style={{
-                    backgroundColor: "transparent",
-                    borderWidth: "2px",
-                    borderColor: "var(--hueso)",
-                    color: "var(--hueso)",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = "var(--hueso)";
-                    e.currentTarget.style.color = "var(--bourdeaux)";
-                    e.currentTarget.style.transform = "translateY(-2px)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = "transparent";
-                    e.currentTarget.style.color = "var(--hueso)";
-                    e.currentTarget.style.transform = "translateY(0)";
-                  }}
-                >
-                  No puedo asistir
-                </button>
+                <form action={noAttendAction} className="w-full">
+                  <input
+                    type="hidden"
+                    name="confirmedById"
+                    value={currentGuest.id}
+                  />
+                  <input
+                    type="hidden"
+                    name="confirmations"
+                    value={JSON.stringify([
+                      {
+                        guestId: currentGuest.id,
+                        civilAttending: false,
+                        partyAttending: false,
+                      },
+                    ])}
+                  />
+                  <button
+                    type="submit"
+                    className={`${buttonBaseStyles} w-full px-4 py-4`}
+                    style={{
+                      backgroundColor: "transparent",
+                      borderWidth: "2px",
+                      borderColor: "var(--hueso)",
+                      color: "var(--hueso)",
+                    }}
+                    disabled={pendingNoAttend}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = "var(--hueso)";
+                      e.currentTarget.style.color = "var(--bourdeaux)";
+                      e.currentTarget.style.transform = "translateY(-2px)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "transparent";
+                      e.currentTarget.style.color = "var(--hueso)";
+                      e.currentTarget.style.transform = "translateY(0)";
+                    }}
+                  >
+                    {pendingNoAttend ? "Enviando..." : "No puedo asistir"}
+                  </button>
+                  {noAttendState.error && (
+                    <span className="mt-2 block text-center text-sm font-normal text-[#ff6b6b]">
+                      {noAttendState.error}
+                    </span>
+                  )}
+                </form>
               </div>
             </motion.div>
           )}
@@ -401,10 +429,7 @@ function RSVP() {
                 borderColor: "rgba(250, 240, 230, 0.2)",
               }}
             >
-              <div
-                className="mb-4 text-sm tracking-[0.1em] uppercase"
-                style={{ color: "rgba(250, 240, 230, 0.7)" }}
-              >
+              <div className="mb-4 text-sm tracking-widest uppercase">
                 {RSVP_CONFIG.stepIndicators[4]}
               </div>
               <h3
@@ -434,9 +459,9 @@ function RSVP() {
                 >
                   <input
                     type="checkbox"
-                    checked={selectedEvents.includes("Civil")}
-                    onChange={() => toggleEvent("Civil")}
-                    className="h-5 w-5 cursor-pointer accent-[var(--hueso)]"
+                    checked={selectedEvents.includes(EventType.CIVIL)}
+                    onChange={() => toggleEvent(EventType.CIVIL)}
+                    className="h-5 w-5 cursor-pointer accent-(--hueso)"
                   />
                   <span
                     className="flex-1 text-base"
@@ -464,9 +489,9 @@ function RSVP() {
                 >
                   <input
                     type="checkbox"
-                    checked={selectedEvents.includes("Fiesta")}
-                    onChange={() => toggleEvent("Fiesta")}
-                    className="h-5 w-5 cursor-pointer accent-[var(--hueso)]"
+                    checked={selectedEvents.includes(EventType.FIESTA)}
+                    onChange={() => toggleEvent(EventType.FIESTA)}
+                    className="h-5 w-5 cursor-pointer accent-(--hueso)"
                   />
                   <span
                     className="flex-1 text-base"
@@ -546,10 +571,7 @@ function RSVP() {
                 borderColor: "rgba(250, 240, 230, 0.2)",
               }}
             >
-              <div
-                className="mb-4 text-sm tracking-[0.1em] uppercase"
-                style={{ color: "rgba(250, 240, 230, 0.7)" }}
-              >
+              <div className="mb-4 text-sm tracking-widest uppercase">
                 {RSVP_CONFIG.stepIndicators[5]}
               </div>
               <h3
@@ -559,7 +581,29 @@ function RSVP() {
                 Confirmá quiénes asisten de tu grupo
               </h3>
 
-              <div className="mb-6 flex flex-col gap-3">
+              <form action={formAction} className="mb-6 flex flex-col gap-3">
+                <input
+                  type="hidden"
+                  name="confirmedById"
+                  value={currentGuest?.id || ""}
+                />
+                <input
+                  type="hidden"
+                  name="confirmations"
+                  value={JSON.stringify(
+                    familyMembers
+                      .filter((m) => familyConfirm[m.code])
+                      .map((m) => ({
+                        guestId: m.id,
+                        civilAttending: selectedEvents.includes(
+                          EventType.CIVIL
+                        ),
+                        partyAttending: selectedEvents.includes(
+                          EventType.FIESTA
+                        ),
+                      }))
+                  )}
+                />
                 {familyMembers.map((member) => (
                   <label
                     key={member.code}
@@ -585,7 +629,7 @@ function RSVP() {
                       onChange={(e) =>
                         toggleFamilyMember(member.code, e.target.checked)
                       }
-                      className="h-5 w-5 cursor-pointer accent-[var(--hueso)]"
+                      className="h-5 w-5 cursor-pointer accent-(--hueso)"
                     />
                     <span
                       className="flex-1 text-base"
@@ -595,38 +639,14 @@ function RSVP() {
                     </span>
                   </label>
                 ))}
-              </div>
-
-              <div className="mt-6 flex justify-center gap-3 md:gap-2.5">
                 <button
-                  onClick={goBack}
-                  className={`${buttonBaseStyles} flex-1`}
-                  style={{
-                    backgroundColor: "transparent",
-                    borderWidth: "2px",
-                    borderColor: "var(--hueso)",
-                    color: "var(--hueso)",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = "var(--hueso)";
-                    e.currentTarget.style.color = "var(--bourdeaux)";
-                    e.currentTarget.style.transform = "translateY(-2px)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = "transparent";
-                    e.currentTarget.style.color = "var(--hueso)";
-                    e.currentTarget.style.transform = "translateY(0)";
-                  }}
-                >
-                  Atrás
-                </button>
-                <button
-                  onClick={handleFinalSubmit}
+                  type="submit"
                   className={`${buttonBaseStyles} flex-1`}
                   style={{
                     backgroundColor: "var(--hueso)",
                     color: "var(--bourdeaux-dark)",
                   }}
+                  disabled={pending}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.backgroundColor = "var(--hueso-dark)";
                     e.currentTarget.style.transform = "translateY(-2px)";
@@ -639,25 +659,30 @@ function RSVP() {
                     e.currentTarget.style.boxShadow = "none";
                   }}
                 >
-                  Confirmar asistencia
+                  {pending ? "Enviando..." : "Confirmar asistencia"}
                 </button>
-              </div>
+                {submitState.error && (
+                  <span className="mt-2 block text-center text-sm font-normal text-[#ff6b6b]">
+                    {submitState.error}
+                  </span>
+                )}
+              </form>
             </motion.div>
           )}
 
           {/* Success message */}
-          {formState === "success" && (
+          {formState === FormState.SUCCESS && (
             <motion.div
               key="success"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
               transition={{ duration: 0.4 }}
-              className="fixed inset-0 z-[999] flex items-center justify-center p-8"
+              className="fixed inset-0 z-999 flex items-center justify-center p-8"
               style={{ backgroundColor: "var(--bourdeaux-dark)" }}
             >
               <div
-                className="w-full max-w-[520px] rounded-2xl border-2 px-8 py-12 text-center shadow-[0_12px_30px_rgba(0,0,0,0.35)] md:px-6"
+                className="w-full max-w-130 rounded-2xl border-2 px-8 py-12 text-center shadow-[0_12px_30px_rgba(0,0,0,0.35)] md:px-6"
                 style={{
                   backgroundColor: "var(--bourdeaux)",
                   borderColor: "var(--hueso)",
@@ -703,7 +728,7 @@ function RSVP() {
           )}
 
           {/* Error message */}
-          {formState === "error" && (
+          {formState === FormState.ERROR && (
             <motion.div
               key="error"
               initial={{ opacity: 0, scale: 0.9 }}
