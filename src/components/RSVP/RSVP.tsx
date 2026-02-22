@@ -12,6 +12,7 @@ import Loading from "../common/Loading/Loading";
 import { EventType } from "@/types/EventType";
 import { FormState } from "@/types/FormState";
 import { LoadingSize } from "@/types/LoadingSize";
+import { RSVPStep } from "@/types/RSVPStep";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { confirmAttendanceAction } from "@/app/actions/rsvpActions";
@@ -145,7 +146,7 @@ function RSVP() {
 
         <AnimatePresence mode="wait">
           {/* PASO 1: Ingresar código */}
-          {step === 1 && (
+          {step === RSVPStep.CODE_INPUT && (
             <motion.div
               key="step1"
               initial={{ opacity: 0, y: 20 }}
@@ -236,7 +237,7 @@ function RSVP() {
           )}
 
           {/* PASO 2: Confirmar identidad */}
-          {step === 2 && currentGuest && (
+          {step === RSVPStep.ATTENDANCE_DECISION && currentGuest && (
             <motion.div
               key="step2"
               initial={{ opacity: 0, y: 20 }}
@@ -321,7 +322,7 @@ function RSVP() {
           )}
 
           {/* PASO 3: ¿Vas a asistir? */}
-          {step === 3 && currentGuest && (
+          {step === RSVPStep.FAMILY_CONFIRMATION && currentGuest && (
             <motion.div
               key="step3"
               initial={{ opacity: 0, y: 20 }}
@@ -416,7 +417,7 @@ function RSVP() {
           )}
 
           {/* PASO 4: Seleccionar eventos */}
-          {step === 4 && (
+          {step === RSVPStep.EVENT_SELECTION && (
             <motion.div
               key="step4"
               initial={{ opacity: 0, y: 20 }}
@@ -558,7 +559,7 @@ function RSVP() {
           )}
 
           {/* PASO 5: Confirmar grupo familiar */}
-          {step === 5 && (
+          {step === RSVPStep.CONFIRMATION && (
             <motion.div
               key="step5"
               initial={{ opacity: 0, y: 20 }}

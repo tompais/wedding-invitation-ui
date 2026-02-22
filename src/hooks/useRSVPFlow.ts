@@ -23,7 +23,7 @@ type Guest = GuestResponse;
 
 interface UseRSVPFlowReturn {
   // Estado
-  step: number;
+  step: RSVPStep;
   formState: FormState;
   isNoAttendance: boolean;
   currentGuest: Guest | null;
@@ -146,8 +146,8 @@ export const useRSVPFlow = (): UseRSVPFlowReturn => {
    * Navega hacia atrás en los pasos
    */
   const goBack = () => {
-    if (step > 1) {
-      setStep(step - 1);
+    if (step > RSVPStep.CODE_INPUT) {
+      setStep((step - 1) as RSVPStep);
     }
   };
 
@@ -155,7 +155,7 @@ export const useRSVPFlow = (): UseRSVPFlowReturn => {
    * Navega hacia adelante en los pasos
    */
   const goForward = () => {
-    setStep(step + 1);
+    setStep((step + 1) as RSVPStep);
   };
 
   return {

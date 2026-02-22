@@ -15,7 +15,7 @@ export default function Hero() {
     >
       <div className="mx-auto max-w-[900px] px-8">
         <motion.p
-          className="mb-6 text-lg uppercase tracking-[0.08em] opacity-80"
+          className="mb-6 text-lg tracking-[0.08em] uppercase opacity-80"
           style={{ color: "var(--text-light)", fontFamily: "var(--font-body)" }}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -25,7 +25,7 @@ export default function Hero() {
         </motion.p>
 
         <motion.h1
-          className="mb-4 text-6xl font-semibold tracking-[0.05em] md:text-5xl sm:text-4xl"
+          className="mb-4 text-6xl font-semibold tracking-[0.05em] sm:text-4xl md:text-5xl"
           style={{ color: "var(--hueso)", fontFamily: "var(--font-display)" }}
           initial={{ opacity: 0, y: 30, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
