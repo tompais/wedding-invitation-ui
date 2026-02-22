@@ -142,12 +142,28 @@ export const useRSVPFlow = (): UseRSVPFlowReturn => {
     setFormState(FormState.IDLE);
   };
 
+  // Mapeo explícito de pasos para evitar aritmética con cast inseguro
+  const PREV_STEP: Partial<Record<RSVPStep, RSVPStep>> = {
+    [RSVPStep.ATTENDANCE_DECISION]: RSVPStep.CODE_INPUT,
+    [RSVPStep.FAMILY_CONFIRMATION]: RSVPStep.ATTENDANCE_DECISION,
+    [RSVPStep.EVENT_SELECTION]: RSVPStep.FAMILY_CONFIRMATION,
+    [RSVPStep.CONFIRMATION]: RSVPStep.EVENT_SELECTION,
+  };
+
+  const NEXT_STEP: Partial<Record<RSVPStep, RSVPStep>> = {
+    [RSVPStep.CODE_INPUT]: RSVPStep.ATTENDANCE_DECISION,
+    [RSVPStep.ATTENDANCE_DECISION]: RSVPStep.FAMILY_CONFIRMATION,
+    [RSVPStep.FAMILY_CONFIRMATION]: RSVPStep.EVENT_SELECTION,
+    [RSVPStep.EVENT_SELECTION]: RSVPStep.CONFIRMATION,
+  };
+
   /**
    * Navega hacia atrás en los pasos
    */
   const goBack = () => {
-    if (step > RSVPStep.CODE_INPUT) {
-      setStep((step - 1) as RSVPStep);
+    const prev = PREV_STEP[step];
+    if (prev !== undefined) {
+      setStep(prev);
     }
   };
 
@@ -155,7 +171,10 @@ export const useRSVPFlow = (): UseRSVPFlowReturn => {
    * Navega hacia adelante en los pasos
    */
   const goForward = () => {
-    setStep((step + 1) as RSVPStep);
+    const next = NEXT_STEP[step];
+    if (next !== undefined) {
+      setStep(next);
+    }
   };
 
   return {
