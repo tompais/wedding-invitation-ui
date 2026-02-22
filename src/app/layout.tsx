@@ -21,7 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className="antialiased">
-      <body className="m-0 flex min-h-screen w-full min-w-[320px] flex-col overflow-x-hidden bg-hueso font-body leading-relaxed text-text-dark">
+      <body className="bg-hueso font-body text-text-dark m-0 flex min-h-screen w-full min-w-[320px] flex-col overflow-x-hidden leading-relaxed">
         {children}
       </body>
     </html>

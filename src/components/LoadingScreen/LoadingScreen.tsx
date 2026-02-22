@@ -29,10 +29,10 @@ function LoadingScreen() {
           exit={{ opacity: 0 }}
           transition={{ duration: 1.2, ease: "easeInOut" }}
         >
-          <div className="text-center text-hueso">
+          <div className="text-hueso text-center">
             {/* Logo / Iniciales */}
             <motion.div
-              className="mb-8 font-display text-6xl font-bold tracking-[0.1em]"
+              className="font-display mb-8 text-6xl font-bold tracking-[0.1em]"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8 }}
@@ -41,7 +41,7 @@ function LoadingScreen() {
             </motion.div>
 
             {/* Spinner personalizado */}
-            <div className="mx-auto my-8 h-[50px] w-[50px] animate-spin rounded-full border-[3px] border-hueso/20 border-t-hueso" />
+            <div className="border-hueso/20 border-t-hueso mx-auto my-8 h-[50px] w-[50px] animate-spin rounded-full border-[3px]" />
 
             {/* Texto */}
             <motion.p
