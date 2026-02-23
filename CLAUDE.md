@@ -41,6 +41,30 @@ supabase db push             # Apply pending migrations to remote DB
 - **When in doubt**: make a reasonable decision, implement it, document the assumption. Only ask when truly blocked.
 - **Always run quality checks before declaring done** (`npm run lint && npm run format:check`)
 
+## Git Workflow
+
+**Always work on a branch — never commit directly to `master`.**
+
+### Branch naming convention
+
+| Prefix          | When to use                                  |
+| --------------- | -------------------------------------------- |
+| `feature/*`     | New user-facing functionality                |
+| `enhancement/*` | Improvements to existing features or tooling |
+| `fix/*`         | Non-urgent bug fixes                         |
+| `hotfix/*`      | Urgent production fixes                      |
+| `refactor/*`    | Code restructuring with no behavior change   |
+
+```bash
+# Examples
+git checkout -b feature/civil-ceremony-step
+git checkout -b enhancement/mobile-layout
+git checkout -b fix/rsvp-validation-error
+git checkout -b refactor/extract-guest-service
+```
+
+**Rule:** create the branch _before_ making any changes. If changes were made on `master` by mistake, stash them, create the branch, and pop the stash.
+
 ## Architecture Patterns
 
 ### Layered Architecture (thin controllers)
@@ -215,3 +239,4 @@ See `docs/` for detailed guides:
 - `SUPABASE-TYPES.md` - Type system explanation
 - `MIGRATION-GUIDE.md` - Prisma → Supabase migration notes
 - `VERCEL-DEPLOY.md` - Deployment configuration
+- `CLAUDE-CODE-SETUP.md` - Claude Code plugins & setup for new collaborators
