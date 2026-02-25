@@ -308,30 +308,6 @@
 }
 
 /* Gallery Swiper customization */
-.gallery-swiper .swiper-button-next,
-.gallery-swiper .swiper-button-prev {
-  color: var(--bourdeaux);
-  background-color: rgba(250, 240, 230, 0.9);
-  width: 2.8125rem;
-  height: 2.8125rem;
-  border-radius: 50%;
-  box-shadow: 0 4px 12px rgba(114, 47, 55, 0.2);
-  transition: all 0.3s ease;
-}
-
-.gallery-swiper .swiper-button-next::after,
-.gallery-swiper .swiper-button-prev::after {
-  font-size: 1.25rem;
-  font-weight: bold;
-}
-
-.gallery-swiper .swiper-button-next:hover,
-.gallery-swiper .swiper-button-prev:hover {
-  background-color: var(--bourdeaux);
-  color: var(--hueso);
-  transform: scale(1.1);
-}
-
 .gallery-swiper .swiper-pagination-bullet {
   background-color: var(--bourdeaux-light);
   opacity: 0.5;

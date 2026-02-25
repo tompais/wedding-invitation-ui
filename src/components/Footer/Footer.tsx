@@ -9,7 +9,7 @@ function Footer() {
           className="font-display mb-2 text-lg font-medium tracking-wider"
           style={{ color: "var(--hueso)" }}
         >
-          Lo más importante es que estés ahí con nosotros
+          Lo más importante es que estés ahí con nosotros.
         </p>
         <span
           className="font-body text-sm tracking-widest uppercase opacity-75"

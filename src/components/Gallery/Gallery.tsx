@@ -2,21 +2,17 @@
 
 import { motion } from "framer-motion";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 import { Swiper, SwiperSlide } from "swiper/react";
-import {
-  Navigation,
-  Pagination,
-  Autoplay,
-  EffectCoverflow,
-} from "swiper/modules";
+import { Pagination, Autoplay, EffectCoverflow } from "swiper/modules";
+import type { Swiper as SwiperType } from "swiper";
 import "swiper/css";
-import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/effect-coverflow";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 // Importar imágenes estáticamente (Next.js way)
 import img1 from "../../assets/images/20240213_162814.jpg";
@@ -27,19 +23,25 @@ import img5 from "../../assets/images/20251020_064816.jpg";
 import img6 from "../../assets/images/WhatsApp Image 2026-01-26 at 07.16.09.jpeg";
 
 // Array de imágenes
+// objectPosition controla qué parte de la foto se muestra cuando se recorta.
+// Valores útiles: "center top", "center center", "center bottom",
+//                 "left top", "right top", "50% 30%"
 const IMAGES = [
-  { src: img1, alt: "Angie y Tomi - Foto 1" },
-  { src: img2, alt: "Angie y Tomi - Foto 2" },
-  { src: img3, alt: "Angie y Tomi - Foto 3" },
-  { src: img4, alt: "Angie y Tomi - Foto 4" },
-  { src: img5, alt: "Angie y Tomi - Foto 5" },
-  { src: img6, alt: "Angie y Tomi - Foto 6" },
+  { src: img1, alt: "Angie y Tomi - Foto 1", objectPosition: "center center" },
+  { src: img2, alt: "Angie y Tomi - Foto 2", objectPosition: "center 20%" },
+  { src: img3, alt: "Angie y Tomi - Foto 3", objectPosition: "50%" },
+  { src: img4, alt: "Angie y Tomi - Foto 4", objectPosition: "center 20%" },
+  { src: img5, alt: "Angie y Tomi - Foto 5", objectPosition: "center 20%" },
+  { src: img6, alt: "Angie y Tomi - Foto 6", objectPosition: "center top" },
 ];
 
 function Gallery() {
   const [ref, isVisible] = useScrollAnimation(0.2);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const swiperRef = useRef<SwiperType | null>(null);
+  const [isAtBeginning, setIsAtBeginning] = useState(true);
+  const [isAtEnd, setIsAtEnd] = useState(false);
 
   const openLightbox = (index: number) => {
     setLightboxIndex(index);
@@ -66,17 +68,38 @@ function Gallery() {
       </motion.h2>
 
       <motion.div
-        className="mx-auto max-w-350 px-4 pb-12"
+        className="relative mx-auto max-w-350 px-4 pb-12"
         initial={{ opacity: 0, y: 40 }}
         animate={isVisible ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.7, delay: 0.2 }}
       >
+        <button
+          onClick={() => swiperRef.current?.slidePrev()}
+          disabled={isAtBeginning}
+          className={`border-bourdeaux-light/40 bg-hueso/90 text-bourdeaux focus:outline-none focus-visible:ring-2 focus-visible:ring-bourdeaux focus-visible:ring-offset-2 focus-visible:ring-offset-hueso absolute top-[42%] left-0 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border shadow-md backdrop-blur-sm transition-all duration-200 ${
+            isAtBeginning
+              ? "cursor-not-allowed opacity-40"
+              : "hover:bg-bourdeaux hover:text-hueso"
+          }`}
+          aria-label="Foto anterior"
+        >
+          <FiChevronLeft size={20} />
+        </button>
+
         <Swiper
-          modules={[Navigation, Pagination, Autoplay, EffectCoverflow]}
+          modules={[Pagination, Autoplay, EffectCoverflow]}
+          onSwiper={(swiper) => {
+            swiperRef.current = swiper;
+            setIsAtBeginning(swiper.isBeginning);
+            setIsAtEnd(swiper.isEnd);
+          }}
+          onSlideChange={(swiper) => {
+            setIsAtBeginning(swiper.isBeginning);
+            setIsAtEnd(swiper.isEnd);
+          }}
           spaceBetween={20}
           slidesPerView={1}
           centeredSlides={true}
-          navigation
           pagination={{ clickable: true }}
           autoplay={{
             delay: 4000,
@@ -123,12 +146,26 @@ function Gallery() {
                   style={{
                     borderColor: "var(--bourdeaux-light)",
                     boxShadow: "0 10px 24px rgba(114, 47, 55, 0.2)",
+                    objectPosition: image.objectPosition,
                   }}
                 />
               </button>
             </SwiperSlide>
           ))}
         </Swiper>
+
+        <button
+          onClick={() => swiperRef.current?.slideNext()}
+          disabled={isAtEnd}
+          className={`border-bourdeaux-light/40 bg-hueso/90 text-bourdeaux focus:outline-none focus-visible:ring-2 focus-visible:ring-bourdeaux focus-visible:ring-offset-2 focus-visible:ring-offset-hueso absolute top-[42%] right-0 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border shadow-md backdrop-blur-sm transition-all duration-200 ${
+            isAtEnd
+              ? "cursor-not-allowed opacity-40"
+              : "hover:bg-bourdeaux hover:text-hueso"
+          }`}
+          aria-label="Foto siguiente"
+        >
+          <FiChevronRight size={20} />
+        </button>
       </motion.div>
 
       <Lightbox
