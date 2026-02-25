@@ -40,6 +40,8 @@ function Gallery() {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const swiperRef = useRef<SwiperType | null>(null);
+  const [isAtBeginning, setIsAtBeginning] = useState(true);
+  const [isAtEnd, setIsAtEnd] = useState(false);
 
   const openLightbox = (index: number) => {
     setLightboxIndex(index);
@@ -73,7 +75,12 @@ function Gallery() {
       >
         <button
           onClick={() => swiperRef.current?.slidePrev()}
-          className="border-bourdeaux-light/40 bg-hueso/90 text-bourdeaux hover:bg-bourdeaux hover:text-hueso absolute top-[42%] left-0 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border shadow-md backdrop-blur-sm transition-all duration-200"
+          disabled={isAtBeginning}
+          className={`border-bourdeaux-light/40 bg-hueso/90 text-bourdeaux focus:outline-none focus-visible:ring-2 focus-visible:ring-bourdeaux focus-visible:ring-offset-2 focus-visible:ring-offset-hueso absolute top-[42%] left-0 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border shadow-md backdrop-blur-sm transition-all duration-200 ${
+            isAtBeginning
+              ? "cursor-not-allowed opacity-40"
+              : "hover:bg-bourdeaux hover:text-hueso"
+          }`}
           aria-label="Foto anterior"
         >
           <FiChevronLeft size={20} />
@@ -83,6 +90,12 @@ function Gallery() {
           modules={[Pagination, Autoplay, EffectCoverflow]}
           onSwiper={(swiper) => {
             swiperRef.current = swiper;
+            setIsAtBeginning(swiper.isBeginning);
+            setIsAtEnd(swiper.isEnd);
+          }}
+          onSlideChange={(swiper) => {
+            setIsAtBeginning(swiper.isBeginning);
+            setIsAtEnd(swiper.isEnd);
           }}
           spaceBetween={20}
           slidesPerView={1}
@@ -143,7 +156,12 @@ function Gallery() {
 
         <button
           onClick={() => swiperRef.current?.slideNext()}
-          className="border-bourdeaux-light/40 bg-hueso/90 text-bourdeaux hover:bg-bourdeaux hover:text-hueso absolute top-[42%] right-0 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border shadow-md backdrop-blur-sm transition-all duration-200"
+          disabled={isAtEnd}
+          className={`border-bourdeaux-light/40 bg-hueso/90 text-bourdeaux focus:outline-none focus-visible:ring-2 focus-visible:ring-bourdeaux focus-visible:ring-offset-2 focus-visible:ring-offset-hueso absolute top-[42%] right-0 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border shadow-md backdrop-blur-sm transition-all duration-200 ${
+            isAtEnd
+              ? "cursor-not-allowed opacity-40"
+              : "hover:bg-bourdeaux hover:text-hueso"
+          }`}
           aria-label="Foto siguiente"
         >
           <FiChevronRight size={20} />
