@@ -33,7 +33,7 @@ export interface GuestResponse {
   } | null;
 }
 
-// Request body para POST /api/confirmation
+// Request body para POST /api/confirmations
 export interface ConfirmationRequest {
   confirmedById: string;
   confirmations: Array<{
@@ -43,7 +43,7 @@ export interface ConfirmationRequest {
   }>;
 }
 
-// Respuesta de POST /api/confirmation
+// Respuesta de POST /api/confirmations
 export interface ConfirmationResponse {
   success: boolean;
   message: string;
