@@ -76,7 +76,7 @@ function Gallery() {
         <button
           onClick={() => swiperRef.current?.slidePrev()}
           disabled={isAtBeginning}
-          className={`border-bourdeaux-light/40 bg-hueso/90 text-bourdeaux focus:outline-none focus-visible:ring-2 focus-visible:ring-bourdeaux focus-visible:ring-offset-2 focus-visible:ring-offset-hueso absolute top-[42%] left-0 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border shadow-md backdrop-blur-sm transition-all duration-200 ${
+          className={`border-bourdeaux-light/40 bg-hueso/90 text-bourdeaux focus-visible:ring-bourdeaux focus-visible:ring-offset-hueso absolute top-[42%] left-0 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border shadow-md backdrop-blur-sm transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
             isAtBeginning
               ? "cursor-not-allowed opacity-40"
               : "hover:bg-bourdeaux hover:text-hueso"
@@ -157,7 +157,7 @@ function Gallery() {
         <button
           onClick={() => swiperRef.current?.slideNext()}
           disabled={isAtEnd}
-          className={`border-bourdeaux-light/40 bg-hueso/90 text-bourdeaux focus:outline-none focus-visible:ring-2 focus-visible:ring-bourdeaux focus-visible:ring-offset-2 focus-visible:ring-offset-hueso absolute top-[42%] right-0 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border shadow-md backdrop-blur-sm transition-all duration-200 ${
+          className={`border-bourdeaux-light/40 bg-hueso/90 text-bourdeaux focus-visible:ring-bourdeaux focus-visible:ring-offset-hueso absolute top-[42%] right-0 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border shadow-md backdrop-blur-sm transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
             isAtEnd
               ? "cursor-not-allowed opacity-40"
               : "hover:bg-bourdeaux hover:text-hueso"

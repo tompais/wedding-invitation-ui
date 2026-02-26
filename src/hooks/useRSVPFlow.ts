@@ -88,14 +88,19 @@ export const useRSVPFlow = (): UseRSVPFlowReturn => {
 
     // Si tiene grupo, cargar miembros
     if (data.group) {
-      setFamilyMembers(data.group.guests as unknown as Guest[]);
+      // La API ya mapea snake_case → camelCase; completamos los campos opcionales con null
+      const members: Guest[] = data.group.guests.map((m) => ({
+        ...m,
+        phone: null,
+        group: null,
+        confirmation: null,
+      }));
+      setFamilyMembers(members);
 
-      // Inicializar confirmación (solo el actual marcado)
+      // Modelo opt-out: todos los miembros arrancan marcados por defecto
       const initialConfirm: Record<string, boolean> = {};
-      data.group.guests.forEach((member) => {
-        // Necesitamos el code de cada miembro, pero solo tenemos id/firstName/lastName
-        // Por ahora usamos id como key
-        initialConfirm[member.id] = member.id === data.id;
+      members.forEach((member) => {
+        initialConfirm[member.id] = true;
       });
       setFamilyConfirm(initialConfirm);
     } else {
@@ -122,12 +127,12 @@ export const useRSVPFlow = (): UseRSVPFlowReturn => {
   };
 
   /**
-   * Toggle de miembro de familia (usa code, no id)
+   * Toggle de miembro de familia (usa id como clave)
    */
-  const toggleFamilyMember = (memberCode: string, isConfirmed: boolean) => {
+  const toggleFamilyMember = (memberId: string, isConfirmed: boolean) => {
     setFamilyConfirm((prev) => ({
       ...prev,
-      [memberCode]: isConfirmed,
+      [memberId]: isConfirmed,
     }));
   };
 

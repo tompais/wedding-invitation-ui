@@ -125,14 +125,7 @@ export const groupConfirmationSchema = z.object({
     .describe("ID del invitado que está confirmando"),
   confirmations: z
     .array(confirmationSchema)
-    .min(1, "Debe confirmar al menos un invitado")
-    .refine(
-      (confirmations) =>
-        confirmations.some((c) => c.civilAttending || c.partyAttending),
-      {
-        message: "Al menos un invitado debe asistir a algún evento",
-      }
-    ),
+    .min(1, "Debe confirmar al menos un invitado"),
 });
 
 /**
