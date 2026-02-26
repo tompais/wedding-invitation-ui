@@ -405,11 +405,13 @@ function RSVP() {
                       color: "var(--hueso)",
                     }}
                     onMouseEnter={(e) => {
+                      if (e.currentTarget.disabled) return;
                       e.currentTarget.style.backgroundColor = "var(--hueso)";
                       e.currentTarget.style.color = "var(--bourdeaux)";
                       e.currentTarget.style.transform = "translateY(-2px)";
                     }}
                     onMouseLeave={(e) => {
+                      if (e.currentTarget.disabled) return;
                       e.currentTarget.style.backgroundColor = "transparent";
                       e.currentTarget.style.color = "var(--hueso)";
                       e.currentTarget.style.transform = "translateY(0)";
@@ -759,6 +761,7 @@ function RSVP() {
                       color: "var(--bourdeaux-dark)",
                     }}
                     onMouseEnter={(e) => {
+                      if (e.currentTarget.disabled) return;
                       e.currentTarget.style.backgroundColor =
                         "var(--hueso-dark)";
                       e.currentTarget.style.transform = "translateY(-2px)";
@@ -766,6 +769,7 @@ function RSVP() {
                         "0 4px 12px rgba(250, 240, 230, 0.3)";
                     }}
                     onMouseLeave={(e) => {
+                      if (e.currentTarget.disabled) return;
                       e.currentTarget.style.backgroundColor = "var(--hueso)";
                       e.currentTarget.style.transform = "translateY(0)";
                       e.currentTarget.style.boxShadow = "none";
