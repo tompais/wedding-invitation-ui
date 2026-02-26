@@ -397,25 +397,8 @@ function RSVP() {
                   />
                   <SubmitButton
                     label="No podemos asistir"
+                    variant="outline"
                     className={`${buttonBaseStyles} w-full`}
-                    style={{
-                      backgroundColor: "transparent",
-                      borderWidth: "2px",
-                      borderColor: "var(--hueso)",
-                      color: "var(--hueso)",
-                    }}
-                    onMouseEnter={(e) => {
-                      if (e.currentTarget.disabled) return;
-                      e.currentTarget.style.backgroundColor = "var(--hueso)";
-                      e.currentTarget.style.color = "var(--bourdeaux)";
-                      e.currentTarget.style.transform = "translateY(-2px)";
-                    }}
-                    onMouseLeave={(e) => {
-                      if (e.currentTarget.disabled) return;
-                      e.currentTarget.style.backgroundColor = "transparent";
-                      e.currentTarget.style.color = "var(--hueso)";
-                      e.currentTarget.style.transform = "translateY(0)";
-                    }}
                   />
                   {noAttendState.error && (
                     <span className="mt-2 block text-center text-sm font-normal text-[#ff6b6b]">
@@ -756,24 +739,6 @@ function RSVP() {
                   <SubmitButton
                     label="Confirmar asistencia"
                     className={`${buttonBaseStyles} flex-1`}
-                    style={{
-                      backgroundColor: "var(--hueso)",
-                      color: "var(--bourdeaux-dark)",
-                    }}
-                    onMouseEnter={(e) => {
-                      if (e.currentTarget.disabled) return;
-                      e.currentTarget.style.backgroundColor =
-                        "var(--hueso-dark)";
-                      e.currentTarget.style.transform = "translateY(-2px)";
-                      e.currentTarget.style.boxShadow =
-                        "0 4px 12px rgba(250, 240, 230, 0.3)";
-                    }}
-                    onMouseLeave={(e) => {
-                      if (e.currentTarget.disabled) return;
-                      e.currentTarget.style.backgroundColor = "var(--hueso)";
-                      e.currentTarget.style.transform = "translateY(0)";
-                      e.currentTarget.style.boxShadow = "none";
-                    }}
                   />
                 </div>
                 {submitState.error && (
