@@ -69,14 +69,28 @@ export async function GET(request: NextRequest) {
         // Buscar otros invitados del grupo
         const { data: groupGuests } = await supabase
           .from("guests")
-          .select("id, first_name, last_name")
+          .select("id, first_name, last_name, code")
           .eq("group_id", guestData.group_id);
+
+        // Mapear snake_case (DB) a camelCase (API response)
+        type GroupGuestRow = Pick<
+          Guest,
+          "id" | "first_name" | "last_name" | "code"
+        >;
+        const mappedGuests = (
+          (groupGuests || []) as unknown as GroupGuestRow[]
+        ).map((g) => ({
+          id: g.id,
+          firstName: g.first_name,
+          lastName: g.last_name,
+          code: g.code,
+        }));
 
         const groupTyped = groupData as Group;
         group = {
           id: groupTyped.id,
           name: groupTyped.name,
-          guests: groupGuests || [],
+          guests: mappedGuests,
         };
       }
     }

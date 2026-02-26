@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useRSVPFlow } from "@/hooks/useRSVPFlow";
 import { RSVP_CONFIG } from "@/constants/rsvp";
+import { EVENTS } from "@/constants/events";
 import { guestCodeSchema } from "@/schemas/rsvp.schema";
 import Loading from "../common/Loading/Loading";
 import { EventType } from "@/types/EventType";
@@ -35,13 +36,11 @@ function RSVP() {
   const {
     step,
     formState,
-    isNoAttendance,
     currentGuest,
     familyMembers,
     familyConfirm,
     selectedEvents,
     processGuestCode,
-    attend,
     toggleEvent,
     toggleFamilyMember,
     goBack,
@@ -321,7 +320,7 @@ function RSVP() {
             </motion.div>
           )}
 
-          {/* PASO 3: ¿Vas a asistir? */}
+          {/* PASO 3: Vista del grupo — quiénes asisten */}
           {step === RSVPStep.FAMILY_CONFIRMATION && currentGuest && (
             <motion.div
               key="step3"
@@ -342,30 +341,46 @@ function RSVP() {
                 className={formHeadingStyles}
                 style={{ color: "var(--hueso)" }}
               >
-                ¿Vas a poder acompañarnos?
+                ¿Quiénes del grupo pueden acompañarnos?
               </h3>
-              <div className="mt-6 flex flex-col gap-4">
-                <button
-                  onClick={() => attend()}
-                  className={`${buttonBaseStyles} w-full px-4 py-4`}
-                  style={{
-                    backgroundColor: "var(--hueso)",
-                    color: "var(--bourdeaux-dark)",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = "var(--hueso-dark)";
-                    e.currentTarget.style.transform = "translateY(-2px)";
-                    e.currentTarget.style.boxShadow =
-                      "0 4px 12px rgba(250, 240, 230, 0.3)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = "var(--hueso)";
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow = "none";
-                  }}
-                >
-                  Sí, me encanta!
-                </button>
+
+              <div className="mb-6 flex flex-col gap-3">
+                {familyMembers.map((member) => (
+                  <label
+                    key={member.id}
+                    className={checkboxLabelStyles}
+                    style={{ backgroundColor: "rgba(250, 240, 230, 0.08)" }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor =
+                        "rgba(250, 240, 230, 0.15)";
+                      e.currentTarget.style.borderColor =
+                        "rgba(250, 240, 230, 0.3)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor =
+                        "rgba(250, 240, 230, 0.08)";
+                      e.currentTarget.style.borderColor = "transparent";
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={familyConfirm[member.id] ?? false}
+                      onChange={(e) =>
+                        toggleFamilyMember(member.id, e.target.checked)
+                      }
+                      className="h-5 w-5 cursor-pointer accent-(--hueso)"
+                    />
+                    <span
+                      className="flex-1 text-base"
+                      style={{ color: "var(--text-light)" }}
+                    >
+                      {member.firstName} {member.lastName}
+                    </span>
+                  </label>
+                ))}
+              </div>
+
+              <div className="flex flex-col gap-3">
                 <form action={noAttendAction} className="w-full">
                   <input
                     type="hidden"
@@ -375,17 +390,17 @@ function RSVP() {
                   <input
                     type="hidden"
                     name="confirmations"
-                    value={JSON.stringify([
-                      {
-                        guestId: currentGuest.id,
+                    value={JSON.stringify(
+                      familyMembers.map((m) => ({
+                        guestId: m.id,
                         civilAttending: false,
                         partyAttending: false,
-                      },
-                    ])}
+                      }))
+                    )}
                   />
                   <button
                     type="submit"
-                    className={`${buttonBaseStyles} w-full px-4 py-4`}
+                    className={`${buttonBaseStyles} w-full`}
                     style={{
                       backgroundColor: "transparent",
                       borderWidth: "2px",
@@ -404,7 +419,7 @@ function RSVP() {
                       e.currentTarget.style.transform = "translateY(0)";
                     }}
                   >
-                    {pendingNoAttend ? "Enviando..." : "No puedo asistir"}
+                    {pendingNoAttend ? "Enviando..." : "No podemos asistir"}
                   </button>
                   {noAttendState.error && (
                     <span className="mt-2 block text-center text-sm font-normal text-[#ff6b6b]">
@@ -412,6 +427,62 @@ function RSVP() {
                     </span>
                   )}
                 </form>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={goBack}
+                    className={`${buttonBaseStyles} flex-1`}
+                    style={{
+                      backgroundColor: "transparent",
+                      borderWidth: "2px",
+                      borderColor: "var(--hueso)",
+                      color: "var(--hueso)",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = "var(--hueso)";
+                      e.currentTarget.style.color = "var(--bourdeaux)";
+                      e.currentTarget.style.transform = "translateY(-2px)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "transparent";
+                      e.currentTarget.style.color = "var(--hueso)";
+                      e.currentTarget.style.transform = "translateY(0)";
+                    }}
+                  >
+                    Atrás
+                  </button>
+                  <button
+                    onClick={goForward}
+                    disabled={!Object.values(familyConfirm).some(Boolean)}
+                    className={`${buttonBaseStyles} flex-1`}
+                    style={{
+                      backgroundColor: "var(--hueso)",
+                      color: "var(--bourdeaux-dark)",
+                      opacity: !Object.values(familyConfirm).some(Boolean)
+                        ? "0.5"
+                        : "1",
+                      cursor: !Object.values(familyConfirm).some(Boolean)
+                        ? "not-allowed"
+                        : "pointer",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (Object.values(familyConfirm).some(Boolean)) {
+                        e.currentTarget.style.backgroundColor =
+                          "var(--hueso-dark)";
+                        e.currentTarget.style.transform = "translateY(-2px)";
+                        e.currentTarget.style.boxShadow =
+                          "0 4px 12px rgba(250, 240, 230, 0.3)";
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "var(--hueso)";
+                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.boxShadow = "none";
+                    }}
+                  >
+                    Continuar →
+                  </button>
+                </div>
               </div>
             </motion.div>
           )}
@@ -558,7 +629,7 @@ function RSVP() {
             </motion.div>
           )}
 
-          {/* PASO 5: Confirmar grupo familiar */}
+          {/* PASO 5: Resumen y confirmación final */}
           {step === RSVPStep.CONFIRMATION && (
             <motion.div
               key="step5"
@@ -579,10 +650,67 @@ function RSVP() {
                 className={formHeadingStyles}
                 style={{ color: "var(--hueso)" }}
               >
-                Confirmá quiénes asisten de tu grupo
+                Confirmá tu asistencia
               </h3>
 
-              <form action={formAction} className="mb-6 flex flex-col gap-3">
+              {/* Resumen: quiénes asisten */}
+              <div
+                className="mb-4 rounded-xl border px-5 py-4"
+                style={{
+                  background: "rgba(250, 240, 230, 0.08)",
+                  borderColor: "rgba(250, 240, 230, 0.2)",
+                }}
+              >
+                <p
+                  className="mb-2 text-sm tracking-widest uppercase opacity-70"
+                  style={{ color: "var(--text-light)" }}
+                >
+                  Confirmando asistencia:
+                </p>
+                <ul className="flex flex-col gap-1">
+                  {familyMembers
+                    .filter((m) => familyConfirm[m.id])
+                    .map((m) => (
+                      <li
+                        key={m.id}
+                        className="text-base"
+                        style={{ color: "var(--hueso)" }}
+                      >
+                        • {m.firstName} {m.lastName}
+                      </li>
+                    ))}
+                </ul>
+              </div>
+
+              {/* Resumen: eventos seleccionados */}
+              <div
+                className="mb-6 rounded-xl border px-5 py-4"
+                style={{
+                  background: "rgba(250, 240, 230, 0.08)",
+                  borderColor: "rgba(250, 240, 230, 0.2)",
+                }}
+              >
+                <p
+                  className="mb-2 text-sm tracking-widest uppercase opacity-70"
+                  style={{ color: "var(--text-light)" }}
+                >
+                  Eventos:
+                </p>
+                <ul className="flex flex-col gap-1">
+                  {selectedEvents.includes(EventType.CIVIL) && (
+                    <li className="text-base" style={{ color: "var(--hueso)" }}>
+                      • Ceremonia Civil — {EVENTS.civil.date}
+                    </li>
+                  )}
+                  {selectedEvents.includes(EventType.FIESTA) && (
+                    <li className="text-base" style={{ color: "var(--hueso)" }}>
+                      • Fiesta — {EVENTS.fiesta.date}
+                    </li>
+                  )}
+                </ul>
+              </div>
+
+              <form action={formAction} className="flex flex-col gap-3">
                 <input
                   type="hidden"
                   name="confirmedById"
@@ -593,7 +721,7 @@ function RSVP() {
                   name="confirmations"
                   value={JSON.stringify(
                     familyMembers
-                      .filter((m) => familyConfirm[m.code])
+                      .filter((m) => familyConfirm[m.id])
                       .map((m) => ({
                         guestId: m.id,
                         civilAttending: selectedEvents.includes(
@@ -605,63 +733,54 @@ function RSVP() {
                       }))
                   )}
                 />
-                {familyMembers.map((member) => (
-                  <label
-                    key={member.code}
-                    className={checkboxLabelStyles}
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={goBack}
+                    className={`${buttonBaseStyles} flex-1`}
                     style={{
-                      backgroundColor: "rgba(250, 240, 230, 0.08)",
+                      backgroundColor: "transparent",
+                      borderWidth: "2px",
+                      borderColor: "var(--hueso)",
+                      color: "var(--hueso)",
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor =
-                        "rgba(250, 240, 230, 0.15)";
-                      e.currentTarget.style.borderColor =
-                        "rgba(250, 240, 230, 0.3)";
+                      e.currentTarget.style.backgroundColor = "var(--hueso)";
+                      e.currentTarget.style.color = "var(--bourdeaux)";
+                      e.currentTarget.style.transform = "translateY(-2px)";
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor =
-                        "rgba(250, 240, 230, 0.08)";
-                      e.currentTarget.style.borderColor = "transparent";
+                      e.currentTarget.style.backgroundColor = "transparent";
+                      e.currentTarget.style.color = "var(--hueso)";
+                      e.currentTarget.style.transform = "translateY(0)";
                     }}
                   >
-                    <input
-                      type="checkbox"
-                      checked={familyConfirm[member.code] || false}
-                      onChange={(e) =>
-                        toggleFamilyMember(member.code, e.target.checked)
-                      }
-                      className="h-5 w-5 cursor-pointer accent-(--hueso)"
-                    />
-                    <span
-                      className="flex-1 text-base"
-                      style={{ color: "var(--text-light)" }}
-                    >
-                      {member.firstName} {member.lastName}
-                    </span>
-                  </label>
-                ))}
-                <button
-                  type="submit"
-                  className={`${buttonBaseStyles} flex-1`}
-                  style={{
-                    backgroundColor: "var(--hueso)",
-                    color: "var(--bourdeaux-dark)",
-                  }}
-                  disabled={pending}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = "var(--hueso-dark)";
-                    e.currentTarget.style.transform = "translateY(-2px)";
-                    e.currentTarget.style.boxShadow =
-                      "0 4px 12px rgba(250, 240, 230, 0.3)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = "var(--hueso)";
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow = "none";
-                  }}
-                >
-                  {pending ? "Enviando..." : "Confirmar asistencia"}
-                </button>
+                    Atrás
+                  </button>
+                  <button
+                    type="submit"
+                    className={`${buttonBaseStyles} flex-1`}
+                    style={{
+                      backgroundColor: "var(--hueso)",
+                      color: "var(--bourdeaux-dark)",
+                    }}
+                    disabled={pending}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor =
+                        "var(--hueso-dark)";
+                      e.currentTarget.style.transform = "translateY(-2px)";
+                      e.currentTarget.style.boxShadow =
+                        "0 4px 12px rgba(250, 240, 230, 0.3)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "var(--hueso)";
+                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.boxShadow = "none";
+                    }}
+                  >
+                    {pending ? "Enviando..." : "Confirmar asistencia"}
+                  </button>
+                </div>
                 {submitState.error && (
                   <span className="mt-2 block text-center text-sm font-normal text-[#ff6b6b]">
                     {submitState.error}
@@ -672,7 +791,7 @@ function RSVP() {
           )}
 
           {/* Success message */}
-          {formState === FormState.SUCCESS && (
+          {(submitState.success || noAttendState.success) && (
             <motion.div
               key="success"
               initial={{ opacity: 0, scale: 0.9 }}
@@ -699,7 +818,7 @@ function RSVP() {
                 >
                   ✓
                 </div>
-                {isNoAttendance ? (
+                {noAttendState.success ? (
                   <>
                     <h3
                       className="font-display mb-3 text-3xl"

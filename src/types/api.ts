@@ -18,6 +18,7 @@ export interface GuestResponse {
       id: string;
       firstName: string;
       lastName: string;
+      code: string;
     }>;
   } | null;
   confirmation: {
