@@ -1,14 +1,14 @@
 "use client";
 
 import { useFormStatus } from "react-dom";
-import type { ComponentPropsWithoutRef } from "react";
+import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
 interface SubmitButtonProps extends Omit<
   ComponentPropsWithoutRef<"button">,
   "type" | "children"
 > {
-  label: string;
-  loadingLabel?: string;
+  label: ReactNode;
+  loadingLabel?: ReactNode;
 }
 
 /**
