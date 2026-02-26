@@ -65,6 +65,63 @@ git checkout -b refactor/extract-guest-service
 
 **Rule:** create the branch _before_ making any changes. If changes were made on `master` by mistake, stash them, create the branch, and pop the stash.
 
+### Atomic commits
+
+- Each commit represents **one logical change** — it must compile and pass lint independently.
+- No `WIP`, `temp`, or vague `fix` messages. Squash before opening a PR if needed.
+- Stage only what belongs to the commit (`git add -p` is preferred over `git add .`).
+
+### Commit message format
+
+```
+<type>: <short imperative description>
+
+[optional body: explain WHY, not WHAT — the diff already shows what]
+```
+
+| Type       | When to use                                   |
+| ---------- | --------------------------------------------- |
+| `feat`     | New user-facing functionality                 |
+| `enhance`  | Improvement to an existing feature or tooling |
+| `fix`      | Bug fix                                       |
+| `refactor` | Code restructuring with no behavior change    |
+| `chore`    | Config, deps, CI — no production code change  |
+| `docs`     | Documentation only                            |
+
+```bash
+# Good examples
+feat: add civil ceremony RSVP step
+fix: validate phone number format before submission
+enhance: improve mobile layout for guest selection
+refactor: extract confirmation logic into service layer
+
+# Bad — avoid these
+git commit -m "fix stuff"
+git commit -m "WIP"
+git commit -m "changes"
+```
+
+### Pull Request title convention
+
+PR titles must carry a prefix that mirrors the branch type:
+
+| Branch prefix   | PR prefix  |
+| --------------- | ---------- |
+| `feature/*`     | `[FTR]`    |
+| `enhancement/*` | `[ENH]`    |
+| `fix/*`         | `[FIX]`    |
+| `hotfix/*`      | `[HOTFIX]` |
+| `refactor/*`    | `[RFT]`    |
+
+```
+# Examples
+[FTR] Add civil ceremony RSVP step
+[ENH] Improve mobile layout for guest selection
+[FIX] Validate phone number format before submission
+[HOTFIX] Correct confirmation email subject
+[RFT] Extract guest confirmation into service layer
+```
+
 ## Architecture Patterns
 
 ### Layered Architecture (thin controllers)
