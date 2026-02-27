@@ -19,6 +19,10 @@ export interface GuestResponse {
       firstName: string;
       lastName: string;
       code: string;
+      confirmation: {
+        civilAttending: boolean;
+        partyAttending: boolean;
+      } | null;
     }>;
   } | null;
   confirmation: {

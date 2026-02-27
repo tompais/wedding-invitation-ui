@@ -86,11 +86,42 @@ export async function GET(request: NextRequest) {
           code: g.code,
         }));
 
+        // Buscar confirmaciones de cada miembro del grupo
+        const guestIds = mappedGuests.map((g) => g.id);
+        const { data: memberConfirmations } = await supabase
+          .from("confirmations")
+          .select("guest_id, civil_attending, party_attending")
+          .in("guest_id", guestIds);
+
+        type MemberConfirmationRow = {
+          guest_id: string;
+          civil_attending: boolean;
+          party_attending: boolean;
+        };
+        const confirmsTyped = (memberConfirmations ||
+          []) as unknown as MemberConfirmationRow[];
+        const confirmsByGuestId = new Map(
+          confirmsTyped.map((c) => [c.guest_id, c])
+        );
+
+        const mappedGuestsWithStatus = mappedGuests.map((g) => {
+          const conf = confirmsByGuestId.get(g.id);
+          return {
+            ...g,
+            confirmation: conf
+              ? {
+                  civilAttending: conf.civil_attending,
+                  partyAttending: conf.party_attending,
+                }
+              : null,
+          };
+        });
+
         const groupTyped = groupData as Group;
         group = {
           id: groupTyped.id,
           name: groupTyped.name,
-          guests: mappedGuests,
+          guests: mappedGuestsWithStatus,
         };
       }
     }
