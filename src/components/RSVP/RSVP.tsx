@@ -15,8 +15,8 @@ import { FormState } from "@/types/FormState";
 import { LoadingSize } from "@/types/LoadingSize";
 import { RSVPStep } from "@/types/RSVPStep";
 import { useActionState } from "react";
-import { useFormStatus } from "react-dom";
 import { confirmAttendanceAction } from "@/app/actions/rsvpActions";
+import { SubmitButton } from "@/components/common/SubmitButton/SubmitButton";
 
 /**
  * PRESENTATION LAYER: RSVP Component
@@ -78,15 +78,12 @@ function RSVP() {
       await confirmAttendanceAction(prevState, formData),
     { success: false, error: null }
   );
-  const { pending } = useFormStatus();
-
   // useActionState para el submit de no asistencia
   const [noAttendState, noAttendAction] = useActionState(
     async (prevState: ActionState, formData: FormData) =>
       await confirmAttendanceAction(prevState, formData),
     { success: false, error: null }
   );
-  const { pending: pendingNoAttend } = useFormStatus();
 
   /**
    * Handler para envío final (ahora usa server action)
@@ -398,29 +395,11 @@ function RSVP() {
                       }))
                     )}
                   />
-                  <button
-                    type="submit"
+                  <SubmitButton
+                    label="No podemos asistir"
+                    variant="outline"
                     className={`${buttonBaseStyles} w-full`}
-                    style={{
-                      backgroundColor: "transparent",
-                      borderWidth: "2px",
-                      borderColor: "var(--hueso)",
-                      color: "var(--hueso)",
-                    }}
-                    disabled={pendingNoAttend}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = "var(--hueso)";
-                      e.currentTarget.style.color = "var(--bourdeaux)";
-                      e.currentTarget.style.transform = "translateY(-2px)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = "transparent";
-                      e.currentTarget.style.color = "var(--hueso)";
-                      e.currentTarget.style.transform = "translateY(0)";
-                    }}
-                  >
-                    {pendingNoAttend ? "Enviando..." : "No podemos asistir"}
-                  </button>
+                  />
                   {noAttendState.error && (
                     <span className="mt-2 block text-center text-sm font-normal text-[#ff6b6b]">
                       {noAttendState.error}
@@ -757,29 +736,10 @@ function RSVP() {
                   >
                     Atrás
                   </button>
-                  <button
-                    type="submit"
+                  <SubmitButton
+                    label="Confirmar asistencia"
                     className={`${buttonBaseStyles} flex-1`}
-                    style={{
-                      backgroundColor: "var(--hueso)",
-                      color: "var(--bourdeaux-dark)",
-                    }}
-                    disabled={pending}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor =
-                        "var(--hueso-dark)";
-                      e.currentTarget.style.transform = "translateY(-2px)";
-                      e.currentTarget.style.boxShadow =
-                        "0 4px 12px rgba(250, 240, 230, 0.3)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = "var(--hueso)";
-                      e.currentTarget.style.transform = "translateY(0)";
-                      e.currentTarget.style.boxShadow = "none";
-                    }}
-                  >
-                    {pending ? "Enviando..." : "Confirmar asistencia"}
-                  </button>
+                  />
                 </div>
                 {submitState.error && (
                   <span className="mt-2 block text-center text-sm font-normal text-[#ff6b6b]">
