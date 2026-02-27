@@ -315,9 +315,8 @@ When finishing a task, respond with:
 
 1. **What changed** (bullets)
 2. **Files touched**
-3.
-4. **How to test locally** (commands)
-5. **Assumptions / follow-ups**
+3. **How to test locally** (commands)
+4. **Assumptions / follow-ups**
 
 ## Documentation
 
