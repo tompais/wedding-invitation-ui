@@ -61,11 +61,16 @@ function RSVP() {
     mode: "onSubmit",
   });
 
+  // Controla el estado de carga durante la búsqueda del código de invitado
+  const [isLookingUpCode, setIsLookingUpCode] = useState(false);
+
   /**
    * Handler del formulario de código
    */
   const onCodeSubmit = async (data: { code: string }) => {
+    setIsLookingUpCode(true);
     const result = await processGuestCode(data.code);
+    setIsLookingUpCode(false);
 
     if (!result.success) {
       setError("code", {
@@ -240,10 +245,17 @@ function RSVP() {
                   style={{
                     backgroundColor: "var(--hueso)",
                     color: "var(--bourdeaux-dark)",
+                    opacity: isLookingUpCode ? "0.7" : "1",
+                    cursor: isLookingUpCode ? "not-allowed" : "pointer",
                   }}
-                  disabled={formState === FormState.SUBMITTING}
+                  disabled={
+                    isLookingUpCode || formState === FormState.SUBMITTING
+                  }
                   onMouseEnter={(e) => {
-                    if (formState !== FormState.SUBMITTING) {
+                    if (
+                      !isLookingUpCode &&
+                      formState !== FormState.SUBMITTING
+                    ) {
                       e.currentTarget.style.backgroundColor =
                         "var(--hueso-dark)";
                       e.currentTarget.style.transform = "translateY(-2px)";
@@ -257,7 +269,7 @@ function RSVP() {
                     e.currentTarget.style.boxShadow = "none";
                   }}
                 >
-                  Continuar
+                  {isLookingUpCode ? "Buscando..." : "Continuar"}
                 </button>
               </form>
             </motion.div>
