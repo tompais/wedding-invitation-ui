@@ -14,7 +14,7 @@ import { EventType } from "@/types/EventType";
 import { FormState } from "@/types/FormState";
 import { LoadingSize } from "@/types/LoadingSize";
 import { RSVPStep } from "@/types/RSVPStep";
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { confirmAttendanceAction } from "@/app/actions/rsvpActions";
 import { SubmitButton } from "@/components/common/SubmitButton/SubmitButton";
 
@@ -93,14 +93,12 @@ function RSVP() {
   const [showSuccessOverlay, setShowSuccessOverlay] = useState(false);
   const [successIsNoAttend, setSuccessIsNoAttend] = useState(false);
 
-  // Patrón de estado derivado durante render (sin useEffect) para detectar
-  // la transición pending → completado. React re-renderiza inmediatamente
-  // con el nuevo estado, sin cascada adicional.
+  // Detecta la transición pending → completado usando useRef + useEffect
+  // para evitar llamar a setters durante el render (patrón no seguro en React).
   const isPending = submitPending || noAttendPending;
-  const [prevPending, setPrevPending] = useState(isPending);
-  if (prevPending !== isPending) {
-    setPrevPending(isPending);
-    if (prevPending && !isPending) {
+  const prevPendingRef = useRef(isPending);
+  useEffect(() => {
+    if (prevPendingRef.current && !isPending) {
       if (noAttendState.success) {
         setSuccessIsNoAttend(true);
         setShowSuccessOverlay(true);
@@ -109,7 +107,8 @@ function RSVP() {
         setShowSuccessOverlay(true);
       }
     }
-  }
+    prevPendingRef.current = isPending;
+  }, [isPending, noAttendState.success, submitState.success]);
 
   const handleReset = () => {
     setShowSuccessOverlay(false);
