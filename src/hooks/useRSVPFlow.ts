@@ -30,6 +30,7 @@ interface UseRSVPFlowReturn {
   familyMembers: Guest[];
   familyConfirm: Record<string, boolean>;
   selectedEvents: EventType[];
+  existingConfirmation: GuestResponse["confirmation"];
 
   // Acciones
   processGuestCode: (
@@ -41,7 +42,8 @@ interface UseRSVPFlowReturn {
   toggleFamilyMember: (memberId: string, isConfirmed: boolean) => void;
   goBack: () => void;
   goForward: () => void;
-  resetFlow: () => void;
+  reset: () => void;
+  startEditFlow: () => void;
 }
 
 export const useRSVPFlow = (): UseRSVPFlowReturn => {
@@ -60,6 +62,10 @@ export const useRSVPFlow = (): UseRSVPFlowReturn => {
   // Selecciones
   const [selectedEvents, setSelectedEvents] = useState<EventType[]>([]);
 
+  // Confirmación previa (si el invitado ya confirmó)
+  const [existingConfirmation, setExistingConfirmation] =
+    useState<GuestResponse["confirmation"]>(null);
+
   /**
    * Procesa el código de invitado consultando la API
    */
@@ -75,37 +81,37 @@ export const useRSVPFlow = (): UseRSVPFlowReturn => {
       };
     }
 
-    // Verificar si ya fue confirmado
-    if (data.confirmation) {
-      const confirmedByName = `${data.confirmation.confirmedBy.firstName} ${data.confirmation.confirmedBy.lastName}`;
-      return {
-        success: false,
-        error: `Ya confirmado por ${confirmedByName}`,
-      };
-    }
-
     setCurrentGuest(data);
 
-    // Si tiene grupo, cargar miembros
-    if (data.group) {
-      // La API ya mapea snake_case → camelCase; completamos los campos opcionales con null
-      const members: Guest[] = data.group.guests.map((m) => ({
-        ...m,
-        phone: null,
-        group: null,
-        confirmation: null,
-      }));
-      setFamilyMembers(members);
+    // Si tiene grupo, cargar miembros (opt-out: todos marcados por defecto)
+    const members: Guest[] = data.group
+      ? data.group.guests.map((m) => ({
+          ...m,
+          phone: null,
+          group: null,
+          confirmation: null,
+        }))
+      : [data];
+    setFamilyMembers(members);
+    const initialConfirm: Record<string, boolean> = {};
+    members.forEach((m) => {
+      initialConfirm[m.id] = true;
+    });
+    setFamilyConfirm(initialConfirm);
 
-      // Modelo opt-out: todos los miembros arrancan marcados por defecto
-      const initialConfirm: Record<string, boolean> = {};
-      members.forEach((member) => {
-        initialConfirm[member.id] = true;
-      });
-      setFamilyConfirm(initialConfirm);
-    } else {
-      setFamilyMembers([data]);
-      setFamilyConfirm({ [data.id]: true });
+    // Si ya fue confirmado: mostrar resumen con opción de editar
+    if (data.confirmation) {
+      setExistingConfirmation(data.confirmation);
+
+      const preSelectedEvents: EventType[] = [];
+      if (data.confirmation.civilAttending)
+        preSelectedEvents.push(EventType.CIVIL);
+      if (data.confirmation.partyAttending)
+        preSelectedEvents.push(EventType.FIESTA);
+      setSelectedEvents(preSelectedEvents);
+
+      setStep(RSVPStep.ALREADY_CONFIRMED);
+      return { success: true };
     }
 
     setStep(RSVPStep.ATTENDANCE_DECISION);
@@ -136,13 +142,17 @@ export const useRSVPFlow = (): UseRSVPFlowReturn => {
     }));
   };
 
+  // Avanza al flujo de edición desde la vista de confirmación existente
+  const startEditFlow = () => setStep(RSVPStep.FAMILY_CONFIRMATION);
+
   // Resetea todo el flujo al estado inicial
-  const resetFlow = () => {
+  const reset = () => {
     setStep(RSVPStep.CODE_INPUT);
     setCurrentGuest(null);
     setFamilyMembers([]);
     setFamilyConfirm({});
     setSelectedEvents([]);
+    setExistingConfirmation(null);
     setIsNoAttendance(false);
     setFormState(FormState.IDLE);
   };
@@ -191,6 +201,7 @@ export const useRSVPFlow = (): UseRSVPFlowReturn => {
     familyMembers,
     familyConfirm,
     selectedEvents,
+    existingConfirmation,
 
     // Acciones
     processGuestCode,
@@ -199,6 +210,7 @@ export const useRSVPFlow = (): UseRSVPFlowReturn => {
     toggleFamilyMember,
     goBack,
     goForward,
-    resetFlow,
+    reset,
+    startEditFlow,
   };
 };
