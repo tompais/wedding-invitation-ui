@@ -41,6 +41,40 @@ supabase db push             # Apply pending migrations to remote DB
 - **When in doubt**: make a reasonable decision, implement it, document the assumption. Only ask when truly blocked.
 - **Always run quality checks before declaring done** (`npm run lint && npm run format:check`)
 
+## Code Quality Principles
+
+Apply these principles on every change. Flag violations proactively.
+
+### Software Engineering
+
+| Principle              | Guidance                                                                                                                                                  |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **SOLID**              | SRP: cada módulo tiene una sola razón para cambiar. OCP: extendé, no modifiques. DI: pasá las dependencias como parámetros, nunca las instancies adentro. |
+| **DRY**                | Si algo se repite 3 veces o más, extraé. Pero sin over-abstraction (ver YAGNI).                                                                           |
+| **KISS**               | La solución más simple que funcione. Complejidad solo cuando hay beneficio medible.                                                                       |
+| **YAGNI**              | No diseñes para requisitos hipotéticos. Solo lo que el ticket pide.                                                                                       |
+| **Clean Code**         | Nombres descriptivos, funciones pequeñas con un solo propósito, sin comentarios obvios. El código debe leerse como prosa.                                 |
+| **Clean Architecture** | Dependencias apuntan hacia adentro: UI → Casos de uso → Dominio. La lógica de negocio no importa UI ni infraestructura.                                   |
+
+### Design Patterns — cuándo aplicarlos
+
+Solo aplicá un patrón cuando el problema lo justifica:
+
+- **Factory / Factory Method**: cuando la creación de un objeto es compleja o varía por tipo (ej: distintos tipos de notificación).
+- **Strategy**: cuando tenés múltiples algoritmos intercambiables para la misma operación (ej: distintas estrategias de confirmación).
+- **Chain of Responsibility**: cuando una acción pasa por múltiples validadores/handlers en secuencia (ej: pipeline de validación de un formulario).
+- **Observer**: cuando múltiples partes deben reaccionar a un evento sin acoplarse (ej: actualizar múltiples secciones de UI ante un cambio de estado).
+- **Repository**: para abstraer el acceso a datos detrás de una interfaz — ya usado implícitamente en `src/infrastructure/`.
+
+### Frontend / Next.js / React
+
+- **Server Components por default** — Client Components solo cuando hay estado, eventos o animaciones.
+- **Derived state durante render** (patrón `if (prev !== next)`) en lugar de `useEffect` para sincronizar estado interno — ver [React docs](https://react.dev/learn/you-might-not-need-an-effect).
+- **Colocación de lógica**: lógica de dominio → hooks; lógica de presentación → componentes; lógica de red → API routes / server actions.
+- **Performance en DB**: usar `Promise.all` para queries independientes, nested selects de Supabase para evitar N+1 round-trips.
+- **Type-safety en boundaries**: todo lo que entra o sale del sistema (API, formularios, DB) tiene schema Zod y tipo TypeScript inferido. Nunca `any`.
+- **Accesibilidad básica**: labels en inputs, roles semánticos, navegación por teclado, contraste suficiente.
+
 ## Git Workflow
 
 **Always work on a branch — never commit directly to `master`.**
