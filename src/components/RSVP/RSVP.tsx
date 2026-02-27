@@ -14,7 +14,7 @@ import { EventType } from "@/types/EventType";
 import { FormState } from "@/types/FormState";
 import { LoadingSize } from "@/types/LoadingSize";
 import { RSVPStep } from "@/types/RSVPStep";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { confirmAttendanceAction } from "@/app/actions/rsvpActions";
 import { SubmitButton } from "@/components/common/SubmitButton/SubmitButton";
 
@@ -40,11 +40,14 @@ function RSVP() {
     familyMembers,
     familyConfirm,
     selectedEvents,
+    existingConfirmation,
     processGuestCode,
     toggleEvent,
     toggleFamilyMember,
     goBack,
     goForward,
+    reset,
+    startEditFlow,
   } = useRSVPFlow();
 
   // React Hook Form para el paso 1 (código)
@@ -73,17 +76,45 @@ function RSVP() {
   };
 
   // useActionState para el submit final
-  const [submitState, formAction] = useActionState(
+  const [submitState, formAction, submitPending] = useActionState(
     async (prevState: ActionState, formData: FormData) =>
       await confirmAttendanceAction(prevState, formData),
     { success: false, error: null }
   );
   // useActionState para el submit de no asistencia
-  const [noAttendState, noAttendAction] = useActionState(
+  const [noAttendState, noAttendAction, noAttendPending] = useActionState(
     async (prevState: ActionState, formData: FormData) =>
       await confirmAttendanceAction(prevState, formData),
     { success: false, error: null }
   );
+
+  // Controla la visibilidad del overlay de éxito de forma independiente de
+  // useActionState (cuyo estado persiste incluso después de reset()).
+  const [showSuccessOverlay, setShowSuccessOverlay] = useState(false);
+  const [successIsNoAttend, setSuccessIsNoAttend] = useState(false);
+
+  // Patrón de estado derivado durante render (sin useEffect) para detectar
+  // la transición pending → completado. React re-renderiza inmediatamente
+  // con el nuevo estado, sin cascada adicional.
+  const isPending = submitPending || noAttendPending;
+  const [prevPending, setPrevPending] = useState(isPending);
+  if (prevPending !== isPending) {
+    setPrevPending(isPending);
+    if (prevPending && !isPending) {
+      if (noAttendState.success) {
+        setSuccessIsNoAttend(true);
+        setShowSuccessOverlay(true);
+      } else if (submitState.success) {
+        setSuccessIsNoAttend(false);
+        setShowSuccessOverlay(true);
+      }
+    }
+  }
+
+  const handleReset = () => {
+    setShowSuccessOverlay(false);
+    reset();
+  };
 
   /**
    * Handler para envío final (ahora usa server action)
@@ -750,59 +781,133 @@ function RSVP() {
             </motion.div>
           )}
 
-          {/* Success message */}
-          {(submitState.success || noAttendState.success) && (
+          {/* ESTADO ESPECIAL: Invitado que ya confirmó */}
+          {step === RSVPStep.ALREADY_CONFIRMED && existingConfirmation && (
             <motion.div
-              key="success"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
+              key="already-confirmed"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.4 }}
-              className="fixed inset-0 z-999 flex items-center justify-center p-8"
-              style={{ backgroundColor: "var(--bourdeaux-dark)" }}
+              className={formContainerStyles}
+              style={{
+                backgroundColor: "rgba(250, 240, 230, 0.1)",
+                borderColor: "rgba(250, 240, 230, 0.2)",
+              }}
             >
+              <h3
+                className={formHeadingStyles}
+                style={{ color: "var(--hueso)" }}
+              >
+                Ya confirmaste tu asistencia
+              </h3>
+
               <div
-                className="w-full max-w-130 rounded-2xl border-2 px-8 py-12 text-center shadow-[0_12px_30px_rgba(0,0,0,0.35)] md:px-6"
+                className="mb-6 rounded-xl border px-5 py-4"
                 style={{
-                  backgroundColor: "var(--bourdeaux)",
-                  borderColor: "var(--hueso)",
+                  background: "rgba(250, 240, 230, 0.08)",
+                  borderColor: "rgba(250, 240, 230, 0.2)",
                 }}
               >
-                <div
-                  className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full text-5xl font-bold"
+                <p className="mb-1 text-base" style={{ color: "var(--hueso)" }}>
+                  Confirmado por:{" "}
+                  <strong>
+                    {existingConfirmation.confirmedBy.firstName}{" "}
+                    {existingConfirmation.confirmedBy.lastName}
+                  </strong>
+                </p>
+                <p
+                  className="mb-4 text-sm opacity-70"
+                  style={{ color: "var(--text-light)" }}
+                >
+                  el{" "}
+                  {new Date(
+                    existingConfirmation.confirmedAt
+                  ).toLocaleDateString("es-AR", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </p>
+                <p
+                  className="mb-2 text-sm tracking-widest uppercase opacity-70"
+                  style={{ color: "var(--text-light)" }}
+                >
+                  Eventos:
+                </p>
+                <ul className="flex flex-col gap-1">
+                  {!existingConfirmation.civilAttending &&
+                  !existingConfirmation.partyAttending ? (
+                    <li className="text-base" style={{ color: "var(--hueso)" }}>
+                      • No pudimos asistir
+                    </li>
+                  ) : (
+                    <>
+                      {existingConfirmation.civilAttending && (
+                        <li
+                          className="text-base"
+                          style={{ color: "var(--hueso)" }}
+                        >
+                          • Ceremonia Civil
+                        </li>
+                      )}
+                      {existingConfirmation.partyAttending && (
+                        <li
+                          className="text-base"
+                          style={{ color: "var(--hueso)" }}
+                        >
+                          • Fiesta
+                        </li>
+                      )}
+                    </>
+                  )}
+                </ul>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={reset}
+                  className={`${buttonBaseStyles} flex-1`}
                   style={{
-                    background: "var(--hueso)",
-                    color: "var(--bourdeaux)",
-                    animation: "scaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                    backgroundColor: "transparent",
+                    borderWidth: "2px",
+                    borderColor: "var(--hueso)",
+                    color: "var(--hueso)",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = "var(--hueso)";
+                    e.currentTarget.style.color = "var(--bourdeaux)";
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "transparent";
+                    e.currentTarget.style.color = "var(--hueso)";
+                    e.currentTarget.style.transform = "translateY(0)";
                   }}
                 >
-                  ✓
-                </div>
-                {noAttendState.success ? (
-                  <>
-                    <h3
-                      className="font-display mb-3 text-3xl"
-                      style={{ color: "var(--hueso)" }}
-                    >
-                      {RSVP_CONFIG.messages.success.noAttendance.title}
-                    </h3>
-                    <p className="mb-6" style={{ color: "var(--text-light)" }}>
-                      {RSVP_CONFIG.messages.success.noAttendance.subtitle}
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <h3
-                      className="font-display mb-3 text-3xl"
-                      style={{ color: "var(--hueso)" }}
-                    >
-                      {RSVP_CONFIG.messages.success.attendance.title}
-                    </h3>
-                    <p className="mb-6" style={{ color: "var(--text-light)" }}>
-                      {RSVP_CONFIG.messages.success.attendance.subtitle}
-                    </p>
-                  </>
-                )}
+                  Está bien, gracias
+                </button>
+                <button
+                  onClick={startEditFlow}
+                  className={`${buttonBaseStyles} flex-1`}
+                  style={{
+                    backgroundColor: "var(--hueso)",
+                    color: "var(--bourdeaux-dark)",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = "var(--hueso-dark)";
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.boxShadow =
+                      "0 4px 12px rgba(250, 240, 230, 0.3)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "var(--hueso)";
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
+                >
+                  Modificar confirmación
+                </button>
               </div>
             </motion.div>
           )}
@@ -826,6 +931,86 @@ function RSVP() {
           )}
         </AnimatePresence>
       </div>
+
+      {/* Overlay de éxito — fuera de AnimatePresence para evitar conflicto de
+          múltiples children con mode="wait". Controlado por estado local propio,
+          independiente del estado persistente de useActionState. */}
+      {showSuccessOverlay && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.9 }}
+          transition={{ duration: 0.4 }}
+          className="fixed inset-0 z-999 flex items-center justify-center p-8"
+          style={{ backgroundColor: "var(--bourdeaux-dark)" }}
+        >
+          <div
+            className="w-full max-w-130 rounded-2xl border-2 px-8 py-12 text-center shadow-[0_12px_30px_rgba(0,0,0,0.35)] md:px-6"
+            style={{
+              backgroundColor: "var(--bourdeaux)",
+              borderColor: "var(--hueso)",
+            }}
+          >
+            <div
+              className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full text-5xl font-bold"
+              style={{
+                background: "var(--hueso)",
+                color: "var(--bourdeaux)",
+                animation: "scaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)",
+              }}
+            >
+              ✓
+            </div>
+            {successIsNoAttend ? (
+              <>
+                <h3
+                  className="font-display mb-3 text-3xl"
+                  style={{ color: "var(--hueso)" }}
+                >
+                  {RSVP_CONFIG.messages.success.noAttendance.title}
+                </h3>
+                <p className="mb-6" style={{ color: "var(--text-light)" }}>
+                  {RSVP_CONFIG.messages.success.noAttendance.subtitle}
+                </p>
+              </>
+            ) : (
+              <>
+                <h3
+                  className="font-display mb-3 text-3xl"
+                  style={{ color: "var(--hueso)" }}
+                >
+                  {RSVP_CONFIG.messages.success.attendance.title}
+                </h3>
+                <p className="mb-6" style={{ color: "var(--text-light)" }}>
+                  {RSVP_CONFIG.messages.success.attendance.subtitle}
+                </p>
+              </>
+            )}
+            <button
+              onClick={handleReset}
+              className={`${buttonBaseStyles} w-full`}
+              style={{
+                backgroundColor: "transparent",
+                borderWidth: "2px",
+                borderColor: "var(--hueso)",
+                color: "var(--hueso)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "var(--hueso)";
+                e.currentTarget.style.color = "var(--bourdeaux)";
+                e.currentTarget.style.transform = "translateY(-2px)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "transparent";
+                e.currentTarget.style.color = "var(--hueso)";
+                e.currentTarget.style.transform = "translateY(0)";
+              }}
+            >
+              Volver a la invitación
+            </button>
+          </div>
+        </motion.div>
+      )}
     </section>
   );
 }
