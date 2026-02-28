@@ -1,0 +1,76 @@
+name: Claude — evalúa sugerencias de Sourcery
+
+# Triggerza cuando Sourcery AI envía un review en cualquier PR.
+# Claude analiza cada sugerencia y postea un resumen de qué aplicaría y qué no,
+# sin pushear cambios directamente (evita loop Sourcery → Claude → Sourcery).
+# Para aplicar los cambios aprobados, comentar "@claude" en el PR.
+on:
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  claude-sourcery:
+    if: github.event.review.user.login == 'sourcery-ai[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write  # Para que Claude pueda comentar en el PR
+      issues: read
+      id-token: write
+      actions: read
+
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          # SHA inmutable — seguro contra branch-name injection
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Claude evalúa sugerencias de Sourcery
+        uses: anthropics/claude-code-action@v1
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          additional_permissions: |
+            actions: read
+          prompt: |
+            Sourcery AI acaba de enviar un review en el PR #${{ github.event.pull_request.number }}.
+
+            Tu tarea es actuar como revisor senior del proyecto (sin modificar código):
+
+            1. Obtené los comentarios de Sourcery:
+               `gh api repos/$REPO/pulls/$PR_NUMBER/reviews`
+               `gh api repos/$REPO/pulls/$PR_NUMBER/comments`
+
+            2. Leé también el código actual de los archivos afectados para entender el contexto.
+
+            3. Para cada sugerencia de Sourcery, evaluala contra los principios de CLAUDE.md
+               (SOLID, DRY, KISS, YAGNI, Clean Architecture).
+
+            4. Posteá un comentario en el PR ($PR_NUMBER) con el análisis:
+
+               **🤖 Análisis de sugerencias de Sourcery**
+
+               ✅ **Aplicaría:**
+               - [descripción breve y justificación]
+
+               ❌ **Descartaría:**
+               - [descripción breve y justificación]
+
+               ---
+               *Para aplicar las sugerencias aprobadas, respondé "@claude aplicar sugerencias aprobadas de Sourcery"*
+
+            ---
+            Criterios para APROBAR:
+            - Mejora legibilidad sin cambiar comportamiento
+            - Simplifica cumpliendo KISS/DRY sin over-abstraction
+            - Corrige tipos, null-safety, o manejo de errores real
+
+            Criterios para DESCARTAR:
+            - Añade abstracciones para casos hipotéticos (viola YAGNI)
+            - Rompe la arquitectura definida en CLAUDE.md
+            - El beneficio no justifica la complejidad añadida
+            - Cambia patrones ya establecidos en el proyecto sin razón clara
