@@ -1,0 +1,23 @@
+{
+  "skill_name": "code-quality",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Agregá a la API route de guests un endpoint POST que permita actualizar el teléfono del invitado. Que valide con Zod y devuelva el invitado actualizado.",
+      "expected_output": "El skill debe activarse proactivamente después de escribir el endpoint y producir un reporte de auditoría estructurado con [ALTO/MEDIO/BAJO] que detecte issues reales: lógica de negocio en el route handler, falta de servicio separado, etc.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "/code-quality src/components/RSVP/RSVP.tsx",
+      "expected_output": "El skill debe auditar el componente y reportar issues reales como: componente demasiado grande (SRP), lógica inline, etc. Con formato [ALTO/MEDIO/BAJO] y referencias a archivo:línea.",
+      "files": ["src/components/RSVP/RSVP.tsx"]
+    },
+    {
+      "id": 3,
+      "prompt": "Refactorizá useRSVPFlow.ts para extraer la lógica de éxito en una función separada. Quiero que sea más legible.",
+      "expected_output": "El skill debe activarse proactivamente después del refactor y validar que el hook mantiene su responsabilidad (orquestación, no lógica de dominio). Formato [ALTO/MEDIO/BAJO].",
+      "files": ["src/hooks/useRSVPFlow.ts"]
+    }
+  ]
+}
