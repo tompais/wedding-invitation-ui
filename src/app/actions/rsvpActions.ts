@@ -2,7 +2,6 @@
 import { supabase } from "@/lib/supabase";
 import { RSVP_CONFIG } from "@/constants/rsvp";
 import { groupConfirmationSchema } from "@/schemas/rsvp.schema";
-import type { ConfirmationInsert, ConfirmationUpdate } from "@/types/database";
 import type { ActionState } from "@/types/ActionState";
 
 export async function confirmAttendanceAction(
@@ -47,44 +46,24 @@ export async function confirmAttendanceAction(
       return { success: false, error: RSVP_CONFIG.messages.errors.error };
     }
 
-    // Guardar cada confirmación directamente en Supabase (insert o update)
-    for (const conf of confirmations) {
-      const { data: existing } = await supabase
-        .from("confirmations")
-        .select("id")
-        .eq("guest_id", conf.guestId)
-        .single();
+    // Upsert batch: INSERT ... ON CONFLICT (guest_id) DO UPDATE
+    // Aprovecha el índice único confirmations_guest_id_key del schema.
+    // Reduce N*(SELECT + INSERT/UPDATE) secuenciales a un único round-trip.
+    // El trigger update_confirmations_updated_at actualiza updated_at automáticamente.
+    const payload = confirmations.map((conf) => ({
+      guest_id: conf.guestId,
+      confirmed_by_id: confirmedById,
+      group_id: confirmerData.group_id,
+      civil_attending: conf.civilAttending,
+      party_attending: conf.partyAttending,
+    }));
 
-      if (existing) {
-        const payload: ConfirmationUpdate = {
-          civil_attending: conf.civilAttending,
-          party_attending: conf.partyAttending,
-          confirmed_by_id: confirmedById,
-          group_id: confirmerData.group_id,
-          updated_at: new Date().toISOString(),
-        };
-        const { error } = await supabase
-          .from("confirmations")
-          .update(payload as never)
-          .eq("guest_id", conf.guestId);
-        if (error) {
-          return { success: false, error: RSVP_CONFIG.messages.errors.error };
-        }
-      } else {
-        const payload: ConfirmationInsert = {
-          guest_id: conf.guestId,
-          confirmed_by_id: confirmedById,
-          group_id: confirmerData.group_id,
-          civil_attending: conf.civilAttending,
-          party_attending: conf.partyAttending,
-        };
-        const { error } = await supabase
-          .from("confirmations")
-          .insert(payload as never);
-        if (error) {
-          return { success: false, error: RSVP_CONFIG.messages.errors.error };
-        }
-      }
+    const { error } = await supabase
+      .from("confirmations")
+      .upsert(payload, { onConflict: "guest_id" });
+
+    if (error) {
+      return { success: false, error: RSVP_CONFIG.messages.errors.error };
     }
 
     return { success: true, error: null };
