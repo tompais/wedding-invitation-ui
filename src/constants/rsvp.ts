@@ -4,10 +4,11 @@
  * Centraliza textos y configuraciones del sistema de confirmación
  */
 
+import { RSVPStep } from "@/types/RSVPStep";
+
 interface RSVPMessages {
   errors: {
     codeNotFound: string;
-    selectEvent: string;
     submitting: string;
     error: string;
   };
@@ -34,18 +35,15 @@ interface RSVPConfig {
 
 export const RSVP_CONFIG: RSVPConfig = {
   stepIndicators: {
-    1: "Paso 1 de 5",
-    2: "Paso 2 de 5",
-    3: "Paso 3 de 5",
-    4: "Paso 4 de 5",
-    5: "Paso 5 de 5",
+    [RSVPStep.CODE_INPUT]: "Paso 1 de 3",
+    [RSVPStep.ATTENDANCE_DECISION]: "Paso 2 de 3",
+    [RSVPStep.CONFIRMATION_GRID]: "Paso 3 de 3",
   },
 
   messages: {
     errors: {
       codeNotFound:
         "Código no encontrado. Verificá el código e intentá de nuevo.",
-      selectEvent: "Por favor selecciona al menos un evento",
       submitting: "Enviando tu respuesta...",
       error: "Hubo un error al enviar tu confirmación. Intentá de nuevo.",
     },
