@@ -2,72 +2,62 @@ import { useState } from "react";
 import { RSVP_CONFIG } from "@/constants/rsvp";
 import { api } from "@/lib/api";
 import type { GuestResponse } from "@/types/api";
-import { FormState } from "@/types/FormState";
-import { EventType } from "@/types/EventType";
 import { RSVPStep } from "@/types/RSVPStep";
 
 /**
- * APPLICATION LAYER: RSVP Flow Hook (Next.js Version)
+ * APPLICATION LAYER: RSVP Flow Hook
  *
  * Responsabilidad: Orquestar el flujo de estados del formulario RSVP
  * Principios: SOLID (Single Responsibility), Separation of Concerns
  *
- * Este hook encapsula toda la lógica de negocio del flujo RSVP,
- * delegando responsabilidades a las API Routes de Next.js.
- *
- * @returns Estado y acciones del flujo RSVP
+ * El hook encapsula toda la lógica de negocio del flujo RSVP.
+ * La grilla de confirmación unifica selección de miembros y eventos
+ * en un único paso persona × evento.
  */
 
 // Alias para claridad en el hook
 type Guest = GuestResponse;
 
+export type MemberConfirmation = {
+  /** Si el miembro está incluido en el submit. El invitado actual siempre es true. */
+  checked: boolean;
+  /** Asiste a la ceremonia civil */
+  civil: boolean;
+  /** Asiste a la fiesta */
+  fiesta: boolean;
+};
+
 interface UseRSVPFlowReturn {
   // Estado
   step: RSVPStep;
-  formState: FormState;
-  isNoAttendance: boolean;
   currentGuest: Guest | null;
-  familyMembers: Guest[];
-  familyConfirm: Record<string, boolean>;
-  selectedEvents: EventType[];
-  existingConfirmation: GuestResponse["confirmation"];
+  memberConfirmations: Record<string, MemberConfirmation>;
 
   // Acciones
   processGuestCode: (
     code: string
   ) => Promise<{ success: boolean; error?: string }>;
-  // handleAttendanceDecision fue reemplazado por attend y decline
   attend: () => void;
-  toggleEvent: (event: EventType) => void;
-  toggleFamilyMember: (memberId: string, isConfirmed: boolean) => void;
+  toggleMemberChecked: (memberId: string) => void;
+  setMemberEvent: (
+    memberId: string,
+    event: "civil" | "fiesta",
+    value: boolean
+  ) => void;
   goBack: () => void;
-  goForward: () => void;
   reset: () => void;
-  startEditFlow: () => void;
 }
 
 export const useRSVPFlow = (): UseRSVPFlowReturn => {
-  // Estados del flujo
   const [step, setStep] = useState(RSVPStep.CODE_INPUT);
-  const [formState, setFormState] = useState<FormState>(FormState.IDLE);
-  const [isNoAttendance, setIsNoAttendance] = useState(false);
-
-  // Datos del invitado
   const [currentGuest, setCurrentGuest] = useState<Guest | null>(null);
-  const [familyMembers, setFamilyMembers] = useState<Guest[]>([]);
-  const [familyConfirm, setFamilyConfirm] = useState<Record<string, boolean>>(
-    {}
-  );
-
-  // Selecciones
-  const [selectedEvents, setSelectedEvents] = useState<EventType[]>([]);
-
-  // Confirmación previa (si el invitado ya confirmó)
-  const [existingConfirmation, setExistingConfirmation] =
-    useState<GuestResponse["confirmation"]>(null);
+  const [memberConfirmations, setMemberConfirmations] = useState<
+    Record<string, MemberConfirmation>
+  >({});
 
   /**
-   * Procesa el código de invitado consultando la API
+   * Procesa el código de invitado y siempre navega a ATTENDANCE_DECISION.
+   * Si ya confirmó, los valores previos se pre-cargan en attend().
    */
   const processGuestCode = async (code: string) => {
     const { data, error } = await api.get<GuestResponse>(
@@ -82,135 +72,111 @@ export const useRSVPFlow = (): UseRSVPFlowReturn => {
     }
 
     setCurrentGuest(data);
-
-    // Si tiene grupo, cargar miembros (opt-out: todos marcados por defecto)
-    const members: Guest[] = data.group
-      ? data.group.guests.map((m) => ({
-          ...m,
-          phone: null,
-          group: null,
-          confirmation: null,
-        }))
-      : [data];
-    setFamilyMembers(members);
-    const initialConfirm: Record<string, boolean> = {};
-    members.forEach((m) => {
-      initialConfirm[m.id] = true;
-    });
-    setFamilyConfirm(initialConfirm);
-
-    // Si ya fue confirmado: mostrar resumen con opción de editar
-    if (data.confirmation) {
-      setExistingConfirmation(data.confirmation);
-
-      const preSelectedEvents: EventType[] = [];
-      if (data.confirmation.civilAttending)
-        preSelectedEvents.push(EventType.CIVIL);
-      if (data.confirmation.partyAttending)
-        preSelectedEvents.push(EventType.FIESTA);
-      setSelectedEvents(preSelectedEvents);
-
-      setStep(RSVPStep.ALREADY_CONFIRMED);
-      return { success: true };
-    }
-
     setStep(RSVPStep.ATTENDANCE_DECISION);
     return { success: true };
   };
 
   /**
-   * Maneja la decisión de asistencia
+   * Confirma identidad y navega a la grilla.
+   * Inicializa memberConfirmations pre-cargando confirmaciones existentes.
+   * - Invitado actual: siempre checked, valores de su confirmación previa o SÍ/SÍ por defecto.
+   * - Otros miembros: unchecked por defecto, values pre-cargados al activar el checkbox.
    */
-  const attend = () => setStep(RSVPStep.EVENT_SELECTION);
+  const attend = () => {
+    if (!currentGuest) return;
 
-  /**
-   * Toggle de evento seleccionado
-   */
-  const toggleEvent = (event: EventType) => {
-    setSelectedEvents((prev) =>
-      prev.includes(event) ? prev.filter((e) => e !== event) : [...prev, event]
-    );
+    const confirmations: Record<string, MemberConfirmation> = {};
+
+    // Invitado actual: siempre incluido, con valores previos o defaults
+    confirmations[currentGuest.id] = {
+      checked: true,
+      civil: currentGuest.confirmation?.civilAttending ?? true,
+      fiesta: currentGuest.confirmation?.partyAttending ?? true,
+    };
+
+    // Otros miembros del grupo: unchecked, defaults SÍ/SÍ
+    currentGuest.group?.guests
+      .filter((g) => g.id !== currentGuest.id)
+      .forEach((member) => {
+        confirmations[member.id] = {
+          checked: false,
+          civil: true,
+          fiesta: true,
+        };
+      });
+
+    setMemberConfirmations(confirmations);
+    setStep(RSVPStep.CONFIRMATION_GRID);
   };
 
   /**
-   * Toggle de miembro de familia (usa id como clave)
+   * Activa o desactiva un miembro del grupo en la grilla.
+   * Al activar: si tiene confirmación previa, la pre-carga. Si no, mantiene defaults SÍ/SÍ.
    */
-  const toggleFamilyMember = (memberId: string, isConfirmed: boolean) => {
-    setFamilyConfirm((prev) => ({
+  const toggleMemberChecked = (memberId: string) => {
+    setMemberConfirmations((prev) => {
+      const member = prev[memberId];
+      const newChecked = !member.checked;
+
+      if (newChecked) {
+        const groupMember = currentGuest?.group?.guests.find(
+          (g) => g.id === memberId
+        );
+        if (groupMember?.confirmation) {
+          return {
+            ...prev,
+            [memberId]: {
+              checked: true,
+              civil: groupMember.confirmation.civilAttending,
+              fiesta: groupMember.confirmation.partyAttending,
+            },
+          };
+        }
+      }
+
+      return { ...prev, [memberId]: { ...member, checked: newChecked } };
+    });
+  };
+
+  /**
+   * Actualiza la asistencia de un miembro a un evento específico.
+   */
+  const setMemberEvent = (
+    memberId: string,
+    event: "civil" | "fiesta",
+    value: boolean
+  ) => {
+    setMemberConfirmations((prev) => ({
       ...prev,
-      [memberId]: isConfirmed,
+      [memberId]: { ...prev[memberId], [event]: value },
     }));
   };
 
-  // Avanza al flujo de edición desde la vista de confirmación existente
-  const startEditFlow = () => setStep(RSVPStep.FAMILY_CONFIRMATION);
+  const PREV_STEP: Partial<Record<RSVPStep, RSVPStep>> = {
+    [RSVPStep.ATTENDANCE_DECISION]: RSVPStep.CODE_INPUT,
+    [RSVPStep.CONFIRMATION_GRID]: RSVPStep.ATTENDANCE_DECISION,
+  };
 
-  // Resetea todo el flujo al estado inicial
+  const goBack = () => {
+    const prev = PREV_STEP[step];
+    if (prev !== undefined) setStep(prev);
+  };
+
   const reset = () => {
     setStep(RSVPStep.CODE_INPUT);
     setCurrentGuest(null);
-    setFamilyMembers([]);
-    setFamilyConfirm({});
-    setSelectedEvents([]);
-    setExistingConfirmation(null);
-    setIsNoAttendance(false);
-    setFormState(FormState.IDLE);
-  };
-
-  // Mapeo explícito de pasos para evitar aritmética con cast inseguro
-  const PREV_STEP: Partial<Record<RSVPStep, RSVPStep>> = {
-    [RSVPStep.ATTENDANCE_DECISION]: RSVPStep.CODE_INPUT,
-    [RSVPStep.FAMILY_CONFIRMATION]: RSVPStep.ATTENDANCE_DECISION,
-    [RSVPStep.EVENT_SELECTION]: RSVPStep.FAMILY_CONFIRMATION,
-    [RSVPStep.CONFIRMATION]: RSVPStep.EVENT_SELECTION,
-  };
-
-  const NEXT_STEP: Partial<Record<RSVPStep, RSVPStep>> = {
-    [RSVPStep.CODE_INPUT]: RSVPStep.ATTENDANCE_DECISION,
-    [RSVPStep.ATTENDANCE_DECISION]: RSVPStep.FAMILY_CONFIRMATION,
-    [RSVPStep.FAMILY_CONFIRMATION]: RSVPStep.EVENT_SELECTION,
-    [RSVPStep.EVENT_SELECTION]: RSVPStep.CONFIRMATION,
-  };
-
-  /**
-   * Navega hacia atrás en los pasos
-   */
-  const goBack = () => {
-    const prev = PREV_STEP[step];
-    if (prev !== undefined) {
-      setStep(prev);
-    }
-  };
-
-  /**
-   * Navega hacia adelante en los pasos
-   */
-  const goForward = () => {
-    const next = NEXT_STEP[step];
-    if (next !== undefined) {
-      setStep(next);
-    }
+    setMemberConfirmations({});
   };
 
   return {
-    // Estado
     step,
-    formState,
-    isNoAttendance,
     currentGuest,
-    familyMembers,
-    familyConfirm,
-    selectedEvents,
-    existingConfirmation,
-
-    // Acciones
+    memberConfirmations,
     processGuestCode,
     attend,
-    toggleEvent,
-    toggleFamilyMember,
+    toggleMemberChecked,
+    setMemberEvent,
     goBack,
-    goForward,
     reset,
-    startEditFlow,
   };
 };
