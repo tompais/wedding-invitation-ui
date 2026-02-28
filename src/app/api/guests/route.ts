@@ -10,6 +10,9 @@ export const dynamic = "force-dynamic";
 // Supabase devuelve 'never' con select("*") y tipos imprecisos con nested
 // selects — usamos type assertions explícitos para mantener type-safety.
 
+// Nota: confirmations es un array por la forma en que Supabase devuelve nested selects,
+// pero la DB garantiza máximo una confirmación por invitado via unique index
+// `confirmations_guest_id_key` — por eso usamos [0] de forma segura.
 type NestedGroupRow = {
   id: string;
   name: string;
