@@ -116,6 +116,7 @@ export const useRSVPFlow = (): UseRSVPFlowReturn => {
   const toggleMemberChecked = (memberId: string) => {
     setMemberConfirmations((prev) => {
       const member = prev[memberId];
+      if (!member) return prev;
       const newChecked = !member.checked;
 
       if (newChecked) {
