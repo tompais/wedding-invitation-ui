@@ -6,7 +6,7 @@ description: >
   automáticamente. Úsalo cuando el usuario pida "revisar warnings", "limpiar el proyecto",
   "0 warnings", "chequear SonarQube", "fix warnings", o al completar una sesión de cambios.
   También invocarlo proactivamente al terminar una tarea importante de código que haya
-  tocado varios archivos. El objetivo es siempre dejar el proyecto en estado zero-warning.
+  tocado varios archivos. El objetivo es siempre dejar el proyecto en estado zero-warnings.
 user-invocable: true
 ---
 
