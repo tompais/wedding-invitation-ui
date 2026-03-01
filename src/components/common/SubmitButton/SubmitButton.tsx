@@ -1,7 +1,12 @@
 "use client";
 
 import { useFormStatus } from "react-dom";
-import type { CSSProperties, ComponentPropsWithoutRef, ReactNode } from "react";
+import type {
+  CSSProperties,
+  ComponentPropsWithoutRef,
+  MouseEvent,
+  ReactNode,
+} from "react";
 
 type SubmitButtonVariant = "filled" | "outline";
 
@@ -42,14 +47,14 @@ export function SubmitButton({
   variant = "filled",
   style,
   ...props
-}: SubmitButtonProps) {
+}: Readonly<SubmitButtonProps>) {
   const { pending } = useFormStatus();
   const isDisabled = disabled || pending;
   const isLoading = pending;
 
   const baseStyle: CSSProperties = { ...variantBaseStyles[variant], ...style };
 
-  const handleMouseEnter = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleMouseEnter = (e: MouseEvent<HTMLButtonElement>) => {
     if (e.currentTarget.disabled) return;
     if (variant === "outline") {
       e.currentTarget.style.backgroundColor = "var(--hueso)";
@@ -61,7 +66,7 @@ export function SubmitButton({
     e.currentTarget.style.transform = "translateY(-2px)";
   };
 
-  const handleMouseLeave = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleMouseLeave = (e: MouseEvent<HTMLButtonElement>) => {
     if (e.currentTarget.disabled) return;
     if (variant === "outline") {
       e.currentTarget.style.backgroundColor = "transparent";
