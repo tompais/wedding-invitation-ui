@@ -40,7 +40,7 @@ function EventToggle({
   onChange,
   disabled,
   ariaLabel,
-}: EventToggleProps) {
+}: Readonly<EventToggleProps>) {
   return (
     <div
       className="flex overflow-hidden rounded-lg border"
