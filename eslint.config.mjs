@@ -18,6 +18,8 @@ const eslintConfig = defineConfig([
     // Additional ignores:
     "node_modules/**",
     "prisma/migrations/**",
+    // Auto-generated — no editar manualmente, regenerar con `npm run types`
+    "src/types/supabase.ts",
   ]),
 ]);
 
