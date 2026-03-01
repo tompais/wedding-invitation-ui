@@ -1,6 +1,6 @@
 name: Claude — evalúa sugerencias de Sourcery
 
-# Triggerza cuando Sourcery AI envía un review en cualquier PR.
+# Se activa cuando Sourcery AI envía un review en cualquier PR.
 # Claude analiza cada sugerencia y postea un resumen de qué aplicaría y qué no,
 # sin pushear cambios directamente (evita loop Sourcery → Claude → Sourcery).
 # Para aplicar los cambios aprobados, comentar "@claude aplicar sugerencias aprobadas de Sourcery" en el PR.
