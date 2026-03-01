@@ -1,0 +1,20 @@
+{
+  "skill_name": "zero-warnings",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Revisá el proyecto entero y corregí todos los warnings de ESLint, Prettier y el IDE.",
+      "expected_output": "El skill detecta warnings de las tres fuentes (IDE, ESLint, Prettier), aplica los fixes automáticos (npm run format, lint:fix, edición de código), verifica con npm run lint + format:check + getDiagnostics, y reporta un resumen de qué fue corregido."
+    },
+    {
+      "id": 2,
+      "prompt": "Antes de commitear, chequeá si los archivos que modifiqué tienen warnings.",
+      "expected_output": "El skill detecta que hay archivos modificados sin commitear via git status, enfoca el escaneo solo en esos archivos, aplica fixes, y reporta el estado de esos archivos específicos."
+    },
+    {
+      "id": 3,
+      "prompt": "El IDE me está marcando un warning en un componente de React. Arreglalo.",
+      "expected_output": "El skill usa getDiagnostics para localizar el warning específico del IDE, identifica el tipo de fix necesario (Readonly<Props>, import directo de react, etc.), aplica el cambio mínimo necesario, y verifica que el warning desapareció."
+    }
+  ]
+}
