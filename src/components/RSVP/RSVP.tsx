@@ -43,7 +43,7 @@ function EventToggle({
 }: EventToggleProps) {
   return (
     <div
-      className="flex overflow-hidden rounded-lg border"
+      className="flex w-[80px] shrink-0 overflow-hidden rounded-lg border"
       style={{ borderColor: "rgba(250, 240, 230, 0.3)" }}
       role="group"
       aria-label={ariaLabel}
@@ -53,7 +53,7 @@ function EventToggle({
         onClick={() => onChange(true)}
         disabled={disabled}
         aria-pressed={value}
-        className="min-h-[44px] min-w-[36px] px-3 text-xs font-semibold transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[var(--hueso)] focus-visible:outline-none"
+        className="min-h-[44px] flex-1 text-sm font-semibold transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[var(--hueso)] focus-visible:outline-none"
         style={{
           backgroundColor: value ? "var(--hueso)" : "transparent",
           color: value ? "var(--bourdeaux)" : "var(--hueso)",
@@ -68,7 +68,7 @@ function EventToggle({
         onClick={() => onChange(false)}
         disabled={disabled}
         aria-pressed={!value}
-        className="min-h-[44px] min-w-[36px] border-l px-3 text-xs font-semibold transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[var(--hueso)] focus-visible:outline-none"
+        className="min-h-[44px] flex-1 border-l text-sm font-semibold transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[var(--hueso)] focus-visible:outline-none"
         style={{
           borderColor: "rgba(250, 240, 230, 0.3)",
           backgroundColor: !value ? "var(--hueso)" : "transparent",
@@ -461,16 +461,16 @@ function RSVP() {
                 </h3>
 
                 {/* Encabezados de eventos */}
-                <div className="mb-2 grid grid-cols-[1fr_auto_auto] items-center gap-3 px-1">
+                <div className="mb-2 grid grid-cols-[1fr_80px_80px] items-center gap-3 px-1">
                   <div />
                   <div
-                    className="w-[72px] text-center text-xs tracking-widest uppercase opacity-60"
+                    className="text-center text-xs tracking-widest uppercase opacity-60"
                     style={{ color: "var(--text-light)" }}
                   >
                     Civil
                   </div>
                   <div
-                    className="w-[72px] text-center text-xs tracking-widest uppercase opacity-60"
+                    className="text-center text-xs tracking-widest uppercase opacity-60"
                     style={{ color: "var(--text-light)" }}
                   >
                     Fiesta
@@ -487,7 +487,7 @@ function RSVP() {
                     return (
                       <div
                         key={member.id}
-                        className="grid grid-cols-[1fr_auto_auto] items-center gap-3 rounded-xl border px-4 py-3 transition-all duration-200"
+                        className="grid grid-cols-[1fr_80px_80px] items-center gap-3 rounded-xl border px-4 py-3 transition-all duration-200"
                         style={{
                           backgroundColor: "rgba(250, 240, 230, 0.08)",
                           borderColor:
