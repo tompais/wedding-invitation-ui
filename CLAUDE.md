@@ -68,6 +68,10 @@ For every new change request, follow this sequence:
      each PR targeting the previous branch (not `master` directly)
    - **Non-code changes** (agents, skills, docs, config, hooks) → can go directly to `master`
    - Never commit code directly to `master` — a hook enforces this automatically
+   - **Session start**: check open PRs first (`gh pr view <n> --json state`):
+     - PR merged → `git checkout master && git pull` → new branch from updated master
+     - PR still open + iterating on same change → push to that branch (same PR, no new PR)
+     - Any other situation → ask the user explicitly
 4. **Loki Mode to implement** — once the plan is approved, execute with `/loki-mode`
    (requires `--dangerously-skip-permissions` flag)
 5. **Periodic skill improvement** — revisit and improve skills with `/skill-creator`
