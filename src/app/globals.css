@@ -213,6 +213,19 @@
     box-shadow: 0 0 0 4px rgba(250, 240, 230, 0.1);
   }
 
+  /* Member checkbox indicator (custom circular checkbox in RSVP grid) */
+  .member-checkbox-indicator {
+    background-color: transparent;
+    border: 1.5px solid rgba(250, 240, 230, 0.4);
+    box-shadow: none;
+  }
+
+  .member-checkbox-indicator-checked {
+    background-color: var(--hueso);
+    border: none;
+    box-shadow: 0 0 0 3px rgba(250, 240, 230, 0.15);
+  }
+
   /* Checkbox labels */
   .checkbox-label {
     display: flex;
