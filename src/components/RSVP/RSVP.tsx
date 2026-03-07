@@ -127,7 +127,8 @@ function MemberCheckbox({
       />
       <span
         aria-hidden="true"
-        className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full transition-all duration-200"
+        onClick={onChange}
+        className="flex h-6 w-6 flex-shrink-0 cursor-pointer items-center justify-center rounded-full transition-all duration-200"
         style={{
           backgroundColor: checked ? "var(--hueso)" : "transparent",
           border: checked ? "none" : "1.5px solid rgba(250,240,230,0.4)",
@@ -561,7 +562,6 @@ function RSVP() {
                             isCurrentGuest || isActive
                               ? "rgba(250, 240, 230, 0.25)"
                               : "rgba(250, 240, 230, 0.1)",
-                          opacity: !isCurrentGuest && !isActive ? 0.5 : 1,
                         }}
                       >
                         {/* Nombre + checkbox opcional */}
@@ -578,8 +578,11 @@ function RSVP() {
                             htmlFor={
                               isCurrentGuest ? undefined : `member-${member.id}`
                             }
-                            className={`min-w-0 truncate text-sm ${isCurrentGuest ? "cursor-default font-semibold" : "cursor-pointer"}`}
-                            style={{ color: "var(--hueso)" }}
+                            className={`min-w-0 truncate text-sm transition-opacity duration-200 ${isCurrentGuest ? "cursor-default font-semibold" : "cursor-pointer"}`}
+                            style={{
+                              color: "var(--hueso)",
+                              opacity: !isCurrentGuest && !isActive ? 0.55 : 1,
+                            }}
                           >
                             {member.firstName} {member.lastName}
                             {isCurrentGuest && (
