@@ -100,6 +100,48 @@ function EventToggle({
   );
 }
 
+// ─── Sub-componente: checkbox de miembro estilizado ─────────────────────────
+
+interface MemberCheckboxProps {
+  id: string;
+  checked: boolean;
+  onChange: () => void;
+}
+
+function MemberCheckbox({
+  id,
+  checked,
+  onChange,
+}: Readonly<MemberCheckboxProps>) {
+  return (
+    <>
+      <input
+        type="checkbox"
+        id={id}
+        checked={checked}
+        onChange={onChange}
+        className="sr-only"
+      />
+      <span
+        aria-hidden="true"
+        className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full transition-all duration-200 ${checked ? "member-checkbox-indicator-checked" : "member-checkbox-indicator"}`}
+      >
+        {checked && (
+          <svg width="11" height="11" viewBox="0 0 16 16" fill="none">
+            <path
+              d="M3 8.5L6.5 12L13 5"
+              stroke="var(--bourdeaux)"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        )}
+      </span>
+    </>
+  );
+}
+
 // ─── Tipos derivados ────────────────────────────────────────────────────────
 
 type GridMember = {
@@ -511,36 +553,31 @@ function RSVP() {
                             isCurrentGuest || isActive
                               ? "rgba(250, 240, 230, 0.25)"
                               : "rgba(250, 240, 230, 0.1)",
-                          opacity: !isCurrentGuest && !isActive ? 0.5 : 1,
                         }}
                       >
                         {/* Nombre + checkbox opcional */}
-                        <div className="flex min-w-0 items-center gap-2">
-                          {!isCurrentGuest && (
-                            <input
-                              type="checkbox"
+                        {isCurrentGuest ? (
+                          <span className="text-hueso min-w-0 truncate text-sm font-semibold">
+                            {member.firstName} {member.lastName}
+                            <span className="ml-1.5 text-xs font-normal opacity-60">
+                              (vos)
+                            </span>
+                          </span>
+                        ) : (
+                          <label
+                            htmlFor={`member-${member.id}`}
+                            className={`text-hueso flex min-w-0 cursor-pointer items-center gap-2 text-sm transition-opacity duration-200 ${isActive ? "opacity-100" : "opacity-[0.55]"}`}
+                          >
+                            <MemberCheckbox
                               id={`member-${member.id}`}
                               checked={conf?.checked ?? false}
                               onChange={() => toggleMemberChecked(member.id)}
-                              className="h-4 w-4 flex-shrink-0 cursor-pointer accent-(--hueso)"
-                              aria-label={`Incluir a ${member.firstName} ${member.lastName}`}
                             />
-                          )}
-                          <label
-                            htmlFor={
-                              isCurrentGuest ? undefined : `member-${member.id}`
-                            }
-                            className={`min-w-0 truncate text-sm ${isCurrentGuest ? "cursor-default font-semibold" : "cursor-pointer"}`}
-                            style={{ color: "var(--hueso)" }}
-                          >
-                            {member.firstName} {member.lastName}
-                            {isCurrentGuest && (
-                              <span className="ml-1.5 text-xs font-normal opacity-60">
-                                (vos)
-                              </span>
-                            )}
+                            <span className="min-w-0 truncate">
+                              {member.firstName} {member.lastName}
+                            </span>
                           </label>
-                        </div>
+                        )}
 
                         {/* Toggle Civil */}
                         <EventToggle
