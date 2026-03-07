@@ -1,110 +1,139 @@
-# 💍 Wedding Invitation - Angie & Tomi
+# 💍 Wedding Invitation — Angie & Tomi
 
 Invitación digital para la boda de Angie & Tomi (Julio 2026).
+Desarrollada con Next.js 16 + Supabase. Flujo de confirmación RSVP grupal,
+dos eventos (civil y fiesta), audiencia mobile vía WhatsApp.
 
-## 🚀 Stack Tecnológico
+---
 
-- **Framework:** Next.js 16 (App Router)
-- **UI:** React 19 + TypeScript
-- **Styling:** Tailwind CSS 4 + CSS Modules
-- **Animaciones:** Framer Motion + Lottie React
-- **Base de Datos:** Supabase (PostgreSQL)
-- **Validación:** Zod + React Hook Form
-- **Calidad:** ESLint + Prettier + Husky
+## Stack
 
-## 📦 Instalación
+| Capa          | Tecnología                   |
+| ------------- | ---------------------------- |
+| Framework     | Next.js 16 (App Router)      |
+| UI            | React 19 + TypeScript strict |
+| Estilos       | Tailwind CSS 4 + CSS Modules |
+| Animaciones   | Framer Motion + Lottie React |
+| Base de datos | Supabase (PostgreSQL)        |
+| Validación    | Zod + React Hook Form        |
+| Calidad       | ESLint + Prettier + Husky    |
+
+---
+
+## Inicio rápido
 
 ```bash
-# Instalar dependencias
+# 1. Instalar dependencias
 npm install
 
-# Configurar variables de entorno
-# Copiar .env.example a .env.local y configurar con tus credenciales de Supabase
-cp .env.example .env.local
-# Editar .env.local con NEXT_PUBLIC_SUPABASE_URL y NEXT_PUBLIC_SUPABASE_ANON_KEY
+# 2. Configurar variables de entorno
+cp .env.example .env
+# Completar NEXT_PUBLIC_SUPABASE_URL y NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+# 3. Levantar servidor de desarrollo
+npm run dev        # http://localhost:3000
 ```
 
-## 🗄️ Configuración de Base de Datos
+---
 
-**Ver guía completa:** [docs](docs/DATABASE-SETUP.md)
-
-**Configuración con Supabase:**
-
-1. Crear proyecto en [Supabase](https://supabase.com)
-2. Obtener las credenciales de API (URL y anon key)
-3. Configurar `.env.local` con las credenciales
-4. Aplicar el schema SQL en Supabase SQL Editor
+## Comandos
 
 ```bash
-# Verificar conexión
-npm run dev
+# Desarrollo
+npm run dev              # Servidor en :3000
+npm run build            # Build de producción
+npm run start            # Servidor de producción
+
+# Calidad de código
+npm run lint             # ESLint
+npm run lint:fix          # ESLint con auto-fix
+npm run format           # Prettier
+npm run format:check     # Verificar formato
+
+# Base de datos
+npm run types            # Regenerar tipos TypeScript desde Supabase schema
 ```
 
-**NOTA:** La base de datos está vacía (solo estructura). Los datos de invitados se agregarán mediante SQL cuando estén formalizados.
+---
 
-## 🛠️ Desarrollo
-
-```bash
-# Servidor de desarrollo
-npm run dev
-
-# Build de producción
-npm run build
-
-# Servidor de producción
-npm start
-```
-
-Open [http://localhost:3000](http://localhost:3000) to see the result.
-
-## 📝 Scripts Disponibles
-
-### Desarrollo
-
-- `npm run dev` - Servidor de desarrollo
-- `npm run build` - Build de producción
-- `npm run start` - Servidor de producción
-
-### Calidad de Código
-
-- `npm run lint` - Ejecutar ESLint
-- `npm run lint:fix` - Corregir errores de ESLint
-- `npm run format` - Formatear código con Prettier
-- `npm run format:check` - Verificar formato
-
-## 📚 Documentación
-
-- [docs](docs/DATABASE-SETUP.md) - Guía de configuración de Supabase
-- [docs](docs/SUPABASE-CLI.md) - Guía de Supabase CLI, migraciones y generación de tipos
-- [docs](docs/SUPABASE-TYPES.md) - Explicación del sistema de tipos TypeScript
-- [docs](docs/MIGRATION-GUIDE.md) - Guía completa de migración de Prisma a Supabase
-- [docs](docs/VERCEL-DEPLOY.md) - Configuración de deploy
-- [docs](docs/ESLINT-PRETTIER-SETUP.md) - Configuración de linting y formateo
-
-## 🚀 Deploy en Vercel
-
-1. Push a tu repositorio de Git
-2. Importar proyecto en [Vercel](https://vercel.com)
-3. Integrar con Supabase (automático) o configurar `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` manualmente en Environment Variables
-4. Deploy automático ✨
-
-Ver [docs](docs/VERCEL-DEPLOY.md) para más detalles.
-
-## 🎨 Estructura del Proyecto
+## Estructura del proyecto
 
 ```
-wedding-invitation-ui/
-├── src/
-│   ├── app/              # Next.js App Router
-│   ├── components/       # Componentes React
-│   ├── hooks/            # Custom hooks
-│   ├── schemas/          # Schemas de validación (Zod)
-│   ├── constants/        # Constantes del proyecto
-│   ├── lib/              # Utilidades (Supabase client)
-│   └── types/            # TypeScript types
-└── public/               # Assets estáticos
+src/
+├── app/
+│   ├── actions/         # Server actions ("use server")
+│   ├── api/             # Route handlers (endpoints externos)
+│   │   ├── guests/      # GET /api/guests
+│   │   └── confirmations/ # POST /api/confirmations
+│   ├── layout.tsx
+│   └── page.tsx         # Página principal (App Router)
+├── components/          # Componentes React (colocated styles)
+├── constants/           # Configuración (events, rsvp steps, theme)
+├── hooks/               # Custom hooks
+│   ├── useRSVPFlow.ts   # State machine del flujo RSVP
+│   ├── useModal.ts
+│   ├── useScrollAnimation.ts
+│   └── useAudio.ts
+├── lib/
+│   ├── supabase.ts      # Singleton client (único punto de acceso a DB)
+│   └── api.ts           # HTTP wrapper tipado
+├── schemas/             # Schemas Zod (validación cliente + servidor)
+└── types/               # TypeScript types
+    ├── supabase.ts      # Auto-generado — no editar manualmente
+    └── database.ts      # Tipos de dominio
 ```
 
-## 📄 Licencia
+---
 
-Proyecto privado - Angie & Tomi © 2026
+## Colaboración IA
+
+Este proyecto es desarrollado con dos colaboradores de IA:
+
+| Rol      | Herramienta        | Responsabilidades                                     |
+| -------- | ------------------ | ----------------------------------------------------- |
+| Builder  | **Claude Code**    | Features, arquitectura, migraciones, agentes y skills |
+| Reviewer | **GitHub Copilot** | Code reviews en PRs, GitHub Actions                   |
+
+Ver [docs/AI-WORKFLOW.md](docs/AI-WORKFLOW.md) para el flujo completo, agentes disponibles, y convenciones de colaboración.
+
+---
+
+## Documentación
+
+### Setup y configuración
+
+| Doc                                                      | Descripción                                         |
+| -------------------------------------------------------- | --------------------------------------------------- |
+| [Configuración de base de datos](docs/DATABASE-SETUP.md) | Setup de Supabase, schema inicial, credenciales     |
+| [Supabase CLI](docs/SUPABASE-CLI.md)                     | Migraciones, generación de tipos, comandos útiles   |
+| [Tipos TypeScript de Supabase](docs/SUPABASE-TYPES.md)   | Cómo funciona el sistema de tipos generado          |
+| [Deploy en Vercel](docs/VERCEL-DEPLOY.md)                | Configuración de deployment y variables de entorno  |
+| [Setup de Claude Code](docs/CLAUDE-CODE-SETUP.md)        | Plugins, agentes y skills para colaboradores nuevos |
+
+### Workflow y arquitectura
+
+| Doc                                                   | Descripción                                                |
+| ----------------------------------------------------- | ---------------------------------------------------------- |
+| [AI Workflow](docs/AI-WORKFLOW.md)                    | Colaboración Claude Code + Copilot, agentes, skills, hooks |
+| [Workflow de migraciones](docs/MIGRATION-WORKFLOW.md) | Paso a paso para crear y aplicar migraciones de DB         |
+
+### Historial / Referencia
+
+| Doc                                                             | Descripción                                     |
+| --------------------------------------------------------------- | ----------------------------------------------- |
+| [Guía de migración Prisma → Supabase](docs/MIGRATION-GUIDE.md)  | Notas del proceso de migración del ORM original |
+| [Migración Tailwind fase 3](docs/TAILWIND-MIGRATION-PHASE-3.md) | Referencia de la actualización a Tailwind CSS 4 |
+
+---
+
+## Deploy
+
+1. Push a una rama (nunca directo a `master`)
+2. Abrir PR — Copilot realiza el code review automáticamente
+3. Merge a `master` → deploy automático en Vercel
+
+Ver [docs/VERCEL-DEPLOY.md](docs/VERCEL-DEPLOY.md) para configuración detallada.
+
+---
+
+Proyecto privado — Angie & Tomi © 2026

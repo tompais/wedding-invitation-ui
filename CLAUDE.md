@@ -11,6 +11,20 @@ and multi-step confirmation process.
 **Audience**: Family and friends (non-technical), primarily mobile via WhatsApp.
 **Language**: Spanish (AR) — all UI copy and content must be in Spanish.
 
+## AI Collaboration Model
+
+This project is developed with two AI collaborators with distinct roles:
+
+| Role     | Tool                  | Responsibilities                                                             |
+| -------- | --------------------- | ---------------------------------------------------------------------------- |
+| Builder  | **Claude Code** (you) | Feature development, refactors, DB migrations, architecture, agents & skills |
+| Reviewer | **GitHub Copilot**    | Code reviews on PRs, GitHub Actions (create, configure, maintain)            |
+
+**Copilot's context lives in** `.github/copilot-instructions.md` — keep it in sync when conventions change.
+
+When working on GitHub Actions, defer to Copilot. When Copilot reviews a PR, treat its comments
+as peer feedback — evaluate against CLAUDE.md principles before applying.
+
 ## Development Commands
 
 ```bash
@@ -40,6 +54,22 @@ supabase db push             # Apply pending migrations to remote DB
 - **Didactic code** — this project is developed alongside someone learning; prefer clarity
 - **When in doubt**: make a reasonable decision, implement it, document the assumption. Only ask when truly blocked.
 - **Always run quality checks before declaring done** (`npm run lint && npm run format:check`)
+
+### Session Workflow
+
+For every new change request, follow this sequence:
+
+1. **Plan first** — enter Plan Mode (`EnterPlanMode`) before touching any code
+2. **Batch planning** — if multiple changes are needed, plan them all and chain them before implementing
+3. **Branch strategy** — before writing any code, decide the branch structure:
+   - Single logical change → one branch + one PR targeting `master`
+   - Multiple dependent changes → chained branches: `feature/A` → `feature/B` → `feature/C`,
+     each PR targeting the previous branch (not `master` directly)
+   - Never commit directly to `master` — a hook enforces this automatically
+4. **Loki Mode to implement** — once the plan is approved, execute with `/loki-mode`
+   (requires `--dangerously-skip-permissions` flag)
+5. **Periodic skill improvement** — revisit and improve skills with `/skill-creator`
+   as we learn new patterns and workflows
 
 ## Code Quality Principles
 
@@ -308,6 +338,8 @@ Before marking any task complete:
 - [ ] RSVP flow works end-to-end (or mock + clear TODO)
 - [ ] Mobile responsive (primary audience is on mobile via WhatsApp)
 - [ ] Basic accessibility (labels, focus, keyboard navigation)
+- [ ] **Docs sync**: if conventions, architecture, or workflow changed → update `copilot-instructions.md`
+- [ ] **README sync**: if new docs were added or project structure changed → update `README.md` index via `/update-docs`
 
 ## Output Format
 

@@ -9,12 +9,25 @@
             "command": "FILE=$(echo \"$CLAUDE_TOOL_INPUT\" | python3 -c \"import json,sys; d=json.load(sys.stdin); print(d.get('file_path',''))\"); if echo \"$FILE\" | grep -q '\\.env'; then echo 'Blocked: editing .env files requires manual confirmation'; exit 1; fi"
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "CMD=$(echo \"$CLAUDE_TOOL_INPUT\" | python3 -c \"import json,sys; d=json.load(sys.stdin); print(d.get('command',''))\"); case \"$CMD\" in *'git commit'*) BRANCH=$(git -C \"$(pwd)\" branch --show-current 2>/dev/null); if [ \"$BRANCH\" = \"master\" ]; then echo 'Blocked: never commit directly to master. Create a branch first (see CLAUDE.md ## Git Workflow).'; exit 1; fi;; esac"
+          }
+        ]
       }
     ],
     "PostToolUse": [
       {
         "matcher": "Edit|Write",
         "hooks": [
+          {
+            "type": "command",
+            "command": "FILE=$(echo \"$CLAUDE_TOOL_INPUT\" | python3 -c \"import json,sys; d=json.load(sys.stdin); print(d.get('file_path',''))\"); case \"$FILE\" in *.ts|*.tsx) npx eslint --fix \"$FILE\" 2>/dev/null || true;; esac"
+          },
           {
             "type": "command",
             "command": "FILE=$(echo \"$CLAUDE_TOOL_INPUT\" | python3 -c \"import json,sys; d=json.load(sys.stdin); print(d.get('file_path',''))\"); if [ -n \"$FILE\" ]; then npx prettier --write \"$FILE\" 2>/dev/null || true; fi"

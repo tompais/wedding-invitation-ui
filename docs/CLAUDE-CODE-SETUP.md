@@ -35,6 +35,7 @@ claude plugin install code-review@claude-plugins-official
 claude plugin install code-simplifier@claude-plugins-official
 claude plugin install feature-dev@claude-plugins-official
 claude plugin install github@claude-plugins-official
+claude plugin install ui-ux-pro-max@ui-ux-pro-max-skill
 ```
 
 Una vez instalados, se activan automáticamente al abrir el proyecto porque ya están
@@ -44,11 +45,11 @@ listados en `.claude/settings.json`.
 
 Al clonar el repo ya tenés disponible sin configuración extra:
 
-| Qué     | Dónde                   | Para qué                                            |
-| ------- | ----------------------- | --------------------------------------------------- |
-| Skills  | `.claude/skills/`       | `/create-migration`, `/rsvp-flow-check`             |
-| Agentes | `.claude/agents/`       | `security-reviewer` para revisar seguridad          |
-| Hooks   | `.claude/settings.json` | Prettier automático al editar, protección de `.env` |
+| Qué     | Dónde                   | Para qué                                                                                          |
+| ------- | ----------------------- | ------------------------------------------------------------------------------------------------- |
+| Skills  | `.claude/skills/`       | `/create-migration`, `/rsvp-flow-check`, `/code-quality`, `/zero-warnings`                        |
+| Agentes | `.claude/agents/`       | `security-reviewer`, `architecture-reviewer`, `accessibility-reviewer`, `ux-consistency-reviewer` |
+| Hooks   | `.claude/settings.json` | ESLint + Prettier automático al editar `.ts`/`.tsx`, protección de `.env`                         |
 
 ## 4. Variables de entorno
 
