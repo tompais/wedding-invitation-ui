@@ -100,6 +100,56 @@ function EventToggle({
   );
 }
 
+// ─── Sub-componente: checkbox de miembro estilizado ─────────────────────────
+
+interface MemberCheckboxProps {
+  id: string;
+  checked: boolean;
+  onChange: () => void;
+  ariaLabel: string;
+}
+
+function MemberCheckbox({
+  id,
+  checked,
+  onChange,
+  ariaLabel,
+}: Readonly<MemberCheckboxProps>) {
+  return (
+    <>
+      <input
+        type="checkbox"
+        id={id}
+        checked={checked}
+        onChange={onChange}
+        className="sr-only"
+        aria-label={ariaLabel}
+      />
+      <span
+        aria-hidden="true"
+        className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full transition-all duration-200"
+        style={{
+          backgroundColor: checked ? "var(--hueso)" : "transparent",
+          border: checked ? "none" : "1.5px solid rgba(250,240,230,0.4)",
+          boxShadow: checked ? "0 0 0 3px rgba(250,240,230,0.15)" : "none",
+        }}
+      >
+        {checked && (
+          <svg width="11" height="11" viewBox="0 0 16 16" fill="none">
+            <path
+              d="M3 8.5L6.5 12L13 5"
+              stroke="var(--bourdeaux)"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        )}
+      </span>
+    </>
+  );
+}
+
 // ─── Tipos derivados ────────────────────────────────────────────────────────
 
 type GridMember = {
@@ -517,13 +567,11 @@ function RSVP() {
                         {/* Nombre + checkbox opcional */}
                         <div className="flex min-w-0 items-center gap-2">
                           {!isCurrentGuest && (
-                            <input
-                              type="checkbox"
+                            <MemberCheckbox
                               id={`member-${member.id}`}
                               checked={conf?.checked ?? false}
                               onChange={() => toggleMemberChecked(member.id)}
-                              className="h-4 w-4 flex-shrink-0 cursor-pointer accent-(--hueso)"
-                              aria-label={`Incluir a ${member.firstName} ${member.lastName}`}
+                              ariaLabel={`Incluir a ${member.firstName} ${member.lastName}`}
                             />
                           )}
                           <label
