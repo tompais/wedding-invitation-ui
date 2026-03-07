@@ -86,7 +86,7 @@ function EventToggle({
       onClick={() => onChange(!value)}
       disabled={disabled}
       aria-pressed={value}
-      aria-label={ariaLabel}
+      aria-label={`${ariaLabel ?? "Asistencia"}: ${value ? "sí" : "no"}`}
       className="flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-full transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[var(--hueso)] focus-visible:outline-none"
       style={{
         backgroundColor: value ? "var(--hueso)" : "transparent",
