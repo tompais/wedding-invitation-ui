@@ -62,10 +62,12 @@ For every new change request, follow this sequence:
 1. **Plan first** — enter Plan Mode (`EnterPlanMode`) before touching any code
 2. **Batch planning** — if multiple changes are needed, plan them all and chain them before implementing
 3. **Branch strategy** — before writing any code, decide the branch structure:
-   - Single logical change → one branch + one PR targeting `master`
-   - Multiple dependent changes → chained branches: `feature/A` → `feature/B` → `feature/C`,
+   - **Code changes** (`src/`, components, hooks, API routes, schemas, DB migrations) → always on a branch + PR
+   - **Single logical change** → one branch + one PR targeting `master`
+   - **Multiple dependent changes** → chained branches: `feature/A` → `feature/B` → `feature/C`,
      each PR targeting the previous branch (not `master` directly)
-   - Never commit directly to `master` — a hook enforces this automatically
+   - **Non-code changes** (agents, skills, docs, config, hooks) → can go directly to `master`
+   - Never commit code directly to `master` — a hook enforces this automatically
 4. **Loki Mode to implement** — once the plan is approved, execute with `/loki-mode`
    (requires `--dangerously-skip-permissions` flag)
 5. **Periodic skill improvement** — revisit and improve skills with `/skill-creator`

@@ -26,12 +26,10 @@ claude plugin install superpowers@claude-plugins-official
 claude plugin install supabase@claude-plugins-official
 claude plugin install playwright@claude-plugins-official
 claude plugin install commit-commands@claude-plugins-official
-claude plugin install pr-review-toolkit@claude-plugins-official
 claude plugin install claude-md-management@claude-plugins-official
 claude plugin install context7@claude-plugins-official
 claude plugin install typescript-lsp@claude-plugins-official
 claude plugin install frontend-design@claude-plugins-official
-claude plugin install code-review@claude-plugins-official
 claude plugin install code-simplifier@claude-plugins-official
 claude plugin install feature-dev@claude-plugins-official
 claude plugin install github@claude-plugins-official
