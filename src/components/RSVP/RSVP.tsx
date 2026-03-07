@@ -106,14 +106,12 @@ interface MemberCheckboxProps {
   id: string;
   checked: boolean;
   onChange: () => void;
-  ariaLabel: string;
 }
 
 function MemberCheckbox({
   id,
   checked,
   onChange,
-  ariaLabel,
 }: Readonly<MemberCheckboxProps>) {
   return (
     <>
@@ -123,17 +121,10 @@ function MemberCheckbox({
         checked={checked}
         onChange={onChange}
         className="sr-only"
-        aria-label={ariaLabel}
       />
       <span
         aria-hidden="true"
-        onClick={onChange}
-        className="flex h-6 w-6 flex-shrink-0 cursor-pointer items-center justify-center rounded-full transition-all duration-200"
-        style={{
-          backgroundColor: checked ? "var(--hueso)" : "transparent",
-          border: checked ? "none" : "1.5px solid rgba(250,240,230,0.4)",
-          boxShadow: checked ? "0 0 0 3px rgba(250,240,230,0.15)" : "none",
-        }}
+        className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full transition-all duration-200 ${checked ? "member-checkbox-indicator-checked" : "member-checkbox-indicator"}`}
       >
         {checked && (
           <svg width="11" height="11" viewBox="0 0 16 16" fill="none">
@@ -565,33 +556,28 @@ function RSVP() {
                         }}
                       >
                         {/* Nombre + checkbox opcional */}
-                        <div className="flex min-w-0 items-center gap-2">
-                          {!isCurrentGuest && (
+                        {isCurrentGuest ? (
+                          <span className="text-hueso min-w-0 truncate text-sm font-semibold">
+                            {member.firstName} {member.lastName}
+                            <span className="ml-1.5 text-xs font-normal opacity-60">
+                              (vos)
+                            </span>
+                          </span>
+                        ) : (
+                          <label
+                            htmlFor={`member-${member.id}`}
+                            className={`text-hueso flex min-w-0 cursor-pointer items-center gap-2 text-sm transition-opacity duration-200 ${isActive ? "opacity-100" : "opacity-[0.55]"}`}
+                          >
                             <MemberCheckbox
                               id={`member-${member.id}`}
                               checked={conf?.checked ?? false}
                               onChange={() => toggleMemberChecked(member.id)}
-                              ariaLabel={`Incluir a ${member.firstName} ${member.lastName}`}
                             />
-                          )}
-                          <label
-                            htmlFor={
-                              isCurrentGuest ? undefined : `member-${member.id}`
-                            }
-                            className={`min-w-0 truncate text-sm transition-opacity duration-200 ${isCurrentGuest ? "cursor-default font-semibold" : "cursor-pointer"}`}
-                            style={{
-                              color: "var(--hueso)",
-                              opacity: !isCurrentGuest && !isActive ? 0.55 : 1,
-                            }}
-                          >
-                            {member.firstName} {member.lastName}
-                            {isCurrentGuest && (
-                              <span className="ml-1.5 text-xs font-normal opacity-60">
-                                (vos)
-                              </span>
-                            )}
+                            <span className="min-w-0 truncate">
+                              {member.firstName} {member.lastName}
+                            </span>
                           </label>
-                        </div>
+                        )}
 
                         {/* Toggle Civil */}
                         <EventToggle
