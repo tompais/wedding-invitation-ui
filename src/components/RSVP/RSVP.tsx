@@ -26,7 +26,46 @@ import { SubmitButton } from "@/components/common/SubmitButton/SubmitButton";
  * Flujo unificado: CODE_INPUT → ATTENDANCE_DECISION → CONFIRMATION_GRID → SUCCESS
  */
 
-// ─── Sub-componente: toggle SÍ/NO ──────────────────────────────────────────
+// ─── Sub-componente: toggle de ícono compacto ───────────────────────────────
+
+function CheckIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M3 8.5L6.5 12L13 5"
+        stroke="var(--bourdeaux)"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function XIcon() {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 14 14"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M2.5 2.5L11.5 11.5M11.5 2.5L2.5 11.5"
+        stroke="var(--hueso)"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
 
 interface EventToggleProps {
   value: boolean;
@@ -42,44 +81,22 @@ function EventToggle({
   ariaLabel,
 }: Readonly<EventToggleProps>) {
   return (
-    <div
-      className="flex w-[80px] shrink-0 overflow-hidden rounded-lg border"
-      style={{ borderColor: "rgba(250, 240, 230, 0.3)" }}
-      role="group"
-      aria-label={ariaLabel}
+    <button
+      type="button"
+      onClick={() => onChange(!value)}
+      disabled={disabled}
+      aria-pressed={value}
+      aria-label={`${ariaLabel ?? "Asistencia"}: ${value ? "sí" : "no"}`}
+      className="flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-full transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[var(--hueso)] focus-visible:outline-none"
+      style={{
+        backgroundColor: value ? "var(--hueso)" : "transparent",
+        border: value ? "none" : "1.5px solid rgba(250,240,230,0.35)",
+        opacity: disabled ? 0.35 : 1,
+        cursor: disabled ? "not-allowed" : "pointer",
+      }}
     >
-      <button
-        type="button"
-        onClick={() => onChange(true)}
-        disabled={disabled}
-        aria-pressed={value}
-        className="min-h-[44px] flex-1 text-sm font-semibold transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[var(--hueso)] focus-visible:outline-none"
-        style={{
-          backgroundColor: value ? "var(--hueso)" : "transparent",
-          color: value ? "var(--bourdeaux)" : "var(--hueso)",
-          opacity: disabled ? 0.35 : value ? 1 : 0.6,
-          cursor: disabled ? "not-allowed" : "pointer",
-        }}
-      >
-        SÍ
-      </button>
-      <button
-        type="button"
-        onClick={() => onChange(false)}
-        disabled={disabled}
-        aria-pressed={!value}
-        className="min-h-[44px] flex-1 border-l text-sm font-semibold transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[var(--hueso)] focus-visible:outline-none"
-        style={{
-          borderColor: "rgba(250, 240, 230, 0.3)",
-          backgroundColor: !value ? "var(--hueso)" : "transparent",
-          color: !value ? "var(--bourdeaux)" : "var(--hueso)",
-          opacity: disabled ? 0.35 : !value ? 1 : 0.6,
-          cursor: disabled ? "not-allowed" : "pointer",
-        }}
-      >
-        NO
-      </button>
-    </div>
+      {value ? <CheckIcon /> : <XIcon />}
+    </button>
   );
 }
 
@@ -461,7 +478,7 @@ function RSVP() {
                 </h3>
 
                 {/* Encabezados de eventos */}
-                <div className="mb-2 grid grid-cols-[1fr_80px_80px] items-center gap-3 px-1">
+                <div className="mb-2 grid grid-cols-[1fr_44px_44px] items-center gap-3 px-4">
                   <div />
                   <div
                     className="text-center text-xs tracking-widest uppercase opacity-60"
@@ -487,7 +504,7 @@ function RSVP() {
                     return (
                       <div
                         key={member.id}
-                        className="grid grid-cols-[1fr_80px_80px] items-center gap-3 rounded-xl border px-4 py-3 transition-all duration-200"
+                        className="grid grid-cols-[1fr_44px_44px] items-center gap-3 rounded-xl border px-4 py-3 transition-all duration-200"
                         style={{
                           backgroundColor: "rgba(250, 240, 230, 0.08)",
                           borderColor:
