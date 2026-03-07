@@ -94,14 +94,14 @@ export const useRSVPFlow = (): UseRSVPFlowReturn => {
       fiesta: currentGuest.confirmation?.partyAttending ?? true,
     };
 
-    // Otros miembros del grupo: unchecked, defaults SÍ/SÍ
+    // Otros miembros del grupo: unchecked, valores previos o defaults SÍ/SÍ
     currentGuest.group?.guests
       .filter((g) => g.id !== currentGuest.id)
       .forEach((member) => {
         confirmations[member.id] = {
           checked: false,
-          civil: true,
-          fiesta: true,
+          civil: member.confirmation?.civilAttending ?? true,
+          fiesta: member.confirmation?.partyAttending ?? true,
         };
       });
 
