@@ -18,6 +18,7 @@ export interface Location {
 export interface Event {
   title: string;
   date: string;
+  time: string;
   location: string;
   isOutdoor?: boolean;
 }
@@ -46,11 +47,13 @@ export const EVENTS: Record<"civil" | "fiesta", Event> = {
   civil: {
     title: "Civil",
     date: "Jueves 30 de Julio de 2026",
+    time: "9:10 AM",
     location: LOCATIONS.civil.name,
   },
   fiesta: {
     title: "Fiesta",
     date: "Sábado 1 de Agosto de 2026",
+    time: "12:00 AM",
     location: LOCATIONS.fiesta.name,
     isOutdoor: true,
   },

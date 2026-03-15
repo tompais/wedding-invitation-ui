@@ -66,13 +66,13 @@ function EventInfo() {
   return (
     <>
       <section
-        className="w-full px-8 py-8 text-center"
+        className="w-full px-8 py-4 text-center"
         style={{ backgroundColor: "var(--hueso)", color: "var(--text-dark)" }}
         ref={ref}
       >
         <div className="mx-auto max-w-[1200px]">
           <h2
-            className="mb-14 text-4xl font-semibold tracking-[0.05em]"
+            className="mb-6 text-4xl font-semibold tracking-[0.05em]"
             style={{
               color: "var(--bourdeaux-dark)",
               fontFamily: "var(--font-display)",
@@ -81,12 +81,12 @@ function EventInfo() {
             Las fechas
           </h2>
 
-          <div className="mb-8 flex flex-wrap justify-center gap-8">
+          <div className="mb-4 flex flex-wrap justify-center gap-8">
             {/* Bloque del Evento Civil */}
             <div className="event-card">
               <div>
                 <h3>{civilEvent.title}</h3>
-                <div className="mx-auto my-6 max-h-[140px] max-w-[140px] opacity-80">
+                <div className="mx-auto my-6 max-h-[110px] max-w-[110px] opacity-80">
                   <Lottie
                     animationData={rings}
                     loop
@@ -94,6 +94,7 @@ function EventInfo() {
                   />
                 </div>
                 <p>{civilEvent.date}</p>
+                <p>{civilEvent.time}</p>
                 <p>{LOCATIONS.civil.name}</p>
               </div>
 
@@ -111,7 +112,7 @@ function EventInfo() {
             <div className="event-card">
               <div>
                 <h3>{fiestaEvent.title}</h3>
-                <div className="mx-auto my-6 max-h-[140px] max-w-[140px] opacity-80">
+                <div className="mx-auto my-6 max-h-[110px] max-w-[110px] opacity-80">
                   <Lottie
                     animationData={party}
                     loop
@@ -119,6 +120,7 @@ function EventInfo() {
                   />
                 </div>
                 <p>{fiestaEvent.date}</p>
+                <p>{fiestaEvent.time}</p>
                 <p>{LOCATIONS.fiesta.name}</p>
 
                 {/* Mostrar nota de evento al aire libre si corresponde */}

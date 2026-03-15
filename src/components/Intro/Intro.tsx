@@ -8,7 +8,7 @@ function Intro() {
 
   return (
     <section
-      className="w-full px-8 py-20 text-center"
+      className="flex [min-height:calc(100svh-200px)] w-full items-center justify-center px-8 py-12 text-center"
       style={{
         backgroundColor: "var(--hueso-dark)",
         color: "var(--text-dark)",
