@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FiVolume2 } from "react-icons/fi";
+import { FiVolume2, FiVolumeX } from "react-icons/fi";
 import { useAudio } from "@/hooks/useAudio";
 
 /**
@@ -82,8 +82,11 @@ function MusicPlayer() {
           </span>
         )}
 
-        {/* Icono de volumen (siempre el mismo) */}
-        <FiVolume2 size={24} className="sm:h-4.5 sm:w-4.5 md:h-5 md:w-5" />
+        {isMuted ? (
+          <FiVolumeX size={24} className="sm:h-4.5 sm:w-4.5 md:h-5 md:w-5" />
+        ) : (
+          <FiVolume2 size={24} className="sm:h-4.5 sm:w-4.5 md:h-5 md:w-5" />
+        )}
       </button>
     </>
   );

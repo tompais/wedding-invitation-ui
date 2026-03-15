@@ -16,13 +16,13 @@ function DressCode() {
           className="text-lg font-medium italic"
           style={{ color: "var(--hueso)" }}
         >
-          Arreglado informal
+          Arreglado
         </p>
 
         <p className="text-center">
-          No hace falta ir de gala.
+          Pensá en un look de festejo: arreglado/a, con tu estilo.
           <br />
-          Lo importante es venir cómodo/a y con ganas de festejar.
+          Sin traje completo ni ropa de playa.
         </p>
 
         <p className="text-sm italic opacity-75">*Sugerimos calzado cómodo.*</p>
