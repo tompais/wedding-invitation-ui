@@ -14,7 +14,10 @@ function Tips() {
         <p>La fiesta es al aire libre.</p>
         <p>Puede refrescar, así que llevá algo para abrigarte.</p>
         <p>Llegá con tiempo así arrancamos tranquilos.</p>
-        <p>¡Preparate para bailar toda la noche! 🎶</p>
+        <p>
+          ¡Vení a pasarla bien y disfrutar este momento especial con nosotros!
+          🤍
+        </p>
       </div>
     </>
   );
