@@ -53,7 +53,7 @@ export const EVENTS: Record<"civil" | "fiesta", Event> = {
   fiesta: {
     title: "Fiesta",
     date: "Sábado 1 de Agosto de 2026",
-    time: "12:00 AM",
+    time: "12:00 PM",
     location: LOCATIONS.fiesta.name,
     isOutdoor: true,
   },
