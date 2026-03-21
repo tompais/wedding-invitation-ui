@@ -111,9 +111,10 @@ Shown when `step === RSVPStep.INVITATION_EXPIRED`. Displays:
 
 - A clear heading: _"Tu invitación venció"_
 - A body message with the deadline date formatted in Spanish, read from `currentGuest.rsvpDeadline` (e.g. _"El plazo para confirmar era hasta el 30 de marzo de 2026."_)
-- A WhatsApp CTA button linking to the couple's contact number so the guest can reach out if they need help
 
-Follows existing component patterns (Tailwind, no inline styles, mobile-first, accessible). The WhatsApp phone number should be sourced from a constant (not hardcoded inline).
+No contact CTA — guests who reach this screen already know how to reach the couple.
+
+Follows existing component patterns (Tailwind, no inline styles, mobile-first, accessible).
 
 ### Data flow summary
 
