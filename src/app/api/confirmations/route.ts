@@ -41,13 +41,27 @@ async function upsertConfirmation(
   conf: { guestId: string; civilAttending: boolean; partyAttending: boolean },
   confirmedById: string,
   groupId: string | null
-): Promise<Confirmation | { error: string }> {
+): Promise<Confirmation | { error: string } | { expired: true }> {
   // Verificar si ya existe confirmación
   const { data: existingConfirmation } = await supabase
     .from("confirmations")
     .select("*")
     .eq("guest_id", conf.guestId)
     .single();
+
+  // ─── Verificar si la invitación expiró ────────────────────────────────
+  // Reutiliza existingConfirmation ya fetcheado — sin query extra.
+  // Solo bloquea si el invitado NO tiene confirmación previa.
+  if (!existingConfirmation) {
+    const raw = process.env.RSVP_DEADLINE;
+    if (raw) {
+      const deadline = new Date(raw);
+      if (!isNaN(deadline.getTime()) && new Date() > deadline) {
+        return { expired: true };
+      }
+    }
+  }
+  // ─────────────────────────────────────────────────────────────────────
 
   if (existingConfirmation) {
     // Actualizar confirmación existente
@@ -127,6 +141,12 @@ export async function POST(request: NextRequest) {
         confirmedById,
         confirmerGuest.group_id
       );
+      if ("expired" in result) {
+        return NextResponse.json(
+          { error: "El plazo para confirmar tu asistencia ha expirado." },
+          { status: 403 }
+        );
+      }
       if ("error" in result) {
         return NextResponse.json({ error: result.error }, { status: 500 });
       }
