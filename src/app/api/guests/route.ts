@@ -3,6 +3,31 @@ import { supabase } from "@/lib/supabase";
 import { guestCodeSchema } from "@/schemas/rsvp.schema";
 import type { Guest, Confirmation } from "@/types/database";
 
+// ─── Expiration helpers ────────────────────────────────────────────────────
+
+/**
+ * Parses RSVP_DEADLINE env var as a UTC-offset-aware timestamp.
+ * Returns null if the var is unset or unparseable.
+ */
+function getRsvpDeadline(): Date | null {
+  const raw = process.env.RSVP_DEADLINE;
+  if (!raw) return null;
+  const date = new Date(raw);
+  return isNaN(date.getTime()) ? null : date;
+}
+
+/**
+ * Returns true if the deadline has passed AND the guest has no prior confirmation.
+ * If RSVP_DEADLINE is unset, always returns false (no restriction).
+ */
+function computeInvitationExpired(
+  deadline: Date | null,
+  hasConfirmation: boolean
+): boolean {
+  if (!deadline) return false;
+  return new Date() > deadline && !hasConfirmation;
+}
+
 // Marcar como dinámico para que Next.js no lo pre-renderice durante el build
 export const dynamic = "force-dynamic";
 
@@ -141,6 +166,10 @@ export async function GET(request: NextRequest) {
       | ConfirmationWithJoin
       | undefined;
 
+    // confirmation fue fetcheado en la Fase 2 — se reutiliza sin query extra
+    const deadline = getRsvpDeadline();
+    const hasConfirmation = confirmation !== undefined;
+
     return NextResponse.json({
       id: guestData.id,
       firstName: guestData.first_name,
@@ -156,6 +185,8 @@ export async function GET(request: NextRequest) {
             confirmedAt: confirmation.confirmed_at,
           }
         : null,
+      rsvpDeadline: deadline ? deadline.toISOString() : null,
+      invitationExpired: computeInvitationExpired(deadline, hasConfirmation),
     });
   } catch (error) {
     console.error("Error fetching guest:", error);
