@@ -35,6 +35,8 @@ export interface GuestResponse {
     };
     confirmedAt: string;
   } | null;
+  rsvpDeadline: string | null;
+  invitationExpired: boolean;
 }
 
 // Request body para POST /api/confirmations
