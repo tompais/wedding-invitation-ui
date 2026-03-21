@@ -33,9 +33,13 @@ Added to `.env` (local) and Vercel project environment variables (production).
 ```
 invitationExpired =
   RSVP_DEADLINE is set
-  AND now() > RSVP_DEADLINE
+  AND now() > RSVP_DEADLINE          ← both parsed as UTC-offset-aware timestamps
   AND guest has no existing confirmation
 ```
+
+If `RSVP_DEADLINE` is not set, `invitationExpired` is always `false` — no expiration enforced. This is the intended behavior for local development and for any future guests added after the deadline window closes.
+
+The env var must be parsed as an offset-aware timestamp: `new Date(process.env.RSVP_DEADLINE)`. Since the value includes `-03:00`, JavaScript parses it correctly relative to UTC. Comparing against `new Date()` (UTC) is safe.
 
 Guests who already confirmed — regardless of whether they said yes or no — can edit their response freely after the deadline.
 
@@ -50,20 +54,24 @@ rsvpDeadline: string | null; // ISO timestamp from env var; null if not set
 invitationExpired: boolean; // computed server-side using the rule above
 ```
 
+`rsvpDeadline` is included so the `InvitationExpiredStep` component can display the date dynamically (e.g. "Tu invitación venció el 30 de marzo") without hardcoding it in the UI.
+
 The client must not compute expiration independently — the server is the source of truth.
 
 **`POST /api/confirmations`**
 
-Before upserting, check:
+The endpoint receives a list of guest confirmations (one person can confirm for the whole group). For **each guest** in the payload, before upserting:
 
-- Does the group deadline apply? (env var set and past)
-- Does the guest already have a confirmation?
+1. Is `RSVP_DEADLINE` set and in the past?
+2. Does **this specific guest** already have a confirmation row?
 
-If deadline is past **and** no prior confirmation exists → return `403 Forbidden` with body:
+If both conditions are true for a guest (deadline past, no prior confirmation) → abort the entire request and return `403 Forbidden`:
 
 ```json
 { "error": "El plazo para confirmar tu asistencia ha expirado." }
 ```
+
+The check is per-guest, not per-group. A guest who already confirmed unblocks only themselves, not other members of their group who haven't confirmed yet.
 
 This is a defense-in-depth check. The primary gate is the frontend, but the API must not trust client state.
 
@@ -99,11 +107,13 @@ else → setStep(RSVPStep.ATTENDANCE_DECISION)   // unchanged
 
 **New component: `InvitationExpiredStep`**
 
-Shown when `step === RSVPStep.INVITATION_EXPIRED`. Displays a friendly Spanish message. Example copy:
+Shown when `step === RSVPStep.INVITATION_EXPIRED`. Displays:
 
-> _"Tu invitación venció el 30 de marzo. Si querés consultarnos, escribinos por WhatsApp."_
+- A clear heading: _"Tu invitación venció"_
+- A body message with the deadline date formatted in Spanish, read from `currentGuest.rsvpDeadline` (e.g. _"El plazo para confirmar era hasta el 30 de marzo de 2026."_)
+- A WhatsApp CTA button linking to the couple's contact number so the guest can reach out if they need help
 
-Follows existing component patterns (Tailwind, no inline styles, mobile-first, accessible).
+Follows existing component patterns (Tailwind, no inline styles, mobile-first, accessible). The WhatsApp phone number should be sourced from a constant (not hardcoded inline).
 
 ### Data flow summary
 
@@ -157,7 +167,8 @@ The following prompt should be given to GitHub Copilot to implement this Action:
 >
 > 1. Checkout the repository (`actions/checkout@v4`)
 > 2. Install the Supabase CLI (use the official `supabase/setup-cli` action, pin to a recent stable version)
-> 3. Run `supabase db push --linked` to apply pending migrations to the linked Supabase project
+> 3. Link the project: `supabase link --project-ref $SUPABASE_PROJECT_REF`
+> 4. Run `supabase db push --linked` to apply pending migrations to the linked Supabase project
 >
 > **Secrets:** the job needs two repository secrets:
 >
