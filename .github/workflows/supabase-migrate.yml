@@ -1,0 +1,39 @@
+name: Apply Supabase Migrations
+
+# Se activa en cada push a master que incluya cambios en archivos de migración.
+# Aplica automáticamente las migraciones pendientes contra la DB de producción.
+# Las migraciones son revisadas en el PR antes de hacer merge, por lo que no se
+# requiere aprobación manual aquí. supabase db push es idempotente: omite las
+# migraciones ya aplicadas (rastreadas en la tabla supabase_migrations).
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'supabase/migrations/**'
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Install Supabase CLI
+        uses: supabase/setup-cli@v1
+
+      - name: Link Supabase project
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+        run: supabase link --project-ref $SUPABASE_PROJECT_REF
+
+      - name: Apply pending migrations
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: supabase db push --linked
