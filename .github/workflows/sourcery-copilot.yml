@@ -1,0 +1,78 @@
+name: Copilot — evalúa sugerencias de Sourcery
+
+on:
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  create-copilot-issue:
+    if: github.event.review.user.login == 'sourcery-ai[bot]' && github.event.pull_request.state == 'open'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: write
+
+    steps:
+      - name: Crear issue para Copilot con sugerencias de Sourcery
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          HEAD_BRANCH: ${{ github.event.pull_request.head.ref }}
+          REPO: ${{ github.repository }}
+        run: |
+          REVIEW_BODY=$(gh api repos/$REPO/pulls/$PR_NUMBER/reviews \
+            --jq '[.[] | select(.user.login == "sourcery-ai[bot]")] | last | .body // "(sin resumen)"')
+
+          COMMENTS=$(gh api repos/$REPO/pulls/$PR_NUMBER/comments \
+            --jq '[.[] | select(.user.login == "sourcery-ai[bot]")] |
+                  map("### `\(.path)` — línea \(.original_line // .line // "?")\n\n\(.body)\n") |
+                  join("\n---\n")')
+
+          [ -z "$COMMENTS" ] && COMMENTS="*(sin comentarios inline)*"
+
+          ISSUE_BODY="## Contexto
+
+Sourcery AI publicó un review en el PR #${PR_NUMBER} (rama \`${HEAD_BRANCH}\`): **${PR_TITLE}**
+
+Evaluá cada sugerencia contra los principios del proyecto definidos en \`.github/copilot-instructions.md\`:
+- **Aplicar**: mejora legibilidad, corrige tipos/null-safety, simplifica cumpliendo KISS/DRY
+- **Descartar**: añade abstracciones hipotéticas (YAGNI), rompe Clean Architecture, beneficio no justifica complejidad
+
+**Rama base para tu PR:** \`${HEAD_BRANCH}\`
+
+---
+
+## Resumen del review de Sourcery
+
+${REVIEW_BODY}
+
+---
+
+## Sugerencias inline
+
+${COMMENTS}
+
+---
+
+## Instrucciones
+
+1. Evaluá cada sugerencia y decidí qué aplicar y qué descartar.
+2. Creá un PR apuntando a la rama \`${HEAD_BRANCH}\` con los cambios aprobados.
+3. En la descripción del PR incluí:
+   - ✅ qué aplicaste y por qué
+   - ❌ qué descartaste y por qué"
+
+          ISSUE_URL=$(gh issue create \
+            --title "Sourcery suggestions — PR #${PR_NUMBER}: ${PR_TITLE}" \
+            --body "$ISSUE_BODY")
+
+          ISSUE_NUMBER=$(basename "$ISSUE_URL")
+
+          gh api repos/$REPO/issues/$ISSUE_NUMBER/assignees \
+            --method POST \
+            -f "assignees[]=copilot"
+
+          echo "✅ Issue #${ISSUE_NUMBER} creado y asignado a Copilot"
+          echo "🔗 ${ISSUE_URL}"
