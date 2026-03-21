@@ -4,9 +4,13 @@ on:
   pull_request_review:
     types: [submitted]
 
+env:
+  SOURCERY_BOT_LOGIN: sourcery-ai[bot]
+  COPILOT_ASSIGNEE: copilot
+
 jobs:
   create-copilot-issue:
-    if: github.event.review.user.login == 'sourcery-ai[bot]' && github.event.pull_request.state == 'open'
+    if: github.event.review.user.login == env.SOURCERY_BOT_LOGIN && github.event.pull_request.state == 'open'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -22,11 +26,24 @@ jobs:
           HEAD_BRANCH: ${{ github.event.pull_request.head.ref }}
           REPO: ${{ github.repository }}
         run: |
+          ISSUE_TITLE="Sourcery suggestions — PR #${PR_NUMBER}: ${PR_TITLE}"
+
+          EXISTING=$(gh issue list \
+            --state open \
+            --search "\"${ISSUE_TITLE}\" in:title" \
+            --json number \
+            --jq '.[0].number // empty')
+
+          if [ -n "$EXISTING" ]; then
+            echo "⏭️ Ya existe el issue #${EXISTING} para el PR #${PR_NUMBER}. Saltando creación."
+            exit 0
+          fi
+
           REVIEW_BODY=$(gh api repos/$REPO/pulls/$PR_NUMBER/reviews \
-            --jq '[.[] | select(.user.login == "sourcery-ai[bot]")] | last | .body // "(sin resumen)"')
+            --jq '[.[] | select(.user.login == "${{ env.SOURCERY_BOT_LOGIN }}")] | last | .body // "(sin resumen)"')
 
           COMMENTS=$(gh api repos/$REPO/pulls/$PR_NUMBER/comments \
-            --jq '[.[] | select(.user.login == "sourcery-ai[bot]")] |
+            --jq '[.[] | select(.user.login == "${{ env.SOURCERY_BOT_LOGIN }}")] |
                   map("### `\(.path)` — línea \(.original_line // .line // "?")\n\n\(.body)\n") |
                   join("\n---\n")')
 
@@ -65,14 +82,14 @@ ${COMMENTS}
    - ❌ qué descartaste y por qué"
 
           ISSUE_URL=$(gh issue create \
-            --title "Sourcery suggestions — PR #${PR_NUMBER}: ${PR_TITLE}" \
+            --title "$ISSUE_TITLE" \
             --body "$ISSUE_BODY")
 
           ISSUE_NUMBER=$(basename "$ISSUE_URL")
 
           gh api repos/$REPO/issues/$ISSUE_NUMBER/assignees \
             --method POST \
-            -f "assignees[]=copilot"
+            -f "assignees[]=${{ env.COPILOT_ASSIGNEE }}"
 
-          echo "✅ Issue #${ISSUE_NUMBER} creado y asignado a Copilot"
+          echo "✅ Issue #${ISSUE_NUMBER} creado y asignado a ${{ env.COPILOT_ASSIGNEE }}"
           echo "🔗 ${ISSUE_URL}"
