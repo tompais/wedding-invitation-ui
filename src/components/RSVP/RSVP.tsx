@@ -180,6 +180,16 @@ function RSVP() {
 
   const [isLookingUpCode, setIsLookingUpCode] = useState(false);
 
+  // Formatea la fecha límite en español (ej: "30 de marzo de 2026")
+  const formattedDeadline = currentGuest?.rsvpDeadline
+    ? new Intl.DateTimeFormat("es-AR", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+        timeZone: "America/Argentina/Buenos_Aires",
+      }).format(new Date(currentGuest.rsvpDeadline))
+    : null;
+
   const onCodeSubmit = async (data: { code: string }) => {
     setIsLookingUpCode(true);
     const result = await processGuestCode(data.code);
@@ -650,6 +660,52 @@ function RSVP() {
                     </span>
                   )}
                 </form>
+              </motion.div>
+            )}
+
+          {/* PASO: Invitación expirada */}
+          {step === RSVPStep.INVITATION_EXPIRED &&
+            currentGuest &&
+            !showSuccessOverlay && (
+              <motion.div
+                key="step-expired"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.4 }}
+                className={`${formContainerStyles} text-center`}
+                style={{
+                  backgroundColor: "rgba(250, 240, 230, 0.1)",
+                  borderColor: "rgba(250, 240, 230, 0.2)",
+                }}
+              >
+                <div
+                  className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full text-4xl"
+                  style={{ background: "rgba(250, 240, 230, 0.15)" }}
+                  aria-hidden="true"
+                >
+                  ⏰
+                </div>
+                <h3
+                  className={`${formHeadingStyles} mb-3`}
+                  style={{ color: "var(--hueso)" }}
+                >
+                  {RSVP_CONFIG.messages.expired.title}
+                </h3>
+                <p
+                  className="font-body mb-2 text-base leading-relaxed opacity-80"
+                  style={{ color: "var(--text-light)" }}
+                >
+                  {RSVP_CONFIG.messages.expired.subtitle}
+                </p>
+                {formattedDeadline && (
+                  <p
+                    className="font-body text-sm opacity-60"
+                    style={{ color: "var(--text-light)" }}
+                  >
+                    El plazo era hasta el {formattedDeadline}.
+                  </p>
+                )}
               </motion.div>
             )}
 
