@@ -22,6 +22,10 @@ interface RSVPMessages {
       subtitle: string;
     };
   };
+  expired: {
+    title: string;
+    subtitle: string;
+  };
 }
 
 interface RSVPConfig {
@@ -56,6 +60,10 @@ export const RSVP_CONFIG: RSVPConfig = {
         title: "Va a ser una pena no tenerte con nosotros 😢",
         subtitle: "¡Ojalá nos reencontremos pronto!",
       },
+    },
+    expired: {
+      title: "Tu invitación venció",
+      subtitle: "El plazo para confirmar asistencia ya cerró.",
     },
   },
 

@@ -1,3 +1,6 @@
+# Loki Mode state
+.loki
+
 # Dependencies
 node_modules
 

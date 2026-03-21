@@ -72,7 +72,12 @@ export const useRSVPFlow = (): UseRSVPFlowReturn => {
     }
 
     setCurrentGuest(data);
-    setStep(RSVPStep.ATTENDANCE_DECISION);
+    // INVITATION_EXPIRED es un dead-end — no se agrega a PREV_STEP intencionalmente
+    setStep(
+      data.invitationExpired
+        ? RSVPStep.INVITATION_EXPIRED
+        : RSVPStep.ATTENDANCE_DECISION
+    );
     return { success: true };
   };
 

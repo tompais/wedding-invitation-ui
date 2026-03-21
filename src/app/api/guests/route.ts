@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { guestCodeSchema } from "@/schemas/rsvp.schema";
+import { getRsvpDeadline, computeInvitationExpired } from "@/lib/rsvp-deadline";
 import type { Guest, Confirmation } from "@/types/database";
 
 // Marcar como dinámico para que Next.js no lo pre-renderice durante el build
@@ -141,6 +142,10 @@ export async function GET(request: NextRequest) {
       | ConfirmationWithJoin
       | undefined;
 
+    // confirmation fue fetcheado en la Fase 2 — se reutiliza sin query extra
+    const deadline = getRsvpDeadline();
+    const hasConfirmation = confirmation !== undefined;
+
     return NextResponse.json({
       id: guestData.id,
       firstName: guestData.first_name,
@@ -156,6 +161,8 @@ export async function GET(request: NextRequest) {
             confirmedAt: confirmation.confirmed_at,
           }
         : null,
+      rsvpDeadline: deadline ? deadline.toISOString() : null,
+      invitationExpired: computeInvitationExpired(deadline, hasConfirmation),
     });
   } catch (error) {
     console.error("Error fetching guest:", error);

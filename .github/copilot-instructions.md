@@ -24,11 +24,14 @@ This project is developed with two AI collaborators:
 **Existing GitHub Actions** (do not remove or restructure without explicit request):
 
 - `.github/workflows/claude.yml` — triggers Claude Code on `@claude` mentions in PR comments/issues
-- `.github/workflows/sourcery-claude.yml` — triggers Claude to evaluate Sourcery AI suggestions on PRs
+- `.github/workflows/sourcery-copilot.yml` — when Sourcery AI submits a review, creates a GitHub Issue
+  with all suggestions and assigns Copilot coding agent to evaluate them and create a chained PR targeting the feature branch
 
 When building or editing GitHub Actions, follow the patterns established in those files:
-use `anthropics/claude-code-action@v1` for Claude integration, `actions/checkout@v4` for checkout,
-and always use immutable SHA refs (`github.event.pull_request.head.sha`) to avoid branch-name injection.
+use `actions/checkout@v4` for checkout, and always use immutable SHA refs
+(`github.event.pull_request.head.sha`) to avoid branch-name injection. For Claude integration,
+use `anthropics/claude-code-action@v1` (see `claude.yml`). For Copilot-based automation,
+create issues via `gh issue create` and assign via the GitHub API (see `sourcery-copilot.yml`).
 
 ---
 
@@ -162,7 +165,7 @@ When creating or modifying workflows:
 
 **Existing secrets in use:**
 
-- `CLAUDE_CODE_OAUTH_TOKEN` — Claude Code Action authentication
+- `CLAUDE_CODE_OAUTH_TOKEN` — Claude Code Action authentication (used only by `claude.yml`)
 
 ---
 
