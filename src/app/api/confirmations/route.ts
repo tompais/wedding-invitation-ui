@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { groupConfirmationSchema } from "@/schemas/rsvp.schema";
+import { getRsvpDeadline, computeInvitationExpired } from "@/lib/rsvp-deadline";
 import type {
   Guest,
   Confirmation,
@@ -36,18 +37,33 @@ async function getGuestById(guestId: string): Promise<Guest | null> {
   return error || !data ? null : (data as Guest);
 }
 
+// ─── Discriminated union for upsertConfirmation result ────────────────────
+type UpsertOk = { kind: "ok"; data: Confirmation };
+type UpsertError = { kind: "error"; error: string };
+type UpsertExpired = { kind: "expired" };
+type UpsertResult = UpsertOk | UpsertError | UpsertExpired;
+
 // Función auxiliar: crea o actualiza una confirmación
 async function upsertConfirmation(
   conf: { guestId: string; civilAttending: boolean; partyAttending: boolean },
   confirmedById: string,
   groupId: string | null
-): Promise<Confirmation | { error: string }> {
+): Promise<UpsertResult> {
   // Verificar si ya existe confirmación
   const { data: existingConfirmation } = await supabase
     .from("confirmations")
     .select("*")
     .eq("guest_id", conf.guestId)
     .single();
+
+  // ─── Verificar si la invitación expiró ────────────────────────────────
+  // Reutiliza existingConfirmation ya fetcheado — sin query extra.
+  // Solo bloquea si el invitado NO tiene confirmación previa.
+  const deadline = getRsvpDeadline();
+  if (computeInvitationExpired(deadline, existingConfirmation !== null)) {
+    return { kind: "expired" };
+  }
+  // ─────────────────────────────────────────────────────────────────────
 
   if (existingConfirmation) {
     // Actualizar confirmación existente
@@ -65,9 +81,12 @@ async function upsertConfirmation(
       .select()
       .single();
     if (error) {
-      return { error: `Error updating confirmation: ${error.message}` };
+      return {
+        kind: "error",
+        error: `Error updating confirmation: ${error.message}`,
+      };
     }
-    return data as Confirmation;
+    return { kind: "ok", data: data as Confirmation };
   } else {
     // Crear nueva confirmación
     const insertPayload: ConfirmationInsert = {
@@ -83,9 +102,12 @@ async function upsertConfirmation(
       .select()
       .single();
     if (error) {
-      return { error: `Error creating confirmation: ${error.message}` };
+      return {
+        kind: "error",
+        error: `Error creating confirmation: ${error.message}`,
+      };
     }
-    return data as Confirmation;
+    return { kind: "ok", data: data as Confirmation };
   }
 }
 
@@ -127,10 +149,16 @@ export async function POST(request: NextRequest) {
         confirmedById,
         confirmerGuest.group_id
       );
-      if ("error" in result) {
+      if (result.kind === "expired") {
+        return NextResponse.json(
+          { error: "El plazo para confirmar tu asistencia ha expirado." },
+          { status: 403 }
+        );
+      }
+      if (result.kind === "error") {
         return NextResponse.json({ error: result.error }, { status: 500 });
       }
-      createdConfirmations.push(result);
+      createdConfirmations.push(result.data);
     }
     return NextResponse.json(
       {
