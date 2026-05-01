@@ -1,14 +1,14 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import { useRef, useState } from "react";
 import Image from "next/image";
+import { useRef, useState } from "react";
 import Lightbox from "yet-another-react-lightbox";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import "yet-another-react-lightbox/styles.css";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination, Autoplay, EffectCoverflow } from "swiper/modules";
 import type { Swiper as SwiperType } from "swiper";
+import { Autoplay, EffectCoverflow, Pagination } from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/effect-coverflow";
@@ -50,7 +50,7 @@ function Gallery() {
 
   return (
     <section
-      className="w-full px-8 py-12 text-center"
+      className="py-12 px-8 w-full text-center"
       style={{
         backgroundColor: "var(--hueso-dark)",
         color: "var(--text-dark)",
@@ -58,7 +58,7 @@ function Gallery() {
       ref={ref}
     >
       <motion.h2
-        className="font-display mb-10 text-4xl font-semibold tracking-[0.05em]"
+        className="mb-10 text-4xl font-semibold font-display tracking-[0.05em]"
         style={{ color: "var(--bourdeaux-dark)" }}
         initial={{ opacity: 0, y: 30 }}
         animate={isVisible ? { opacity: 1, y: 0 } : {}}
@@ -68,12 +68,13 @@ function Gallery() {
       </motion.h2>
 
       <motion.div
-        className="relative mx-auto max-w-350 px-4 pb-12"
+        className="relative px-4 pb-12 mx-auto max-w-350"
         initial={{ opacity: 0, y: 40 }}
         animate={isVisible ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.7, delay: 0.2 }}
       >
         <button
+          type="button"
           onClick={() => swiperRef.current?.slidePrev()}
           disabled={isAtBeginning}
           className={`border-bourdeaux-light/40 bg-hueso/90 text-bourdeaux focus-visible:ring-bourdeaux focus-visible:ring-offset-hueso absolute top-[42%] left-0 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border shadow-md backdrop-blur-sm transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
@@ -127,22 +128,23 @@ function Gallery() {
               spaceBetween: 30,
             },
           }}
-          className="gallery-swiper py-8 pb-16"
+          className="py-8 pb-16 gallery-swiper"
         >
           {IMAGES.map((image, index) => (
             <SwiperSlide
               key={image.alt}
-              className="flex items-center justify-center transition-transform duration-300"
+              className="flex justify-center items-center transition-transform duration-300"
             >
               <button
+                type="button"
                 onClick={() => openLightbox(index)}
-                className="block w-full cursor-pointer border-none bg-transparent p-0"
+                className="block p-0 w-full bg-transparent border-none cursor-pointer"
                 aria-label={`Ver ${image.alt}`}
               >
                 <Image
                   src={image.src}
                   alt={image.alt}
-                  className="h-75 w-full rounded-2xl border-[3px] object-cover transition-all duration-300 hover:-translate-y-1.25 hover:shadow-[0_15px_35px_rgba(114,47,55,0.35)]"
+                  className="object-cover w-full rounded-2xl transition-all duration-300 h-75 border-[3px] hover:-translate-y-1.25 hover:shadow-[0_15px_35px_rgba(114,47,55,0.35)]"
                   style={{
                     borderColor: "var(--bourdeaux-light)",
                     boxShadow: "0 10px 24px rgba(114, 47, 55, 0.2)",
@@ -155,6 +157,7 @@ function Gallery() {
         </Swiper>
 
         <button
+          type="button"
           onClick={() => swiperRef.current?.slideNext()}
           disabled={isAtEnd}
           className={`border-bourdeaux-light/40 bg-hueso/90 text-bourdeaux focus-visible:ring-bourdeaux focus-visible:ring-offset-hueso absolute top-[42%] right-0 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border shadow-md backdrop-blur-sm transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${

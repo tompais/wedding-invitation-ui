@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useState } from "react";
 
 function LoadingScreen() {
   const [isVisible, setIsVisible] = useState(true);
@@ -24,15 +23,15 @@ function LoadingScreen() {
     <AnimatePresence mode="wait">
       {isVisible && (
         <motion.div
-          className="bg-gradient-bourdeaux-reverse fixed inset-0 z-[9999] flex items-center justify-center"
+          className="flex fixed inset-0 justify-center items-center bg-gradient-bourdeaux-reverse z-[9999]"
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 1.2, ease: "easeInOut" }}
         >
-          <div className="text-hueso text-center">
+          <div className="text-center text-hueso">
             {/* Logo / Iniciales */}
             <motion.div
-              className="font-display mb-8 text-6xl font-bold tracking-[0.1em]"
+              className="mb-8 text-6xl font-bold font-display tracking-[0.1em]"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8 }}
@@ -41,11 +40,11 @@ function LoadingScreen() {
             </motion.div>
 
             {/* Spinner personalizado */}
-            <div className="border-hueso/20 border-t-hueso mx-auto my-8 h-[50px] w-[50px] animate-spin rounded-full border-[3px]" />
+            <div className="my-8 mx-auto rounded-full animate-spin border-hueso/20 border-t-hueso h-[50px] w-[50px] border-[3px]" />
 
             {/* Texto */}
             <motion.p
-              className="mt-6 text-base tracking-[0.05em] opacity-90"
+              className="mt-6 text-base opacity-90 tracking-[0.05em]"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.4 }}

@@ -8,7 +8,7 @@ function Intro() {
 
   return (
     <section
-      className="flex [min-height:calc(100svh-200px)] w-full items-center justify-center px-8 py-12 text-center"
+      className="flex justify-center items-center py-12 px-8 w-full text-center [min-height:calc(100svh-200px)]"
       style={{
         backgroundColor: "var(--hueso-dark)",
         color: "var(--text-dark)",
@@ -22,14 +22,14 @@ function Intro() {
         transition={{ duration: 0.7 }}
       >
         <h2
-          className="font-display mb-6 text-4xl font-semibold tracking-[0.02em]"
+          className="mb-6 text-4xl font-semibold font-display tracking-[0.02em]"
           style={{ color: "var(--bourdeaux-dark)" }}
         >
           Nos casamos
         </h2>
 
         <p
-          className="font-body text-lg leading-relaxed"
+          className="text-lg leading-relaxed font-body"
           style={{ color: "var(--text-muted)" }}
         >
           Elegimos hacer esto a nuestra manera. Un civil en la intimidad, una

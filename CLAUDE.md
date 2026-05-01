@@ -34,10 +34,11 @@ npm run build            # Production build
 npm run start            # Production server
 
 # Code Quality
-npm run lint             # Run ESLint
-npm run lint:fix         # Fix ESLint errors
-npm run format           # Format with Prettier
-npm run format:check     # Check formatting
+npm run lint             # Run Biome linter
+npm run lint:fix         # Fix Biome linter errors
+npm run format           # Format with Biome
+npm run format:check     # Check Biome formatting
+npm run check            # Run Biome lint + format together (fix everything)
 
 # Database
 npm run types            # Generate TypeScript types from Supabase schema
@@ -53,7 +54,7 @@ supabase db push             # Apply pending migrations to remote DB
 - **No new libraries** unless there's a clear benefit (performance, DX, or security)
 - **Didactic code** — this project is developed alongside someone learning; prefer clarity
 - **When in doubt**: make a reasonable decision, implement it, document the assumption. Only ask when truly blocked.
-- **Always run quality checks before declaring done** (`npm run lint && npm run format:check`)
+- **Always run quality checks before declaring done** (`npm run lint && npm run format:check` or `npm run check`)
 
 ### Session Workflow
 
@@ -331,7 +332,7 @@ Get credentials from Supabase project → Settings → API.
 - **No Auth System**: Auth disabled (`persistSession: false`) - app uses guest codes for access
 - **Validation Layer**: All input validation goes through Zod schemas - never skip validation
 - **Server Actions**: Prefix files with `"use server"` directive for server actions
-- **Git Pre-commit**: Husky + lint-staged runs on commit (ESLint + Prettier)
+- **Git Pre-commit**: Husky runs on commit — invokes Biome (lint + format) and rustywind (Tailwind class sorting) directly, no lint-staged
 
 ## Definition of Done
 

@@ -1,11 +1,11 @@
 "use server";
-import { supabase } from "@/lib/supabase";
 import { RSVP_CONFIG } from "@/constants/rsvp";
+import { supabase } from "@/lib/supabase";
 import { groupConfirmationSchema } from "@/schemas/rsvp.schema";
 import type { ActionState } from "@/types/ActionState";
 
 export async function confirmAttendanceAction(
-  prevState: ActionState,
+  _prevState: ActionState,
   formData: FormData
 ) {
   try {

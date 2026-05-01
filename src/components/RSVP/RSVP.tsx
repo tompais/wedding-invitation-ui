@@ -1,20 +1,20 @@
 "use client";
 
-import type { ActionState } from "@/types/ActionState";
-import { motion, AnimatePresence } from "framer-motion";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import { useRSVPFlow } from "@/hooks/useRSVPFlow";
-import type { MemberConfirmation } from "@/hooks/useRSVPFlow";
-import { RSVP_CONFIG } from "@/constants/rsvp";
-import { guestCodeSchema } from "@/schemas/rsvp.schema";
-import Loading from "../common/Loading/Loading";
-import { LoadingSize } from "@/types/LoadingSize";
-import { RSVPStep } from "@/types/RSVPStep";
+import { AnimatePresence, motion } from "framer-motion";
 import { useActionState, useState } from "react";
+import { useForm } from "react-hook-form";
 import { confirmAttendanceAction } from "@/app/actions/rsvpActions";
 import { SubmitButton } from "@/components/common/SubmitButton/SubmitButton";
+import { RSVP_CONFIG } from "@/constants/rsvp";
+import type { MemberConfirmation } from "@/hooks/useRSVPFlow";
+import { useRSVPFlow } from "@/hooks/useRSVPFlow";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { guestCodeSchema } from "@/schemas/rsvp.schema";
+import type { ActionState } from "@/types/ActionState";
+import { LoadingSize } from "@/types/LoadingSize";
+import { RSVPStep } from "@/types/RSVPStep";
+import Loading from "../common/Loading/Loading";
 
 /**
  * PRESENTATION LAYER: RSVP Component
@@ -87,7 +87,7 @@ function EventToggle({
       disabled={disabled}
       aria-pressed={value}
       aria-label={`${ariaLabel ?? "Asistencia"}: ${value ? "sí" : "no"}`}
-      className="flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-full transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[var(--hueso)] focus-visible:outline-none"
+      className="flex justify-center items-center rounded-full transition-all duration-200 focus-visible:ring-2 focus-visible:outline-none h-[44px] w-[44px] shrink-0 focus-visible:ring-[var(--hueso)]"
       style={{
         backgroundColor: value ? "var(--hueso)" : "transparent",
         border: value ? "none" : "1.5px solid rgba(250,240,230,0.35)",
@@ -127,7 +127,13 @@ function MemberCheckbox({
         className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full transition-all duration-200 ${checked ? "member-checkbox-indicator-checked" : "member-checkbox-indicator"}`}
       >
         {checked && (
-          <svg width="11" height="11" viewBox="0 0 16 16" fill="none">
+          <svg
+            width="11"
+            height="11"
+            viewBox="0 0 16 16"
+            fill="none"
+            aria-hidden="true"
+          >
             <path
               d="M3 8.5L6.5 12L13 5"
               stroke="var(--bourdeaux)"
@@ -284,7 +290,7 @@ function RSVP() {
 
   return (
     <section
-      className="w-full px-8 py-16 text-center md:px-5"
+      className="py-16 px-8 w-full text-center md:px-5"
       style={{
         backgroundColor: "var(--bourdeaux)",
         color: "var(--text-light)",
@@ -302,7 +308,7 @@ function RSVP() {
 
       <div className="mx-auto max-w-125">
         <motion.h2
-          className="font-display mb-4 text-4xl font-semibold tracking-[0.02em] md:mb-3 md:text-3xl"
+          className="mb-4 text-4xl font-semibold md:mb-3 md:text-3xl font-display tracking-[0.02em]"
           style={{ color: "var(--hueso)" }}
           initial={{ opacity: 0, y: 30 }}
           animate={isVisible ? { opacity: 1, y: 0 } : {}}
@@ -312,7 +318,7 @@ function RSVP() {
         </motion.h2>
 
         <motion.p
-          className="font-body mx-auto mb-8 max-w-150 text-base leading-relaxed opacity-90"
+          className="mx-auto mb-8 text-base leading-relaxed opacity-90 font-body max-w-150"
           style={{ color: "var(--text-light)" }}
           initial={{ opacity: 0, y: 20 }}
           animate={isVisible ? { opacity: 1, y: 0 } : {}}
@@ -380,7 +386,7 @@ function RSVP() {
                   }}
                 />
                 {formErrors.code && (
-                  <span className="mt-2 block text-center text-sm font-normal text-[#ff6b6b]">
+                  <span className="block mt-2 text-sm font-normal text-center text-[#ff6b6b]">
                     {formErrors.code.message}
                   </span>
                 )}
@@ -441,7 +447,7 @@ function RSVP() {
                   Confirmá tu identidad
                 </h3>
                 <div
-                  className="mb-6 rounded-xl border px-6 py-6 text-center md:mb-5 md:px-5"
+                  className="py-6 px-6 mb-6 text-center rounded-xl border md:px-5 md:mb-5"
                   style={{
                     background: "rgba(250, 240, 230, 0.08)",
                     borderColor: "rgba(250, 240, 230, 0.2)",
@@ -454,8 +460,9 @@ function RSVP() {
                     {currentGuest.firstName} {currentGuest.lastName}
                   </p>
                 </div>
-                <div className="mt-6 flex justify-center gap-3 md:gap-2.5">
+                <div className="flex gap-3 justify-center mt-6 md:gap-2.5">
                   <button
+                    type="button"
                     onClick={goBack}
                     className={`${buttonBaseStyles} flex-1`}
                     style={{
@@ -478,6 +485,7 @@ function RSVP() {
                     Atrás
                   </button>
                   <button
+                    type="button"
                     onClick={attend}
                     className={`${buttonBaseStyles} flex-1`}
                     style={{
@@ -530,16 +538,16 @@ function RSVP() {
                 </h3>
 
                 {/* Encabezados de eventos */}
-                <div className="mb-2 grid grid-cols-[1fr_44px_44px] items-center gap-3 px-4">
+                <div className="grid gap-3 items-center px-4 mb-2 grid-cols-[1fr_44px_44px]">
                   <div />
                   <div
-                    className="text-center text-xs tracking-widest uppercase opacity-60"
+                    className="text-xs tracking-widest text-center uppercase opacity-60"
                     style={{ color: "var(--text-light)" }}
                   >
                     Civil
                   </div>
                   <div
-                    className="text-center text-xs tracking-widest uppercase opacity-60"
+                    className="text-xs tracking-widest text-center uppercase opacity-60"
                     style={{ color: "var(--text-light)" }}
                   >
                     Fiesta
@@ -547,7 +555,7 @@ function RSVP() {
                 </div>
 
                 {/* Filas de miembros */}
-                <div className="mb-6 flex flex-col gap-2">
+                <div className="flex flex-col gap-2 mb-6">
                   {allMembers.map((member) => {
                     const conf = memberConfirmations[member.id];
                     const isCurrentGuest = member.id === currentGuest.id;
@@ -556,7 +564,7 @@ function RSVP() {
                     return (
                       <div
                         key={member.id}
-                        className="grid grid-cols-[1fr_44px_44px] items-center gap-3 rounded-xl border px-4 py-3 transition-all duration-200"
+                        className="grid gap-3 items-center py-3 px-4 rounded-xl border transition-all duration-200 grid-cols-[1fr_44px_44px]"
                         style={{
                           backgroundColor: "rgba(250, 240, 230, 0.08)",
                           borderColor:
@@ -567,7 +575,7 @@ function RSVP() {
                       >
                         {/* Nombre + checkbox opcional */}
                         {isCurrentGuest ? (
-                          <span className="text-hueso min-w-0 truncate text-sm font-semibold">
+                          <span className="min-w-0 text-sm font-semibold text-hueso truncate">
                             {member.firstName} {member.lastName}
                             <span className="ml-1.5 text-xs font-normal opacity-60">
                               (vos)
@@ -655,7 +663,7 @@ function RSVP() {
                     />
                   </div>
                   {submitState.error && (
-                    <span className="mt-2 block text-center text-sm font-normal text-[#ff6b6b]">
+                    <span className="block mt-2 text-sm font-normal text-center text-[#ff6b6b]">
                       {submitState.error}
                     </span>
                   )}
@@ -680,7 +688,7 @@ function RSVP() {
                 }}
               >
                 <div
-                  className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full text-4xl"
+                  className="flex justify-center items-center mx-auto mb-6 w-20 h-20 text-4xl rounded-full"
                   style={{ background: "rgba(250, 240, 230, 0.15)" }}
                   aria-hidden="true"
                 >
@@ -693,14 +701,14 @@ function RSVP() {
                   {RSVP_CONFIG.messages.expired.title}
                 </h3>
                 <p
-                  className="font-body mb-2 text-base leading-relaxed opacity-80"
+                  className="mb-2 text-base leading-relaxed opacity-80 font-body"
                   style={{ color: "var(--text-light)" }}
                 >
                   {RSVP_CONFIG.messages.expired.subtitle}
                 </p>
                 {formattedDeadline && (
                   <p
-                    className="font-body text-sm opacity-60"
+                    className="text-sm opacity-60 font-body"
                     style={{ color: "var(--text-light)" }}
                   >
                     El plazo era hasta el {formattedDeadline}.
@@ -724,7 +732,7 @@ function RSVP() {
               }}
             >
               <div
-                className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full text-5xl font-bold"
+                className="flex justify-center items-center mx-auto mb-6 w-20 h-20 text-5xl font-bold rounded-full"
                 style={{
                   background: "var(--hueso)",
                   color: "var(--bourdeaux)",
@@ -736,7 +744,7 @@ function RSVP() {
               {isNoAttendance ? (
                 <>
                   <h3
-                    className="font-display mb-3 text-center text-3xl"
+                    className="mb-3 text-3xl text-center font-display"
                     style={{ color: "var(--hueso)" }}
                   >
                     {RSVP_CONFIG.messages.success.noAttendance.title}
@@ -751,7 +759,7 @@ function RSVP() {
               ) : (
                 <>
                   <h3
-                    className="font-display mb-3 text-center text-3xl"
+                    className="mb-3 text-3xl text-center font-display"
                     style={{ color: "var(--hueso)" }}
                   >
                     {RSVP_CONFIG.messages.success.attendance.title}
@@ -765,6 +773,7 @@ function RSVP() {
                 </>
               )}
               <button
+                type="button"
                 onClick={handleReset}
                 className={`${buttonBaseStyles} w-full`}
                 style={{

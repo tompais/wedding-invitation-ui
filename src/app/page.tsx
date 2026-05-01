@@ -1,17 +1,17 @@
 "use client";
 
 import { useEffect } from "react";
-import Hero from "../components/Hero/Hero";
-import Intro from "../components/Intro/Intro";
-import EventInfo from "../components/EventInfo/EventInfo";
-import Gallery from "../components/Gallery/Gallery";
-import RSVP from "../components/RSVP/RSVP";
-import InfoCards from "../components/InfoCards/InfoCards";
-import Footer from "../components/Footer/Footer";
 import Album from "../components/Album/Album";
+import EventInfo from "../components/EventInfo/EventInfo";
+import Footer from "../components/Footer/Footer";
+import Gallery from "../components/Gallery/Gallery";
+import Hero from "../components/Hero/Hero";
+import InfoCards from "../components/InfoCards/InfoCards";
+import Intro from "../components/Intro/Intro";
 import LoadingScreen from "../components/LoadingScreen/LoadingScreen";
-import SeparatorFloral from "../components/SeparatorFloral/SeparatorFloral";
 import MusicPlayer from "../components/MusicPlayer/MusicPlayer";
+import RSVP from "../components/RSVP/RSVP";
+import SeparatorFloral from "../components/SeparatorFloral/SeparatorFloral";
 
 export default function Home() {
   useEffect(() => {

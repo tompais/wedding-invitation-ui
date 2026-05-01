@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { FiVolume2, FiVolumeX } from "react-icons/fi";
 import { useAudio } from "@/hooks/useAudio";
 
@@ -69,6 +69,7 @@ function MusicPlayer() {
 
       {/* Botón flotante de música */}
       <button
+        type="button"
         className="music-button"
         onClick={handleClick}
         title={isMuted ? "Activar música" : "Mutear música"}
@@ -77,15 +78,15 @@ function MusicPlayer() {
         {/* Tooltip que se muestra solo al inicio y si está muteado */}
         {showTooltip && isMuted && (
           <span className="tooltip animate-[slideUp_0.4s_cubic-bezier(0.34,1.56,0.64,1)]">
-            <span className="border-t-bourdeaux-dark absolute top-full right-5 inline-block h-0 w-0 border-t-8 border-r-0 border-l-8 border-r-transparent border-l-transparent align-middle" />{" "}
+            <span className="inline-block absolute right-5 top-full w-0 h-0 align-middle border-r-0 border-t-8 border-l-8 border-t-bourdeaux-dark border-r-transparent border-l-transparent" />{" "}
             🎵 Activa la música
           </span>
         )}
 
         {isMuted ? (
-          <FiVolumeX size={24} className="sm:h-4.5 sm:w-4.5 md:h-5 md:w-5" />
+          <FiVolumeX size={24} className="md:w-5 md:h-5 sm:h-4.5 sm:w-4.5" />
         ) : (
-          <FiVolume2 size={24} className="sm:h-4.5 sm:w-4.5 md:h-5 md:w-5" />
+          <FiVolume2 size={24} className="md:w-5 md:h-5 sm:h-4.5 sm:w-4.5" />
         )}
       </button>
     </>

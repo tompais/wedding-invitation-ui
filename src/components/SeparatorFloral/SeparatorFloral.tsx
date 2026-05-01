@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 export default function SeparatorFloral() {
   return (
     <motion.div
-      className="my-4 flex w-full items-center justify-center py-8 md:my-2 md:py-6"
+      className="flex justify-center items-center py-8 my-4 w-full md:py-6 md:my-2"
       initial={{ opacity: 0, scale: 0.8 }}
       whileInView={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.6 }}
@@ -14,8 +14,9 @@ export default function SeparatorFloral() {
       <svg
         viewBox="0 0 200 80"
         xmlns="http://www.w3.org/2000/svg"
-        className="h-auto w-full max-w-[400px] md:max-w-[250px]"
+        className="w-full h-auto max-w-[400px] md:max-w-[250px]"
         style={{ filter: "drop-shadow(0 2px 4px rgba(90, 31, 40, 0.1))" }}
+        aria-hidden="true"
       >
         {/* Centro decorativo */}
         <circle cx="100" cy="40" r="8" fill="var(--bourdeaux)" />
