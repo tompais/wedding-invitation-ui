@@ -45,7 +45,7 @@ export default function Modal({
 
   return (
     <motion.div
-      className="fixed inset-0 z-1000 flex items-center justify-center p-8 md:p-4"
+      className="flex fixed inset-0 justify-center items-center p-8 md:p-4 z-1000"
       style={{ backgroundColor: "rgba(90, 31, 40, 0.85)" }}
       onClick={handleOverlayClick}
       initial={{ opacity: 0 }}
@@ -57,7 +57,7 @@ export default function Modal({
       aria-labelledby={title ? "modal-title" : undefined}
     >
       <motion.div
-        className="relative max-h-[90vh] w-full max-w-150 overflow-y-auto rounded-2xl p-8 md:max-h-[85vh] md:p-6"
+        className="overflow-y-auto relative p-8 w-full rounded-2xl md:p-6 max-h-[90vh] max-w-150 md:max-h-[85vh]"
         style={{
           backgroundColor: "var(--hueso)",
           boxShadow: "0 15px 40px rgba(90, 31, 40, 0.35)",
@@ -71,7 +71,7 @@ export default function Modal({
         {/* Botón de cerrar */}
         <button
           type="button"
-          className="hover:bg-hueso-dark absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-full border-none p-2 text-3xl transition-all duration-200"
+          className="flex absolute top-4 right-4 justify-center items-center p-2 w-10 h-10 text-3xl rounded-full border-none transition-all duration-200 hover:bg-hueso-dark"
           style={{
             background: "none",
             color: "var(--bourdeaux)",
@@ -94,7 +94,7 @@ export default function Modal({
         {title && (
           <h3
             id="modal-title"
-            className="font-display mt-0 mb-6 text-2xl md:mb-4 md:text-xl"
+            className="mt-0 mb-6 text-2xl md:mb-4 md:text-xl font-display"
             style={{ color: "var(--bourdeaux-dark)" }}
           >
             {title}

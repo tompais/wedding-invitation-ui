@@ -6,16 +6,16 @@ import Divider from "../Divider/Divider";
 export default function Hero() {
   return (
     <section
-      className="flex min-h-screen w-full items-center justify-center text-center"
+      className="flex justify-center items-center w-full min-h-screen text-center"
       style={{
         background:
           "linear-gradient(180deg, var(--bourdeaux-dark), var(--bourdeaux))",
         color: "var(--text-light)",
       }}
     >
-      <div className="mx-auto max-w-[900px] px-8">
+      <div className="px-8 mx-auto max-w-[900px]">
         <motion.p
-          className="mb-6 text-lg tracking-[0.08em] uppercase opacity-80"
+          className="mb-6 text-lg uppercase opacity-80 tracking-[0.08em]"
           style={{ color: "var(--text-light)", fontFamily: "var(--font-body)" }}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -25,7 +25,7 @@ export default function Hero() {
         </motion.p>
 
         <motion.h1
-          className="mb-4 text-6xl font-semibold tracking-[0.05em] sm:text-4xl md:text-5xl"
+          className="mb-4 text-6xl font-semibold sm:text-4xl md:text-5xl tracking-[0.05em]"
           style={{ color: "var(--hueso)", fontFamily: "var(--font-display)" }}
           initial={{ opacity: 0, y: 30, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}

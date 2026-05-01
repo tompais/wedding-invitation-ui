@@ -66,7 +66,7 @@ function EventInfo() {
   return (
     <>
       <section
-        className="w-full px-8 py-4 text-center"
+        className="py-4 px-8 w-full text-center"
         style={{ backgroundColor: "var(--hueso)", color: "var(--text-dark)" }}
         ref={ref}
       >
@@ -81,12 +81,12 @@ function EventInfo() {
             Las fechas
           </h2>
 
-          <div className="mb-4 flex flex-wrap justify-center gap-8">
+          <div className="flex flex-wrap gap-8 justify-center mb-4">
             {/* Bloque del Evento Civil */}
             <div className="event-card">
               <div>
                 <h3>{civilEvent.title}</h3>
-                <div className="mx-auto my-6 max-h-[110px] max-w-[110px] opacity-80">
+                <div className="my-6 mx-auto opacity-80 max-h-[110px] max-w-[110px]">
                   <Lottie
                     animationData={rings}
                     loop
@@ -98,7 +98,7 @@ function EventInfo() {
                 <p>{LOCATIONS.civil.name}</p>
               </div>
 
-              <div className="mt-6 flex flex-wrap justify-center gap-4">
+              <div className="flex flex-wrap gap-4 justify-center mt-6">
                 <button
                   type="button"
                   className="btn-secondary"
@@ -113,7 +113,7 @@ function EventInfo() {
             <div className="event-card">
               <div>
                 <h3>{fiestaEvent.title}</h3>
-                <div className="mx-auto my-6 max-h-[110px] max-w-[110px] opacity-80">
+                <div className="my-6 mx-auto opacity-80 max-h-[110px] max-w-[110px]">
                   <Lottie
                     animationData={party}
                     loop
@@ -140,7 +140,7 @@ function EventInfo() {
                 )}
               </div>
 
-              <div className="mt-6 flex flex-wrap justify-center gap-4">
+              <div className="flex flex-wrap gap-4 justify-center mt-6">
                 <button
                   type="button"
                   className="btn-secondary"

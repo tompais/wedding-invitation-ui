@@ -1,6 +1,6 @@
 export default function Divider() {
   return (
-    <div className="my-6 flex items-center justify-center opacity-60">
+    <div className="flex justify-center items-center my-6 opacity-60">
       <svg
         width="100"
         height="20"

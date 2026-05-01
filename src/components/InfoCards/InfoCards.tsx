@@ -15,7 +15,7 @@ function InfoCards() {
 
   return (
     <section
-      className="flex w-full flex-wrap justify-center gap-8 px-8 py-20 md:gap-4"
+      className="flex flex-wrap gap-8 justify-center py-20 px-8 w-full md:gap-4"
       style={{ backgroundColor: "var(--bourdeaux-dark)" }}
       ref={ref}
     >
