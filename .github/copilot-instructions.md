@@ -142,8 +142,8 @@ Each PR targets the **previous branch**, not `master`. Review each independently
 ### PR checklist to verify
 
 - [ ] `npm run build` passes (check CI if configured)
-- [ ] `npm run lint` passes (ESLint)
-- [ ] `npm run format:check` passes (Prettier)
+- [ ] `npm run lint` passes (Biome)
+- [ ] `npm run format:check` passes (Biome formatter)
 - [ ] Mobile responsive (primary audience on mobile)
 - [ ] All UI copy in Spanish (AR)
 - [ ] No `any` types introduced
