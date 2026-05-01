@@ -62,7 +62,7 @@ vercel env add RSVP_DEADLINE production
 # 2026-05-30T23:59:59-03:00
 ```
 
-- [ ] **Step 2: Triggear redeploy**
+- [ ] **Step 2: Trigger redeploy**
 
 ```bash
 vercel --prod
