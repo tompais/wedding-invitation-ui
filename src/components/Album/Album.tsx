@@ -2,9 +2,9 @@
 
 import "./Album.css";
 import { motion } from "framer-motion";
-import { useScrollAnimation } from "../../hooks/useScrollAnimation";
-import { MdFavorite } from "react-icons/md";
 import { FiCamera } from "react-icons/fi";
+import { MdFavorite } from "react-icons/md";
+import { useScrollAnimation } from "../../hooks/useScrollAnimation";
 
 function Album() {
   const [ref, isVisible] = useScrollAnimation(0.2);

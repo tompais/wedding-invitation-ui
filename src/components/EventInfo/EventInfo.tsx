@@ -1,13 +1,13 @@
 "use client";
 
 import Lottie from "lottie-react";
-import rings from "../../assets/animatios/rings.json";
-import party from "../../assets/animatios/party.json";
-import { useScrollAnimation } from "../../hooks/useScrollAnimation";
-import { useModal } from "../../hooks/useModal";
-import { MdNature } from "react-icons/md";
 import { useState } from "react";
-import { LOCATIONS, EVENTS } from "../../constants/events";
+import { MdNature } from "react-icons/md";
+import party from "../../assets/animatios/party.json";
+import rings from "../../assets/animatios/rings.json";
+import { EVENTS, LOCATIONS } from "../../constants/events";
+import { useModal } from "../../hooks/useModal";
+import { useScrollAnimation } from "../../hooks/useScrollAnimation";
 import Modal from "../common/Modal/Modal";
 
 /**
@@ -100,6 +100,7 @@ function EventInfo() {
 
               <div className="mt-6 flex flex-wrap justify-center gap-4">
                 <button
+                  type="button"
                   className="btn-secondary"
                   onClick={() => handleOpenMap("civil")}
                 >
@@ -141,6 +142,7 @@ function EventInfo() {
 
               <div className="mt-6 flex flex-wrap justify-center gap-4">
                 <button
+                  type="button"
                   className="btn-secondary"
                   onClick={() => handleOpenMap("fiesta")}
                 >

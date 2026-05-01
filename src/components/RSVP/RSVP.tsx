@@ -1,20 +1,20 @@
 "use client";
 
-import type { ActionState } from "@/types/ActionState";
-import { motion, AnimatePresence } from "framer-motion";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import { useRSVPFlow } from "@/hooks/useRSVPFlow";
-import type { MemberConfirmation } from "@/hooks/useRSVPFlow";
-import { RSVP_CONFIG } from "@/constants/rsvp";
-import { guestCodeSchema } from "@/schemas/rsvp.schema";
-import Loading from "../common/Loading/Loading";
-import { LoadingSize } from "@/types/LoadingSize";
-import { RSVPStep } from "@/types/RSVPStep";
+import { AnimatePresence, motion } from "framer-motion";
 import { useActionState, useState } from "react";
+import { useForm } from "react-hook-form";
 import { confirmAttendanceAction } from "@/app/actions/rsvpActions";
 import { SubmitButton } from "@/components/common/SubmitButton/SubmitButton";
+import { RSVP_CONFIG } from "@/constants/rsvp";
+import type { MemberConfirmation } from "@/hooks/useRSVPFlow";
+import { useRSVPFlow } from "@/hooks/useRSVPFlow";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { guestCodeSchema } from "@/schemas/rsvp.schema";
+import type { ActionState } from "@/types/ActionState";
+import { LoadingSize } from "@/types/LoadingSize";
+import { RSVPStep } from "@/types/RSVPStep";
+import Loading from "../common/Loading/Loading";
 
 /**
  * PRESENTATION LAYER: RSVP Component
@@ -127,7 +127,13 @@ function MemberCheckbox({
         className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full transition-all duration-200 ${checked ? "member-checkbox-indicator-checked" : "member-checkbox-indicator"}`}
       >
         {checked && (
-          <svg width="11" height="11" viewBox="0 0 16 16" fill="none">
+          <svg
+            width="11"
+            height="11"
+            viewBox="0 0 16 16"
+            fill="none"
+            aria-hidden="true"
+          >
             <path
               d="M3 8.5L6.5 12L13 5"
               stroke="var(--bourdeaux)"
@@ -456,6 +462,7 @@ function RSVP() {
                 </div>
                 <div className="mt-6 flex justify-center gap-3 md:gap-2.5">
                   <button
+                    type="button"
                     onClick={goBack}
                     className={`${buttonBaseStyles} flex-1`}
                     style={{
@@ -478,6 +485,7 @@ function RSVP() {
                     Atrás
                   </button>
                   <button
+                    type="button"
                     onClick={attend}
                     className={`${buttonBaseStyles} flex-1`}
                     style={{
@@ -765,6 +773,7 @@ function RSVP() {
                 </>
               )}
               <button
+                type="button"
                 onClick={handleReset}
                 className={`${buttonBaseStyles} w-full`}
                 style={{

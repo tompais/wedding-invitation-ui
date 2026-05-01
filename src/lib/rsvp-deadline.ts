@@ -14,7 +14,7 @@ export function getRsvpDeadline(): Date | null {
   const raw = process.env.RSVP_DEADLINE;
   if (!raw) return null;
   const date = new Date(raw);
-  return isNaN(date.getTime()) ? null : date;
+  return Number.isNaN(date.getTime()) ? null : date;
 }
 
 /**

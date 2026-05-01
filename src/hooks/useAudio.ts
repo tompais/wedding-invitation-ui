@@ -1,4 +1,4 @@
-import { useState, useRef, RefObject } from "react";
+import { type RefObject, useRef, useState } from "react";
 
 /**
  * HOOK PERSONALIZADO: useAudio
@@ -40,7 +40,7 @@ interface UseAudioReturn {
 }
 
 export function useAudio(
-  src: string,
+  _src: string,
   options: UseAudioOptions = {}
 ): UseAudioReturn {
   const { loop = true, autoPlay = false, initialMuted = true } = options;

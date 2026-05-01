@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ReactNode, MouseEvent } from "react";
+import type { MouseEvent, ReactNode } from "react";
 
 /**
  * COMPONENTE REUTILIZABLE: Modal
@@ -70,6 +70,7 @@ export default function Modal({
       >
         {/* Botón de cerrar */}
         <button
+          type="button"
           className="hover:bg-hueso-dark absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-full border-none p-2 text-3xl transition-all duration-200"
           style={{
             background: "none",

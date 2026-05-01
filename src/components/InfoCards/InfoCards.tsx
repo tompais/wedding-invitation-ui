@@ -1,8 +1,8 @@
 "use client";
 
 import DressCode from "../DressCode/DressCode";
-import Tips from "../Tips/Tips";
 import Gifts from "../Gifts/Gifts";
+import Tips from "../Tips/Tips";
 import "./InfoCards.css";
 import { motion } from "framer-motion";
 import { useScrollAnimation } from "../../hooks/useScrollAnimation";

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { FiVolume2, FiVolumeX } from "react-icons/fi";
 import { useAudio } from "@/hooks/useAudio";
 
@@ -69,6 +69,7 @@ function MusicPlayer() {
 
       {/* Botón flotante de música */}
       <button
+        type="button"
         className="music-button"
         onClick={handleClick}
         title={isMuted ? "Activar música" : "Mutear música"}

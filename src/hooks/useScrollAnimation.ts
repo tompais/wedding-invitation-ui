@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, RefObject } from "react";
+import { type RefObject, useEffect, useRef, useState } from "react";
 
 /**
  * Hook personalizado para detectar cuando un elemento entra al viewport

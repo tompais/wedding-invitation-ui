@@ -1,12 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { computeInvitationExpired, getRsvpDeadline } from "@/lib/rsvp-deadline";
 import { supabase } from "@/lib/supabase";
 import { groupConfirmationSchema } from "@/schemas/rsvp.schema";
-import { getRsvpDeadline, computeInvitationExpired } from "@/lib/rsvp-deadline";
 import type {
-  Guest,
   Confirmation,
   ConfirmationInsert,
   ConfirmationUpdate,
+  Guest,
 } from "@/types/database";
 
 // Marcar como dinámico para que Next.js no lo pre-renderice durante el build

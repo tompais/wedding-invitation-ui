@@ -6,10 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
-    "lint:fix": "eslint --fix",
-    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
-    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint --write .",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "check": "biome check --write .",
     "types": "supabase gen types typescript --project-id yckzrkriuqhlumuaydsb > src/types/supabase.ts",
     "prepare": "husky"
   },
@@ -29,32 +30,18 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.4.13",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",
     "dotenv": "^17.2.4",
-    "eslint": "^9",
-    "eslint-config-next": "16.1.6",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-prettier": "^5.5.5",
     "husky": "^9.1.7",
-    "lint-staged": "^16.2.7",
-    "prettier": "^3.8.1",
-    "prettier-plugin-tailwindcss": "^0.7.2",
+    "rustywind": "^0.24.3",
     "supabase": "^2.76.8",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
     "typescript": "5.9.3"
-  },
-  "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
-      "eslint --fix",
-      "prettier --write"
-    ],
-    "*.{json,css,md}": [
-      "prettier --write"
-    ]
   }
 }

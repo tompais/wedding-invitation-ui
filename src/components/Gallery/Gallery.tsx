@@ -1,14 +1,14 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import { useRef, useState } from "react";
 import Image from "next/image";
+import { useRef, useState } from "react";
 import Lightbox from "yet-another-react-lightbox";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import "yet-another-react-lightbox/styles.css";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination, Autoplay, EffectCoverflow } from "swiper/modules";
 import type { Swiper as SwiperType } from "swiper";
+import { Autoplay, EffectCoverflow, Pagination } from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/effect-coverflow";
@@ -74,6 +74,7 @@ function Gallery() {
         transition={{ duration: 0.7, delay: 0.2 }}
       >
         <button
+          type="button"
           onClick={() => swiperRef.current?.slidePrev()}
           disabled={isAtBeginning}
           className={`border-bourdeaux-light/40 bg-hueso/90 text-bourdeaux focus-visible:ring-bourdeaux focus-visible:ring-offset-hueso absolute top-[42%] left-0 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border shadow-md backdrop-blur-sm transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
@@ -135,6 +136,7 @@ function Gallery() {
               className="flex items-center justify-center transition-transform duration-300"
             >
               <button
+                type="button"
                 onClick={() => openLightbox(index)}
                 className="block w-full cursor-pointer border-none bg-transparent p-0"
                 aria-label={`Ver ${image.alt}`}
@@ -155,6 +157,7 @@ function Gallery() {
         </Swiper>
 
         <button
+          type="button"
           onClick={() => swiperRef.current?.slideNext()}
           disabled={isAtEnd}
           className={`border-bourdeaux-light/40 bg-hueso/90 text-bourdeaux focus-visible:ring-bourdeaux focus-visible:ring-offset-hueso absolute top-[42%] right-0 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border shadow-md backdrop-blur-sm transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${

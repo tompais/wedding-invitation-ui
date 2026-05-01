@@ -1,19 +1,17 @@
 "use client";
 
-import { useFormStatus } from "react-dom";
 import type {
-  CSSProperties,
   ComponentPropsWithoutRef,
+  CSSProperties,
   MouseEvent,
   ReactNode,
 } from "react";
+import { useFormStatus } from "react-dom";
 
 type SubmitButtonVariant = "filled" | "outline";
 
-interface SubmitButtonProps extends Omit<
-  ComponentPropsWithoutRef<"button">,
-  "type" | "children"
-> {
+interface SubmitButtonProps
+  extends Omit<ComponentPropsWithoutRef<"button">, "type" | "children"> {
   label: ReactNode;
   loadingLabel?: ReactNode;
   variant?: SubmitButtonVariant;

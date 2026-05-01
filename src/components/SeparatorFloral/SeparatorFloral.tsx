@@ -16,6 +16,7 @@ export default function SeparatorFloral() {
         xmlns="http://www.w3.org/2000/svg"
         className="h-auto w-full max-w-[400px] md:max-w-[250px]"
         style={{ filter: "drop-shadow(0 2px 4px rgba(90, 31, 40, 0.1))" }}
+        aria-hidden="true"
       >
         {/* Centro decorativo */}
         <circle cx="100" cy="40" r="8" fill="var(--bourdeaux)" />
